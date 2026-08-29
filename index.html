@@ -1,0 +1,1049 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ScholarAI — Manuscript Conversion Desk</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Newsreader:ital,wght@0,400;0,500;0,600;1,400;1,500&family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --paper:#E5E4D9;
+    --paper-raised:#EFEEE4;
+    --ink:#1D2320;
+    --ink-soft:#575F58;
+    --ink-faint:#8A8F84;
+    --accent-red:#A03A2C;
+    --accent-red-soft:#E7CFC7;
+    --accent-navy:#2B3A55;
+    --accent-navy-soft:#D8DEE8;
+    --line:#C7C4B4;
+    --flag:#F0D9A8;
+    --radius:3px;
+    --shadow:0 1px 0 rgba(29,35,32,0.06), 0 6px 16px -8px rgba(29,35,32,0.25);
+    font-size:16px;
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    background:var(--paper);
+    color:var(--ink);
+    font-family:'Inter',sans-serif;
+    line-height:1.5;
+    min-height:100vh;
+  }
+  ::selection{background:var(--accent-red-soft);}
+  a{color:var(--accent-navy);}
+  :focus-visible{outline:2px solid var(--accent-navy); outline-offset:2px;}
+
+  .desk{ max-width:1180px; margin:0 auto; padding:28px 24px 80px; }
+
+  header.masthead{
+    display:flex; align-items:flex-end; justify-content:space-between;
+    border-bottom:2px solid var(--ink); padding-bottom:14px; margin-bottom:8px;
+    flex-wrap:wrap; gap:10px;
+  }
+  .wordmark{ font-family:'Newsreader',serif; font-weight:600; font-size:2.1rem; letter-spacing:-0.01em; }
+  .wordmark em{font-style:italic; font-weight:500; color:var(--accent-red);}
+  .masthead-meta{ font-family:'IBM Plex Mono',monospace; font-size:0.72rem; color:var(--ink-soft); text-align:right; line-height:1.6; }
+  .tagline{ font-family:'Newsreader',serif; font-style:italic; color:var(--ink-soft); font-size:1.05rem; margin:10px 0 26px; }
+
+  .rail{ display:flex; gap:6px; margin-bottom:26px; flex-wrap:wrap; }
+  .rail-step{
+    font-family:'IBM Plex Mono',monospace; font-size:0.72rem; padding:6px 12px;
+    border:1px solid var(--line); border-radius:20px; color:var(--ink-faint);
+    background:var(--paper-raised); transition:all .25s ease;
+  }
+  .rail-step.active{border-color:var(--accent-navy); color:var(--accent-navy); background:var(--accent-navy-soft);}
+  .rail-step.done{border-color:var(--ink-soft); color:var(--ink); background:transparent;}
+  .rail-step.done::before{content:"✓ ";}
+
+  .sheet{
+    background:var(--paper-raised); border:1px solid var(--line); border-radius:var(--radius);
+    box-shadow:var(--shadow); padding:24px 26px; margin-bottom:22px;
+    transform:rotate(-0.25deg); transition:transform .4s ease, opacity .4s ease;
+  }
+  .sheet:nth-of-type(even){transform:rotate(0.2deg);}
+  .sheet.settled{transform:rotate(0deg);}
+  .sheet.hidden{display:none;}
+  .sheet h2{ font-family:'Newsreader',serif; font-weight:600; font-size:1.3rem; margin:0 0 4px; }
+  .sheet .sub{color:var(--ink-soft); font-size:0.88rem; margin:0 0 18px;}
+  @media (prefers-reduced-motion:reduce){ .sheet{transition:none; transform:none;} }
+
+  .dropzone{
+    border:1.5px dashed var(--ink-soft); border-radius:var(--radius); padding:34px 20px;
+    text-align:center; cursor:pointer; color:var(--ink-soft); background:rgba(255,255,255,0.25);
+    transition:border-color .2s, background .2s;
+  }
+  .dropzone:hover, .dropzone.drag{border-color:var(--accent-navy); background:var(--accent-navy-soft);}
+  .dropzone strong{color:var(--ink); font-family:'Newsreader',serif; font-size:1.05rem;}
+  .dropzone input{display:none;}
+  .or-paste{margin-top:14px; text-align:center;}
+  .or-paste button{background:none;border:none;color:var(--accent-navy);text-decoration:underline;cursor:pointer;font-family:'Inter';font-size:0.85rem;}
+  textarea#pasteArea{
+    width:100%; min-height:140px; margin-top:12px; padding:12px;
+    border:1px solid var(--line); border-radius:var(--radius);
+    font-family:'IBM Plex Mono',monospace; font-size:0.82rem;
+    background:#fff; color:var(--ink); display:none; resize:vertical;
+  }
+  .file-status{margin-top:12px; font-family:'IBM Plex Mono',monospace; font-size:0.78rem; color:var(--ink-soft);}
+  .file-status.err{color:var(--accent-red);}
+
+  .format-grid{display:flex; gap:10px; flex-wrap:wrap;}
+  .format-pill{
+    border:1px solid var(--line); border-radius:20px; padding:8px 18px;
+    cursor:pointer; font-size:0.88rem; background:#fff; color:var(--ink-soft);
+    transition:all .15s;
+  }
+  .format-pill.sel{background:var(--accent-navy); border-color:var(--accent-navy); color:#fff;}
+
+  .btn{
+    font-family:'Inter'; font-weight:600; font-size:0.85rem;
+    padding:10px 20px; border-radius:var(--radius); border:1px solid var(--ink);
+    background:var(--ink); color:var(--paper); cursor:pointer;
+  }
+  .btn:disabled{opacity:0.35; cursor:not-allowed;}
+  .btn.ghost{background:transparent; color:var(--ink); border-color:var(--ink-soft);}
+  .btn.small{padding:6px 12px; font-size:0.76rem;}
+  .btn-row{display:flex; gap:10px; margin-top:18px; flex-wrap:wrap; align-items:center;}
+
+  .proof-cols{display:grid; grid-template-columns:1fr 1fr; gap:22px;}
+  @media (max-width:880px){ .proof-cols{grid-template-columns:1fr;} }
+  .block{ border-left:2px solid var(--line); padding:8px 0 8px 12px; margin-bottom:10px; font-size:0.92rem; }
+  .block-head{display:flex; align-items:center; gap:8px; margin-bottom:4px; flex-wrap:wrap;}
+  .block-head select{
+    font-family:'IBM Plex Mono',monospace; font-size:0.68rem;
+    border:1px solid var(--line); border-radius:12px; padding:2px 8px;
+    background:#fff; color:var(--ink-soft);
+  }
+  .conf{font-family:'IBM Plex Mono',monospace; font-size:0.65rem; padding:2px 7px; border-radius:10px;}
+  .conf.high{background:var(--accent-navy-soft); color:var(--accent-navy);}
+  .conf.low{background:var(--flag); color:var(--accent-red);}
+  .conf.fail{background:var(--accent-red); color:#fff;}
+  .flagged{text-decoration:underline wavy var(--accent-red); text-decoration-thickness:1px; text-underline-offset:3px;}
+  .block-text{color:var(--ink-soft); font-size:0.86rem;}
+  .block-text[contenteditable]{
+    max-height:260px; overflow-y:auto; padding:5px 7px; border-radius:2px;
+    border:1px solid transparent;
+  }
+  .block-text[contenteditable]:hover{border-color:var(--line);}
+  .block-text[contenteditable]:focus{background:#fff; outline:1px dashed var(--accent-navy); border-color:transparent;}
+  .edit-hint{font-family:'IBM Plex Mono',monospace; font-size:0.62rem; color:var(--ink-faint); margin-bottom:10px;}
+
+  .formatted h4{ font-family:'Newsreader',serif; font-weight:600; margin:18px 0 6px; }
+  .formatted .fmt-ieee h4{text-transform:uppercase; text-align:left; letter-spacing:0.03em;}
+  .formatted p{font-size:0.9rem; color:var(--ink-soft); margin:0 0 10px;}
+  .author-block{font-family:'Newsreader',serif; margin-bottom:14px;}
+  .author-block .title{font-size:1.15rem; font-weight:600; margin-bottom:6px;}
+  .author-block .names{font-style:italic; color:var(--ink-soft); font-size:0.92rem;}
+  .ref-list{font-size:0.82rem; color:var(--ink-soft); padding-left:0; list-style:none;}
+  .ref-list li{margin-bottom:6px; font-family:'IBM Plex Mono',monospace; font-size:0.76rem;}
+
+  .notice{
+    background:var(--flag); border:1px solid var(--accent-red); color:#5b2317;
+    padding:10px 14px; border-radius:var(--radius); font-size:0.85rem; margin-bottom:16px;
+  }
+  .notice.info{background:var(--accent-navy-soft); border-color:var(--accent-navy); color:var(--accent-navy);}
+  .author-card{ border:1px solid var(--line); border-radius:var(--radius); padding:16px; margin-bottom:12px; background:#fff; position:relative; }
+  .author-card .label{ font-family:'IBM Plex Mono',monospace; font-size:0.68rem; text-transform:uppercase; letter-spacing:0.05em; color:var(--accent-navy); margin-bottom:10px; display:block; }
+  .field-grid{display:grid; grid-template-columns:1fr 2fr 1.4fr 1.6fr 1.6fr; gap:8px;}
+  @media (max-width:880px){ .field-grid{grid-template-columns:1fr 1fr;} }
+  .field-grid input, .field-grid select{
+    font-family:'Inter'; font-size:0.82rem; padding:7px 9px; border:1px solid var(--line);
+    border-radius:var(--radius); width:100%;
+  }
+  .remove-x{position:absolute; top:12px; right:12px; background:none; border:none; color:var(--accent-red); cursor:pointer; font-size:1rem;}
+
+  .ref-card{ border:1px solid var(--line); border-radius:var(--radius); padding:12px 14px; margin-bottom:10px; background:#fff; }
+  .ref-card .ref-top{display:flex; justify-content:space-between; align-items:center; gap:10px; margin-bottom:6px; flex-wrap:wrap;}
+  .ref-card .ref-text{ font-family:'IBM Plex Mono',monospace; font-size:0.78rem; padding:4px 6px; border-radius:2px; }
+  .ref-card .ref-text[contenteditable]:focus{background:var(--accent-navy-soft); outline:1px dashed var(--accent-navy);}
+  .ref-meta{font-family:'IBM Plex Mono',monospace; font-size:0.7rem; color:var(--ink-soft); margin-top:4px;}
+  .conf.checking{background:var(--line); color:var(--ink-soft);}
+
+  .readiness-row{display:flex; gap:8px; align-items:flex-start; margin-bottom:8px; font-size:0.85rem;}
+  .readiness-label{font-weight:600;}
+  .readiness-detail{color:var(--ink-soft);}
+
+  footer{
+    text-align:center; font-family:'IBM Plex Mono',monospace; font-size:0.72rem;
+    color:var(--ink-faint); margin-top:40px; padding-top:16px; border-top:1px solid var(--line);
+  }
+
+  @media print{
+    body *{visibility:hidden;}
+    #printArea, #printArea *{visibility:visible;}
+    #printArea{position:absolute; left:0; top:0; width:100%;}
+  }
+
+  .field-label{ font-family:'IBM Plex Mono',monospace; font-size:0.7rem; text-transform:uppercase; letter-spacing:0.05em; color:var(--ink-faint); display:block; margin:14px 0 6px; }
+  .plain-select{ font-family:'Inter'; font-size:0.88rem; padding:8px 10px; border:1px solid var(--line); border-radius:var(--radius); width:100%; max-width:420px; background:#fff; color:var(--ink); }
+  .subfield-group{ margin-top:14px; }
+  .subfield-name{ font-family:'Newsreader',serif; font-style:italic; color:var(--ink-soft); font-size:0.92rem; margin-bottom:6px; }
+  .topic-pills{ display:flex; flex-wrap:wrap; gap:8px; margin-bottom:10px; }
+  .topic-pill{
+    border:1px solid var(--line); border-radius:16px; padding:6px 14px; font-size:0.8rem;
+    cursor:pointer; background:#fff; color:var(--ink-soft); transition:all .15s;
+  }
+  .topic-pill.sel{background:var(--accent-red); border-color:var(--accent-red); color:#fff;}
+  .work-card{ border:1px solid var(--line); border-radius:var(--radius); padding:10px 12px; margin-bottom:8px; background:#fff; font-size:0.85rem; }
+  .work-card .work-title{ font-family:'Newsreader',serif; font-weight:600; }
+  .work-card .work-meta{ font-family:'IBM Plex Mono',monospace; font-size:0.72rem; color:var(--ink-soft); margin-top:3px; }
+  .work-card a{ text-decoration:none; }
+</style>
+</head>
+<body>
+<div class="desk">
+
+  <header class="masthead">
+    <div class="wordmark">Scholar<em>AI</em></div>
+    <div class="masthead-meta">SK Graphics<br>Manuscript Conversion Desk</div>
+  </header>
+  <p class="tagline">Drop in your paper, pick a journal, get back a formatted manuscript.</p>
+
+  <div class="rail" id="rail">
+    <div class="rail-step" data-step="1">1 · Upload</div>
+    <div class="rail-step" data-step="2">2 · Target format</div>
+    <div class="rail-step" data-step="3">3 · Structure check</div>
+    <div class="rail-step" data-step="4">4 · Author check</div>
+    <div class="rail-step" data-step="5">5 · Citations</div>
+    <div class="rail-step" data-step="6">6 · Formatted output</div>
+  </div>
+
+  <!-- STEP 1: UPLOAD / TOPIC -->
+  <section class="sheet" id="step1">
+    <h2>Start your manuscript</h2>
+    <p class="sub">Upload something you've already written, or explore a topic to start from a structured outline instead.</p>
+    <div class="format-grid" id="modeGrid" style="margin-bottom:18px;">
+      <div class="format-pill sel" data-mode="upload">Upload an existing paper</div>
+      <div class="format-pill" data-mode="topic">Start from a topic idea</div>
+    </div>
+
+    <div id="uploadPanel">
+      <div class="dropzone" id="dropzone">
+        <strong>Drop a file here, or click to browse</strong>
+        <div style="margin-top:6px; font-size:0.8rem;">.docx &nbsp;·&nbsp; .pdf &nbsp;·&nbsp; .txt</div>
+        <input type="file" id="fileInput" accept=".docx,.pdf,.txt">
+      </div>
+      <div class="or-paste"><button id="pasteToggle">…or paste text instead</button></div>
+      <textarea id="pasteArea" placeholder="Paste your manuscript text here, blank line between paragraphs works best."></textarea>
+    </div>
+
+    <div id="topicPanel" style="display:none;">
+      <span class="field-label">Field / stream</span>
+      <select id="fieldSelect" class="plain-select">
+        <option value="">Choose a field…</option>
+      </select>
+      <div class="file-status" id="topicStatus"></div>
+      <div id="topicBrowse"></div>
+      <div id="relatedWorks"></div>
+      <p class="edit-hint" style="margin-top:14px;">Topics and related papers come live from OpenAlex, a free open scholarly index — nothing here is written by the AI. Picking a topic builds you an empty, properly-structured outline to fill in yourself in the next steps.</p>
+    </div>
+
+    <div class="file-status" id="fileStatus"></div>
+    <div class="btn-row">
+      <button class="btn" id="useTextBtn" disabled>Use this text →</button>
+    </div>
+  </section>
+
+  <!-- STEP 2: FORMAT -->
+  <section class="sheet hidden" id="step2">
+    <h2>Target journal format</h2>
+    <p class="sub">Sets heading style, section order, citation numbering, and the abstract length check.</p>
+    <div class="format-grid" id="formatGrid">
+      <div class="format-pill" data-fmt="IEEE">IEEE</div>
+      <div class="format-pill" data-fmt="Springer">Springer</div>
+      <div class="format-pill" data-fmt="Elsevier">Elsevier</div>
+      <div class="format-pill" data-fmt="ACM">ACM</div>
+      <div class="format-pill" data-fmt="Nature">Nature</div>
+    </div>
+    <div class="btn-row">
+      <button class="btn" id="toStep3Btn" disabled>Parse structure →</button>
+    </div>
+  </section>
+
+  <!-- STEP 3: STRUCTURE CHECK -->
+  <section class="sheet hidden" id="step3">
+    <h2>Structure check</h2>
+    <p class="sub">Detected section boundaries. Red-underlined text is a low-confidence guess — reassign it with the dropdown, or click the text itself to edit it directly.</p>
+    <div class="edit-hint">Block text is editable — click into any paragraph to fix garbled extraction before formatting.</div>
+    <div id="blockList"></div>
+    <div class="btn-row">
+      <button class="btn" id="toStep4Btn">Continue →</button>
+    </div>
+  </section>
+
+  <!-- STEP 4: AUTHOR CHECK -->
+  <section class="sheet hidden" id="step4">
+    <h2>Author &amp; co-author check</h2>
+    <div id="authorNotice"></div>
+    <div id="authorForm"></div>
+    <div class="btn-row">
+      <button class="btn ghost small" id="addCoAuthorBtn">+ Add co-author</button>
+    </div>
+    <div class="btn-row">
+      <button class="btn" id="toStep5Btn">Check citations →</button>
+    </div>
+  </section>
+
+  <!-- STEP 5: CITATIONS -->
+  <section class="sheet hidden" id="step5">
+    <h2>Citation verification</h2>
+    <p class="sub">Matches your reference list against CrossRef's public database. Verified references get a real DOI; anything unmatched is flagged rather than guessed. Edit any entry's text before verifying if the auto-split got it wrong.</p>
+    <div id="citeNotice"></div>
+    <div id="refList"></div>
+    <div class="btn-row">
+      <button class="btn ghost" id="verifyBtn">Verify against CrossRef</button>
+      <span id="verifyProgress" class="file-status"></span>
+    </div>
+    <div class="btn-row">
+      <button class="btn" id="toStep6Btn">Build formatted manuscript →</button>
+      <button class="btn ghost small" id="skipCiteBtn">Skip →</button>
+    </div>
+  </section>
+
+  <!-- STEP 6: FORMATTED OUTPUT -->
+  <section class="sheet hidden" id="step6">
+    <h2>Formatted manuscript</h2>
+    <p class="sub">Reflowed into the selected template. Nothing here was written by the AI — it's your text, restructured.</p>
+    <div id="readinessPanel"></div>
+    <div id="printArea">
+      <div class="formatted" id="formattedOutput"></div>
+    </div>
+    <div class="btn-row">
+      <button class="btn" id="dlHtmlBtn">Download formatted .html</button>
+      <button class="btn ghost" id="dlDocxBtn">Download .docx</button>
+      <button class="btn ghost" id="dlTxtBtn">Download plain .txt</button>
+      <button class="btn ghost" id="printBtn">Print / Save as PDF</button>
+    </div>
+    <div class="file-status" id="docxStatus"></div>
+  </section>
+
+  <footer>© SK Graphics. All rights reserved. — client-side prototype: files and text never leave your browser except for the optional CrossRef lookup in Step 5.</footer>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mammoth/1.6.0/mammoth.browser.min.js" onerror="window.__mammothFailed=true"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.4.120/pdf.min.js" onerror="window.__pdfjsFailed=true"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js" onerror="window.__jszipFailed=true"></script>
+
+<script>
+(function(){
+"use strict";
+
+/* ============ STATE ============ */
+const state = {
+  rawText: "",
+  targetFormat: null,
+  blocks: [],
+  authorsDetected: false,
+  primaryAuthor: {salutation:'Dr.', name:'', designation:'', email:'', affiliation:''},
+  coAuthors: [],
+  references: [],
+  entryMode: 'upload',
+  selectedField: '',
+  selectedTopic: null
+};
+
+const FIELDS = [
+  "Agricultural and Biological Sciences","Arts and Humanities","Biochemistry, Genetics and Molecular Biology",
+  "Business, Management and Accounting","Chemical Engineering","Chemistry","Computer Science","Decision Sciences",
+  "Dentistry","Earth and Planetary Sciences","Economics, Econometrics and Finance","Energy","Engineering",
+  "Environmental Science","Health Professions","Immunology and Microbiology","Materials Science","Mathematics",
+  "Medicine","Neuroscience","Nursing","Pharmacology, Toxicology and Pharmaceutics","Physics and Astronomy",
+  "Psychology","Social Sciences","Veterinary"
+];
+
+const SECTION_GUIDANCE = {
+  abstract: 'Summarize the problem, your approach, and the key result in about 150-250 words.',
+  keywords: 'List 4-6 keywords, comma-separated.',
+  introduction: 'State the problem, why it matters, and what this paper contributes.',
+  literature_review: 'Summarize the closest prior work and how this differs — the related papers found for your topic are a good starting point.',
+  methodology: 'Describe your dataset, experimental setup, model or approach, and evaluation metrics.',
+  results: 'Present your findings, ideally with reference to tables or figures.',
+  discussion: 'Interpret the results — what do they mean, and what are the limitations?',
+  conclusion: 'Summarize the contribution and suggest directions for future work.',
+  acknowledgment: 'Optional — funding sources or people to thank.'
+};
+
+const SECTION_LABELS = {
+  frontmatter:'Title / Author block', abstract:'Abstract', keywords:'Keywords',
+  introduction:'Introduction', literature_review:'Literature Review', methodology:'Methodology',
+  results:'Results', discussion:'Discussion', conclusion:'Conclusion',
+  acknowledgment:'Acknowledgment', references:'References', other:'Other'
+};
+
+const TEMPLATES = {
+  IEEE:     {order:['abstract','keywords','introduction','literature_review','methodology','results','discussion','conclusion','acknowledgment','references'], headingClass:'fmt-ieee', numbered:true, citeStyle:'bracket'},
+  Springer: {order:['abstract','keywords','introduction','literature_review','methodology','results','discussion','conclusion','acknowledgment','references'], headingClass:'fmt-num', numbered:true, citeStyle:'bracket'},
+  Elsevier: {order:['abstract','keywords','introduction','literature_review','methodology','results','discussion','conclusion','acknowledgment','references'], headingClass:'fmt-num', numbered:true, citeStyle:'bracket'},
+  ACM:      {order:['abstract','keywords','introduction','literature_review','methodology','results','discussion','conclusion','acknowledgment','references'], headingClass:'fmt-num', numbered:true, citeStyle:'bracket'},
+  Nature:   {order:['abstract','introduction','results','discussion','methodology','acknowledgment','references'], headingClass:'fmt-plain', numbered:false, citeStyle:'superscript'}
+};
+
+const ABSTRACT_RANGE = { IEEE:[150,250], Springer:[150,300], Elsevier:[150,300], ACM:[150,250], Nature:[100,150] };
+
+const NUM_PREFIX = '(?:[IVXLC]+\\.|\\d+[\\.\\)])\\s*';
+const SECTION_PATTERNS = [
+  ['abstract', new RegExp(`^(?:${NUM_PREFIX})?abstract\\b`,'i')],
+  ['keywords', new RegExp(`^(?:${NUM_PREFIX})?(keywords|index terms)\\b`,'i')],
+  ['introduction', new RegExp(`^(?:${NUM_PREFIX})?introduction\\b`,'i')],
+  ['literature_review', new RegExp(`^(?:${NUM_PREFIX})?(literature review|related work|background)\\b`,'i')],
+  ['methodology', new RegExp(`^(?:${NUM_PREFIX})?(methodology|methods\\b|materials and methods|proposed (method|system|approach)|system design|system model)\\b`,'i')],
+  ['results', new RegExp(`^(?:${NUM_PREFIX})?(results( and discussion)?|experiments? (and|&) (results|evaluation)|evaluation|analysis)\\b`,'i')],
+  ['discussion', new RegExp(`^(?:${NUM_PREFIX})?discussion\\b`,'i')],
+  ['conclusion', new RegExp(`^(?:${NUM_PREFIX})?(conclusions?|future work)\\b`,'i')],
+  ['acknowledgment', new RegExp(`^(?:${NUM_PREFIX})?acknowledge?ments?\\b`,'i')],
+  ['references', new RegExp(`^(?:${NUM_PREFIX})?(references|bibliography)\\b`,'i')]
+];
+
+/* ============ HELPERS ============ */
+function $(sel){ return document.querySelector(sel); }
+function el(tag, attrs, ...kids){
+  const n = document.createElement(tag);
+  if(attrs) for(const k in attrs){ if(k==='class') n.className=attrs[k]; else if(k==='html') n.innerHTML=attrs[k]; else n.setAttribute(k,attrs[k]); }
+  kids.forEach(k=>{ if(typeof k==='string') n.appendChild(document.createTextNode(k)); else if(k) n.appendChild(k); });
+  return n;
+}
+function setStatus(msg, isErr){ const s = $('#fileStatus'); s.textContent = msg; s.className = 'file-status' + (isErr?' err':''); }
+function wordCount(text){ return (text.trim().match(/\S+/g)||[]).length; }
+function sleep(ms){ return new Promise(r=>setTimeout(r,ms)); }
+function xmlEscape(s){ return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&apos;'); }
+
+function railTo(stepNum){
+  document.querySelectorAll('.rail-step').forEach(r=>{
+    const n = +r.dataset.step;
+    r.classList.toggle('active', n===stepNum);
+    r.classList.toggle('done', n<stepNum);
+  });
+  for(let i=1;i<=6;i++){
+    const s = $('#step'+i);
+    if(!s) continue;
+    if(i<=stepNum){ s.classList.remove('hidden'); requestAnimationFrame(()=>s.classList.add('settled')); }
+  }
+}
+
+/* ============ STEP 1: INPUT HANDLING ============ */
+const dropzone = $('#dropzone'), fileInput = $('#fileInput'), pasteArea = $('#pasteArea');
+
+dropzone.addEventListener('click', ()=>fileInput.click());
+dropzone.addEventListener('dragover', e=>{ e.preventDefault(); dropzone.classList.add('drag'); });
+dropzone.addEventListener('dragleave', ()=>dropzone.classList.remove('drag'));
+dropzone.addEventListener('drop', e=>{
+  e.preventDefault(); dropzone.classList.remove('drag');
+  if(e.dataTransfer.files.length) handleFile(e.dataTransfer.files[0]);
+});
+fileInput.addEventListener('change', e=>{ if(e.target.files.length) handleFile(e.target.files[0]); });
+
+$('#pasteToggle').addEventListener('click', ()=>{
+  pasteArea.style.display = pasteArea.style.display==='block' ? 'none' : 'block';
+});
+pasteArea.addEventListener('input', ()=>{
+  state.rawText = pasteArea.value;
+  updateContinueButton();
+  if(state.rawText.trim().length>=20) setStatus('Using pasted text (' + state.rawText.length + ' characters).');
+});
+
+function updateContinueButton(){
+  const btn = $('#useTextBtn');
+  if(state.entryMode==='topic'){
+    btn.textContent = 'Continue with this topic →';
+    btn.disabled = !state.selectedTopic;
+  } else {
+    btn.textContent = 'Use this text →';
+    btn.disabled = state.rawText.trim().length < 20;
+  }
+}
+
+/* ---- mode toggle ---- */
+document.querySelectorAll('#modeGrid .format-pill').forEach(p=>{
+  p.addEventListener('click', ()=>{
+    document.querySelectorAll('#modeGrid .format-pill').forEach(x=>x.classList.remove('sel'));
+    p.classList.add('sel');
+    state.entryMode = p.dataset.mode;
+    $('#uploadPanel').style.display = state.entryMode==='upload' ? '' : 'none';
+    $('#topicPanel').style.display = state.entryMode==='topic' ? '' : 'none';
+    setStatus('');
+    updateContinueButton();
+  });
+});
+
+/* ---- topic suggestion (OpenAlex, free & keyless) ---- */
+const fieldSelect = $('#fieldSelect');
+FIELDS.forEach(f=>fieldSelect.appendChild(el('option',{value:f}, f)));
+
+fieldSelect.addEventListener('change', async ()=>{
+  state.selectedField = fieldSelect.value;
+  state.selectedTopic = null;
+  updateContinueButton();
+  $('#relatedWorks').innerHTML = '';
+  const browse = $('#topicBrowse');
+  const topicStatus = $('#topicStatus');
+  browse.innerHTML = '';
+  topicStatus.className = 'file-status';
+  if(!state.selectedField) return;
+  topicStatus.textContent = 'Loading topics for ' + state.selectedField + ' …';
+  try{
+    const url = 'https://api.openalex.org/topics?search=' + encodeURIComponent(state.selectedField) + '&per_page=100&select=id,display_name,subfield,works_count';
+    const res = await fetch(url);
+    if(!res.ok) throw new Error('bad response');
+    const data = await res.json();
+    const topics = data.results || [];
+    if(topics.length===0){ topicStatus.textContent = 'No topics found for that field.'; return; }
+    topicStatus.textContent = '';
+    renderTopicBrowse(topics);
+  } catch(err){
+    topicStatus.className = 'file-status err';
+    topicStatus.textContent = "Couldn't reach OpenAlex from this environment right now — try again once this is hosted normally, or switch to uploading a paper instead.";
+  }
+});
+
+function renderTopicBrowse(topics){
+  const browse = $('#topicBrowse');
+  browse.innerHTML = '';
+  const bySubfield = new Map();
+  topics.forEach(t=>{
+    const name = (t.subfield && t.subfield.display_name) || 'General';
+    if(!bySubfield.has(name)) bySubfield.set(name, []);
+    bySubfield.get(name).push(t);
+  });
+  bySubfield.forEach((list, subfieldName)=>{
+    const group = el('div',{class:'subfield-group'});
+    group.appendChild(el('div',{class:'subfield-name'}, subfieldName));
+    const pills = el('div',{class:'topic-pills'});
+    list.forEach(t=>{
+      const pill = el('div',{class:'topic-pill'}, t.display_name + (t.works_count ? ' (' + t.works_count.toLocaleString() + ' papers)' : ''));
+      pill.addEventListener('click', ()=>{
+        document.querySelectorAll('.topic-pill').forEach(x=>x.classList.remove('sel'));
+        pill.classList.add('sel');
+        state.selectedTopic = {id:t.id, title:t.display_name, field:state.selectedField, subfield:subfieldName};
+        updateContinueButton();
+        fetchRelatedWorks(t.id);
+      });
+      pills.appendChild(pill);
+    });
+    group.appendChild(pills);
+    browse.appendChild(group);
+  });
+}
+
+async function fetchRelatedWorks(topicId){
+  const box = $('#relatedWorks');
+  box.innerHTML = '';
+  box.appendChild(el('div',{class:'file-status'}, 'Loading related published research …'));
+  try{
+    const url = 'https://api.openalex.org/works?filter=topics.id:' + encodeURIComponent(topicId) + '&sort=cited_by_count:desc&per_page=5&select=id,display_name,publication_year,authorships,primary_location';
+    const res = await fetch(url);
+    if(!res.ok) throw new Error('bad response');
+    const data = await res.json();
+    const works = data.results || [];
+    box.innerHTML = '';
+    if(works.length===0){ box.appendChild(el('div',{class:'file-status'}, 'No indexed papers found for this topic yet.')); return; }
+    box.appendChild(el('div',{class:'field-label'}, 'Related published research (real, live from OpenAlex)'));
+    works.forEach(w=>{
+      const authors = (w.authorships||[]).map(a=>a.author && a.author.display_name).filter(Boolean);
+      const byline = authors.length ? (authors[0] + (authors.length>1 ? ' et al.' : '')) : 'Unknown authors';
+      const venue = (w.primary_location && w.primary_location.source && w.primary_location.source.display_name) || '';
+      const link = (w.primary_location && w.primary_location.landing_page_url) || w.id;
+      const card = el('div',{class:'work-card'});
+      const titleLink = el('a',{href:link, target:'_blank', rel:'noopener'});
+      titleLink.appendChild(el('div',{class:'work-title'}, w.display_name || 'Untitled'));
+      card.appendChild(titleLink);
+      card.appendChild(el('div',{class:'work-meta'}, byline + (w.publication_year ? ' · ' + w.publication_year : '') + (venue ? ' · ' + venue : '')));
+      box.appendChild(card);
+    });
+  } catch(err){
+    box.innerHTML = '';
+    box.appendChild(el('div',{class:'file-status err'}, "Couldn't reach OpenAlex for related papers right now — you can still continue with this topic."));
+  }
+}
+
+async function handleFile(file){
+  const name = file.name.toLowerCase();
+  setStatus('Reading ' + file.name + ' …');
+  try{
+    if(name.endsWith('.txt')){
+      state.rawText = await file.text();
+    } else if(name.endsWith('.docx')){
+      if(window.__mammothFailed || typeof mammoth==='undefined'){
+        setStatus("Couldn't load the .docx parser (network/CDN). Paste the text instead.", true);
+        return;
+      }
+      const buf = await file.arrayBuffer();
+      const result = await mammoth.extractRawText({arrayBuffer: buf});
+      state.rawText = result.value;
+    } else if(name.endsWith('.pdf')){
+      if(window.__pdfjsFailed || typeof pdfjsLib==='undefined'){
+        setStatus("Couldn't load the .pdf parser (network/CDN). Paste the text instead.", true);
+        return;
+      }
+      pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.4.120/pdf.worker.min.js';
+      const buf = await file.arrayBuffer();
+      const doc = await pdfjsLib.getDocument({data: buf}).promise;
+      let text = '';
+      for(let p=1;p<=doc.numPages;p++){
+        const page = await doc.getPage(p);
+        const content = await page.getTextContent();
+        text += content.items.map(i=>i.str).join(' ') + '\n\n';
+      }
+      state.rawText = text;
+    } else {
+      setStatus('Unsupported file type — try .docx, .pdf, or .txt.', true);
+      return;
+    }
+    setStatus('Loaded ' + file.name + ' (' + state.rawText.length + ' characters extracted).');
+    updateContinueButton();
+  } catch(err){
+    setStatus('Could not read that file (' + err.message + '). Try pasting the text instead.', true);
+  }
+}
+
+$('#useTextBtn').addEventListener('click', ()=>{ railTo(2); });
+
+/* ============ STEP 2: FORMAT SELECT ============ */
+document.querySelectorAll('#formatGrid .format-pill').forEach(p=>{
+  p.addEventListener('click', ()=>{
+    document.querySelectorAll('#formatGrid .format-pill').forEach(x=>x.classList.remove('sel'));
+    p.classList.add('sel');
+    state.targetFormat = p.dataset.fmt;
+    $('#toStep3Btn').disabled = false;
+  });
+});
+$('#toStep3Btn').addEventListener('click', ()=>{
+  if(state.entryMode==='topic'){ buildScaffold(); } else { parseStructure(); }
+  railTo(3);
+  renderBlocks();
+});
+
+/* ============ STEP 3: STRUCTURE PARSING ============ */
+function detectHeading(paragraph){
+  const trimmed = paragraph.trim();
+  if(trimmed.length > 70) return null;
+  if(/[.!?]\s+\S/.test(trimmed)) return null;
+  for(const [key, pattern] of SECTION_PATTERNS){ if(pattern.test(trimmed)) return key; }
+  return null;
+}
+function looksLikeAuthorBlock(text){
+  const emailFound = /[\w.+-]+@[\w-]+\.[\w.-]+/.test(text);
+  const instFound = /(university|institute|college|department|dept\.)/i.test(text);
+  const nameListFound = /([A-Z][a-z]+ [A-Z][a-z]+)(,| and| &)/.test(text);
+  return emailFound || instFound || nameListFound;
+}
+function parseStructure(){
+  const paras = state.rawText.split(/\n{1,}/).map(p=>p.trim()).filter(p=>p.length>0);
+  const blocks = [];
+  let current = null;
+  let idx = 0;
+  for(const para of paras){
+    const heading = detectHeading(para);
+    if(heading){ current = heading; blocks.push({id:idx++, text:para, section:heading, confidence:'high', isHeading:true}); continue; }
+    const section = current || 'frontmatter';
+    const confidence = current ? 'high' : (looksLikeAuthorBlock(para) ? 'medium' : 'low');
+    blocks.push({id:idx++, text:para, section, confidence, isHeading:false});
+  }
+  state.blocks = blocks;
+  const frontText = blocks.filter(b=>b.section==='frontmatter').map(b=>b.text).join(' ');
+  state.authorsDetected = looksLikeAuthorBlock(frontText);
+  if(state.authorsDetected){
+    const emailMatch = frontText.match(/[\w.+-]+@[\w-]+\.[\w.-]+/);
+    const nameMatch = frontText.match(/[A-Z][a-z]+(?: [A-Z][a-z]+)+/);
+    if(nameMatch) state.primaryAuthor.name = nameMatch[0];
+    if(emailMatch) state.primaryAuthor.email = emailMatch[0];
+  }
+}
+
+function buildScaffold(){
+  const tpl = TEMPLATES[state.targetFormat] || TEMPLATES.IEEE;
+  const blocks = [];
+  let idx = 0;
+  const title = state.selectedTopic ? state.selectedTopic.title : 'Untitled Manuscript';
+  blocks.push({id:idx++, text:title, section:'frontmatter', confidence:'low', isHeading:false});
+  tpl.order.forEach(key=>{
+    if(key==='references') return;
+    blocks.push({id:idx++, text:SECTION_LABELS[key], section:key, confidence:'high', isHeading:true});
+    blocks.push({id:idx++, text:'[' + (SECTION_GUIDANCE[key] || 'Write this section.') + ']', section:key, confidence:'low', isHeading:false});
+  });
+  state.blocks = blocks;
+  state.authorsDetected = false;
+}
+
+function renderBlocks(){
+  const list = $('#blockList');
+  list.innerHTML = '';
+  state.blocks.forEach(b=>{
+    const wrap = el('div',{class:'block'});
+    const head = el('div',{class:'block-head'});
+    const sel = el('select');
+    Object.keys(SECTION_LABELS).forEach(key=>{
+      const opt = el('option',{value:key}, SECTION_LABELS[key]);
+      if(key===b.section) opt.setAttribute('selected','selected');
+      sel.appendChild(opt);
+    });
+    sel.addEventListener('change', ()=>{ b.section = sel.value; b.confidence='high'; renderBlocks(); });
+    head.appendChild(sel);
+    head.appendChild(el('span',{class:'conf ' + (b.confidence==='low'?'low':'high')}, b.confidence==='low' ? 'needs review' : (b.isHeading?'heading':'ok')));
+    wrap.appendChild(head);
+    const textEl = el('div',{class:'block-text' + (b.confidence==='low' ? ' flagged' : ''), contenteditable:'true'}, b.text);
+    textEl.addEventListener('input', ()=>{ b.text = textEl.innerText; });
+    textEl.addEventListener('blur', ()=>{ b.text = textEl.innerText; });
+    wrap.appendChild(textEl);
+    list.appendChild(wrap);
+  });
+}
+
+/* ============ STEP 4: AUTHOR CHECK ============ */
+$('#toStep4Btn').addEventListener('click', ()=>{ renderAuthorStep(); railTo(4); });
+
+function renderAuthorStep(){
+  const notice = $('#authorNotice');
+  notice.innerHTML = '';
+  if(!state.authorsDetected){
+    notice.appendChild(el('div',{class:'notice'}, "No author block was detected in the file — add author details below before exporting."));
+  } else {
+    notice.appendChild(el('div',{class:'notice info'}, "Found a likely author block — review the pre-filled details below and correct anything that's off."));
+  }
+  renderAuthorForm();
+}
+function renderAuthorForm(){
+  const form = $('#authorForm');
+  form.innerHTML = '';
+  form.appendChild(authorCard('Primary author', state.primaryAuthor, null));
+  state.coAuthors.forEach((ca, i)=>{ form.appendChild(authorCard('Co-Author ' + (i+1), ca, i)); });
+}
+function authorCard(label, data, coIndex){
+  const card = el('div',{class:'author-card'});
+  card.appendChild(el('span',{class:'label'}, label));
+  if(coIndex !== null){
+    const rm = el('button',{class:'remove-x', type:'button'}, '×');
+    rm.addEventListener('click', ()=>{ state.coAuthors.splice(coIndex,1); renderAuthorForm(); });
+    card.appendChild(rm);
+  }
+  const grid = el('div',{class:'field-grid'});
+  const salSel = el('select');
+  ['Mr.','Ms.','Mrs.','Dr.','Er.','Prof.'].forEach(s=>{
+    const o = el('option',{value:s}, s); if(data.salutation===s) o.setAttribute('selected','selected'); salSel.appendChild(o);
+  });
+  salSel.addEventListener('change', ()=>data.salutation = salSel.value);
+  const nameInput = el('input',{placeholder:'Full name', value:data.name||''});
+  nameInput.addEventListener('input', ()=>data.name = nameInput.value);
+  const desigInput = el('input',{placeholder:'Designation', value:data.designation||''});
+  desigInput.addEventListener('input', ()=>data.designation = desigInput.value);
+  const emailInput = el('input',{placeholder:'Email', value:data.email||''});
+  emailInput.addEventListener('input', ()=>data.email = emailInput.value);
+  const affInput = el('input',{placeholder:'Affiliation', value:data.affiliation||''});
+  affInput.addEventListener('input', ()=>data.affiliation = affInput.value);
+  grid.append(salSel, nameInput, desigInput, emailInput, affInput);
+  card.appendChild(grid);
+  return card;
+}
+$('#addCoAuthorBtn').addEventListener('click', ()=>{
+  state.coAuthors.push({salutation:'Mr.', name:'', designation:'', email:'', affiliation:''});
+  renderAuthorForm();
+});
+
+/* ============ STEP 5: CITATIONS ============ */
+function parseRawReferences(){
+  const raw = state.blocks.filter(b=>b.section==='references' && !b.isHeading).map(b=>b.text).join('\n');
+  let items = raw.split(/\n?(?=\[\d+\])/).map(s=>s.trim()).filter(Boolean);
+  if(items.length<=1) items = raw.split(/\n?(?=\d+\.\s)/).map(s=>s.trim()).filter(Boolean);
+  if(items.length<=1) items = raw.split(/\n/).map(s=>s.trim()).filter(Boolean);
+  return items.map(s=>s.replace(/^\[\d+\]\s*|^\d+\.\s*/,''));
+}
+
+$('#toStep5Btn').addEventListener('click', ()=>{
+  state.references = parseRawReferences().map(raw=>({raw, doi:'', venue:'', matchedTitle:'', status:'pending'}));
+  renderReferencesPanel();
+  railTo(5);
+});
+
+function titleOverlapScore(refText, candidateTitle){
+  const norm = s => (s||'').toLowerCase().replace(/[^a-z0-9 ]/g,' ').split(/\s+/).filter(w=>w.length>3);
+  const a = new Set(norm(refText)), b = norm(candidateTitle);
+  if(b.length===0) return 0;
+  let hits = 0; b.forEach(w=>{ if(a.has(w)) hits++; });
+  return hits / b.length;
+}
+
+function statusLabel(s){
+  return {pending:'not checked', checking:'checking…', verified:'verified', uncertain:'uncertain match', not_found:'not found', blocked:'unreachable'}[s] || s;
+}
+function statusClass(s){
+  if(s==='verified') return 'high';
+  if(s==='checking') return 'checking';
+  if(s==='pending') return 'checking';
+  return 'low';
+}
+
+function renderReferencesPanel(){
+  const list = $('#refList');
+  list.innerHTML = '';
+  if(state.references.length===0){
+    list.appendChild(el('div',{class:'notice'}, 'No reference list detected — you can still continue, or go back to Structure Check and tag the reference section.'));
+    return;
+  }
+  state.references.forEach((r,i)=>{
+    const card = el('div',{class:'ref-card'});
+    const top = el('div',{class:'ref-top'});
+    top.appendChild(el('span',{}, '[' + (i+1) + ']'));
+    top.appendChild(el('span',{class:'conf ' + statusClass(r.status)}, statusLabel(r.status)));
+    card.appendChild(top);
+    const textEl = el('div',{class:'ref-text', contenteditable:'true'}, r.raw);
+    textEl.addEventListener('input', ()=>{ r.raw = textEl.innerText; r.status='pending'; });
+    card.appendChild(textEl);
+    if(r.doi){ card.appendChild(el('div',{class:'ref-meta'}, 'DOI: ' + r.doi + (r.venue ? ' — ' + r.venue : ''))); }
+    list.appendChild(card);
+  });
+}
+
+let crossrefBlocked = false;
+$('#verifyBtn').addEventListener('click', async ()=>{
+  const btn = $('#verifyBtn'); btn.disabled = true;
+  const progress = $('#verifyProgress');
+  for(let i=0;i<state.references.length;i++){
+    const r = state.references[i];
+    if(r.status==='verified' || r.status==='checking') continue;
+    r.status='checking'; renderReferencesPanel();
+    progress.textContent = 'Verifying ' + (i+1) + ' of ' + state.references.length + ' …';
+    try{
+      const q = encodeURIComponent(r.raw.slice(0,300));
+      const res = await fetch('https://api.crossref.org/works?query.bibliographic=' + q + '&rows=1');
+      if(!res.ok) throw new Error('bad response');
+      const data = await res.json();
+      const item = data.message && data.message.items && data.message.items[0];
+      if(item){
+        const candidateTitle = (item.title && item.title[0]) || '';
+        const overlap = titleOverlapScore(r.raw, candidateTitle);
+        r.doi = item.DOI || '';
+        r.venue = (item['container-title'] && item['container-title'][0]) || '';
+        r.matchedTitle = candidateTitle;
+        r.status = overlap > 0.35 ? 'verified' : 'uncertain';
+      } else {
+        r.status = 'not_found';
+      }
+    } catch(err){
+      r.status = 'blocked';
+      crossrefBlocked = true;
+    }
+    renderReferencesPanel();
+    await sleep(150);
+  }
+  progress.textContent = '';
+  btn.disabled = false;
+  const notice = $('#citeNotice');
+  notice.innerHTML = '';
+  if(crossrefBlocked){
+    notice.appendChild(el('div',{class:'notice'}, "CrossRef isn't reachable from this environment right now, so some references couldn't be checked — they're still renumbered and formatted, just not DOI-verified. This works normally when the tool is hosted."));
+  }
+});
+$('#skipCiteBtn').addEventListener('click', ()=>{ buildFormatted(); renderReadinessPanel(); railTo(6); });
+$('#toStep6Btn').addEventListener('click', ()=>{ buildFormatted(); renderReadinessPanel(); railTo(6); });
+
+/* ============ STEP 6: FORMATTED OUTPUT ============ */
+function titleGuess(){
+  const heading = state.blocks.find(b=>b.section==='frontmatter' && !b.isHeading);
+  return heading ? heading.text.split(/[.\n]/)[0].slice(0,140) : 'Untitled Manuscript';
+}
+
+function buildFormatted(){
+  const tpl = TEMPLATES[state.targetFormat] || TEMPLATES.IEEE;
+  const out = $('#formattedOutput');
+  out.innerHTML = '';
+  out.className = 'formatted ' + tpl.headingClass;
+
+  const authorBlock = el('div',{class:'author-block'});
+  authorBlock.appendChild(el('div',{class:'title'}, titleGuess()));
+  const names = [state.primaryAuthor, ...state.coAuthors].filter(a=>a.name).map(a=>(a.salutation||'') + ' ' + a.name).join(', ');
+  authorBlock.appendChild(el('div',{class:'names'}, names || 'Author details not yet provided'));
+  const affs = [state.primaryAuthor, ...state.coAuthors].filter(a=>a.affiliation).map(a=>a.affiliation).join(' · ');
+  if(affs) authorBlock.appendChild(el('div',{class:'names'}, affs));
+  out.appendChild(authorBlock);
+
+  let num = 1;
+  tpl.order.forEach(sectionKey=>{
+    if(sectionKey==='references') return;
+    const paras = state.blocks.filter(b=>b.section===sectionKey && !b.isHeading);
+    if(paras.length===0) return;
+    const heading = SECTION_LABELS[sectionKey];
+    const headingText = tpl.numbered ? (num++ + ' ' + heading) : heading;
+    out.appendChild(el('h4',{}, headingText));
+    paras.forEach(p=>out.appendChild(el('p',{}, p.text)));
+  });
+
+  const refs = state.references.length ? state.references : parseRawReferences().map(raw=>({raw,doi:'',status:'pending'}));
+  if(refs.length){
+    out.appendChild(el('h4',{}, tpl.numbered ? (num++ + ' References') : 'References'));
+    const ul = el('ul',{class:'ref-list'});
+    refs.forEach((r,i)=>{
+      const marker = tpl.citeStyle==='superscript' ? (i+1)+'. ' : '['+(i+1)+'] ';
+      const doiTxt = r.doi ? '  doi:' + r.doi : '';
+      ul.appendChild(el('li',{}, marker + r.raw + doiTxt));
+    });
+    out.appendChild(ul);
+  }
+}
+
+function computeReadiness(){
+  const tpl = TEMPLATES[state.targetFormat] || TEMPLATES.IEEE;
+  const checks = [];
+  const abstractBlocks = state.blocks.filter(b=>b.section==='abstract' && !b.isHeading);
+  const abstractWords = wordCount(abstractBlocks.map(b=>b.text).join(' '));
+  const range = ABSTRACT_RANGE[state.targetFormat] || [150,250];
+  if(abstractBlocks.length===0){
+    checks.push({label:'Abstract', status:'fail', detail:'No abstract detected — go back to Structure Check and tag one.'});
+  } else if(abstractWords < range[0] || abstractWords > range[1]){
+    checks.push({label:'Abstract length', status:'warn', detail: abstractWords + ' words — typical ' + state.targetFormat + ' range is ' + range[0] + '–' + range[1] + '.'});
+  } else {
+    checks.push({label:'Abstract length', status:'pass', detail: abstractWords + ' words — within typical range.'});
+  }
+  const requiredKeys = tpl.order.filter(k=>k!=='references' && k!=='keywords' && k!=='acknowledgment' && k!=='abstract');
+  requiredKeys.forEach(key=>{
+    const has = state.blocks.some(b=>b.section===key && !b.isHeading);
+    checks.push({label:SECTION_LABELS[key], status: has?'pass':'warn', detail: has ? 'Present.' : 'Not detected — check the structure step.'});
+  });
+  const capRe = /\b(fig(?:ure)?\.?\s*\d+|table\s*\d+)\b/gi;
+  const caps = new Set();
+  state.blocks.forEach(b=>{ let m; const re=new RegExp(capRe.source, 'gi'); while((m=re.exec(b.text))){ caps.add(m[0].toLowerCase().replace(/\s+/g,' ')); } });
+  checks.push({label:'Figures & tables referenced', status: caps.size>0?'pass':'warn', detail: caps.size + " caption mention(s) found. Image resolution isn't checked from text — verify separately."});
+  const refCount = state.references.length || parseRawReferences().length;
+  const verifiedCount = state.references.filter(r=>r.status==='verified').length;
+  checks.push({label:'References', status: refCount>0?'pass':'fail', detail: refCount + ' reference(s) found' + (state.references.length ? ', ' + verifiedCount + ' verified against CrossRef.' : ' — not yet checked in Step 5.')});
+  const authIssues = [];
+  [state.primaryAuthor, ...state.coAuthors].forEach((a,i)=>{
+    const who = i===0 ? 'Primary author' : ('Co-Author ' + i);
+    if(!a.email) authIssues.push(who + ' is missing an email.');
+    if(!a.affiliation) authIssues.push(who + ' is missing an affiliation.');
+  });
+  checks.push({label:'Author details', status: authIssues.length?'warn':'pass', detail: authIssues.length ? authIssues.join(' ') : 'Complete for all listed authors.'});
+  return checks;
+}
+
+function renderReadinessPanel(){
+  const panel = $('#readinessPanel');
+  panel.innerHTML = '';
+  panel.appendChild(el('h3',{style:'font-family:IBM Plex Mono,monospace;font-size:0.72rem;text-transform:uppercase;letter-spacing:0.06em;color:var(--ink-faint);margin:0 0 12px;'}, 'Submission readiness'));
+  computeReadiness().forEach(c=>{
+    const row = el('div',{class:'readiness-row'});
+    const icon = c.status==='pass' ? '✓' : (c.status==='warn' ? '!' : '✕');
+    row.appendChild(el('span',{class:'conf ' + (c.status==='pass'?'high':c.status==='warn'?'low':'fail')}, icon));
+    row.appendChild(el('span',{class:'readiness-label'}, c.label + ' — '));
+    row.appendChild(el('span',{class:'readiness-detail'}, c.detail));
+    panel.appendChild(row);
+  });
+}
+
+/* ============ EXPORTS ============ */
+function download(filename, content, mime){
+  const blob = new Blob([content], {type:mime});
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = filename;
+  a.click();
+  URL.revokeObjectURL(a.href);
+}
+function fileBase(){ return (titleGuess()||'manuscript').slice(0,40).replace(/[^a-z0-9]+/gi,'-'); }
+
+$('#dlHtmlBtn').addEventListener('click', ()=>{
+  const inner = $('#formattedOutput').innerHTML;
+  const doc = '<!DOCTYPE html><html><head><meta charset="utf-8"><title>' + titleGuess() + '</title>' +
+    '<style>body{font-family:Georgia,serif;max-width:760px;margin:40px auto;line-height:1.6;color:#1a1a1a;}h4{margin-top:28px;}ul{font-size:0.9em;}</style>' +
+    '</head><body>' + inner + '</body></html>';
+  download(fileBase() + '.html', doc, 'text/html');
+});
+$('#dlTxtBtn').addEventListener('click', ()=>{
+  const text = $('#formattedOutput').innerText;
+  download(fileBase() + '.txt', text, 'text/plain');
+});
+$('#printBtn').addEventListener('click', ()=>window.print());
+
+const CONTENT_TYPES_XML = '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>' +
+'<Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types">' +
+'<Default Extension="rels" ContentType="application/vnd.openxmlformats-package.relationships+xml"/>' +
+'<Default Extension="xml" ContentType="application/xml"/>' +
+'<Override PartName="/word/document.xml" ContentType="application/vnd.openxmlformats-officedocument.wordprocessingml.document.main+xml"/>' +
+'<Override PartName="/word/styles.xml" ContentType="application/vnd.openxmlformats-officedocument.wordprocessingml.styles+xml"/>' +
+'</Types>';
+const ROOT_RELS_XML = '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>' +
+'<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">' +
+'<Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/officeDocument" Target="word/document.xml"/>' +
+'</Relationships>';
+const DOC_RELS_XML = '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>' +
+'<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">' +
+'<Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/styles" Target="styles.xml"/>' +
+'</Relationships>';
+const STYLES_XML = '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>' +
+'<w:styles xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main">' +
+'<w:style w:type="paragraph" w:default="1" w:styleId="Normal"><w:name w:val="Normal"/><w:pPr><w:spacing w:after="200" w:line="276" w:lineRule="auto"/></w:pPr><w:rPr><w:sz w:val="22"/></w:rPr></w:style>' +
+'<w:style w:type="paragraph" w:styleId="Title"><w:name w:val="Title"/><w:basedOn w:val="Normal"/><w:pPr><w:spacing w:after="240"/></w:pPr><w:rPr><w:b/><w:sz w:val="32"/></w:rPr></w:style>' +
+'<w:style w:type="paragraph" w:styleId="Heading1"><w:name w:val="heading 1"/><w:basedOn w:val="Normal"/><w:pPr><w:spacing w:before="240" w:after="120"/></w:pPr><w:rPr><w:b/><w:sz w:val="26"/></w:rPr></w:style>' +
+'</w:styles>';
+
+function paraXml(style, text){
+  const styleTag = style ? ('<w:pPr><w:pStyle w:val="' + style + '"/></w:pPr>') : '';
+  return '<w:p>' + styleTag + '<w:r><w:t xml:space="preserve">' + xmlEscape(text) + '</w:t></w:r></w:p>';
+}
+
+function buildDocumentXmlBody(){
+  const tpl = TEMPLATES[state.targetFormat] || TEMPLATES.IEEE;
+  let body = '';
+  body += paraXml('Title', titleGuess());
+  const names = [state.primaryAuthor, ...state.coAuthors].filter(a=>a.name).map(a=>(a.salutation||'') + ' ' + a.name).join(', ');
+  body += paraXml(null, names || 'Author details not yet provided');
+  const affs = [state.primaryAuthor, ...state.coAuthors].filter(a=>a.affiliation).map(a=>a.affiliation).join(' | ');
+  if(affs) body += paraXml(null, affs);
+  let num = 1;
+  tpl.order.forEach(sectionKey=>{
+    if(sectionKey==='references') return;
+    const paras = state.blocks.filter(b=>b.section===sectionKey && !b.isHeading);
+    if(paras.length===0) return;
+    const heading = SECTION_LABELS[sectionKey];
+    body += paraXml('Heading1', tpl.numbered ? (num++ + ' ' + heading) : heading);
+    paras.forEach(p=> body += paraXml(null, p.text));
+  });
+  const refs = state.references.length ? state.references : parseRawReferences().map(raw=>({raw,doi:''}));
+  if(refs.length){
+    body += paraXml('Heading1', tpl.numbered ? (num++ + ' References') : 'References');
+    refs.forEach((r,i)=>{
+      const marker = tpl.citeStyle==='superscript' ? (i+1)+'. ' : '['+(i+1)+'] ';
+      body += paraXml(null, marker + r.raw + (r.doi ? ('  doi:' + r.doi) : ''));
+    });
+  }
+  return body;
+}
+
+async function buildDocxBlob(){
+  if(typeof JSZip === 'undefined'){ throw new Error('JSZip did not load'); }
+  const documentXml = '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>' +
+    '<w:document xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main"><w:body>' +
+    buildDocumentXmlBody() + '<w:sectPr/></w:body></w:document>';
+  const zip = new JSZip();
+  zip.file('[Content_Types].xml', CONTENT_TYPES_XML);
+  zip.file('_rels/.rels', ROOT_RELS_XML);
+  zip.file('word/document.xml', documentXml);
+  zip.file('word/styles.xml', STYLES_XML);
+  zip.file('word/_rels/document.xml.rels', DOC_RELS_XML);
+  return await zip.generateAsync({type:'blob'});
+}
+
+$('#dlDocxBtn').addEventListener('click', async ()=>{
+  const status = $('#docxStatus');
+  status.className = 'file-status';
+  status.textContent = 'Building .docx …';
+  try{
+    const blob = await buildDocxBlob();
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = fileBase() + '.docx';
+    a.click();
+    URL.revokeObjectURL(a.href);
+    status.textContent = '';
+  } catch(err){
+    status.className = 'file-status err';
+    status.textContent = "Couldn't generate .docx right now (" + err.message + ") — use the HTML export or Print/Save as PDF instead.";
+  }
+});
+
+railTo(1);
+})();
+</script>
+</body>
+</html>
