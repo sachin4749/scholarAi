@@ -82,11 +82,13 @@
   .or-paste{margin-top:14px; text-align:center;}
   .or-paste button{background:none;border:none;color:var(--accent-navy);text-decoration:underline;cursor:pointer;font-family:'Inter';font-size:0.85rem;}
   textarea#pasteArea{
-    width:100%; min-height:140px; margin-top:12px; padding:12px;
+    width:100%; min-height:140px; margin-top:6px; padding:12px;
     border:1px solid var(--line); border-radius:var(--radius);
+    box-shadow:inset 0 1px 3px rgba(29,35,32,0.06);
     font-family:'IBM Plex Mono',monospace; font-size:0.82rem;
-    background:#fff; color:var(--ink); display:none; resize:vertical;
+    background:#fff; color:var(--ink); resize:vertical;
   }
+  textarea#pasteArea:focus{ border-color:var(--accent-navy); box-shadow:inset 0 1px 3px rgba(29,35,32,0.06), 0 0 0 2px var(--accent-navy-soft); }
   .file-status{margin-top:12px; font-family:'IBM Plex Mono',monospace; font-size:0.78rem; color:var(--ink-soft);}
   .file-status.err{color:var(--accent-red);}
 
@@ -124,11 +126,11 @@
   .flagged{text-decoration:underline wavy var(--accent-red); text-decoration-thickness:1px; text-underline-offset:3px;}
   .block-text{color:var(--ink-soft); font-size:0.86rem;}
   .block-text[contenteditable]{
-    max-height:260px; overflow-y:auto; padding:5px 7px; border-radius:2px;
-    border:1px solid transparent;
+    max-height:260px; overflow-y:auto; padding:8px 10px; border-radius:var(--radius);
+    border:1px solid var(--line); background:#fff;
+    box-shadow:inset 0 1px 3px rgba(29,35,32,0.05);
   }
-  .block-text[contenteditable]:hover{border-color:var(--line);}
-  .block-text[contenteditable]:focus{background:#fff; outline:1px dashed var(--accent-navy); border-color:transparent;}
+  .block-text[contenteditable]:focus{ border-color:var(--accent-navy); box-shadow:inset 0 1px 3px rgba(29,35,32,0.05), 0 0 0 2px var(--accent-navy-soft); }
   .edit-hint{font-family:'IBM Plex Mono',monospace; font-size:0.62rem; color:var(--ink-faint); margin-bottom:10px;}
 
   .formatted h4{ font-family:'Newsreader',serif; font-weight:600; margin:18px 0 6px; }
@@ -153,12 +155,17 @@
     font-family:'Inter'; font-size:0.82rem; padding:7px 9px; border:1px solid var(--line);
     border-radius:var(--radius); width:100%;
   }
+  .field-item{display:flex; flex-direction:column; gap:4px;}
+  .field-item-label{
+    font-family:'IBM Plex Mono',monospace; font-size:0.62rem; text-transform:uppercase;
+    letter-spacing:0.05em; color:var(--ink-faint);
+  }
   .remove-x{position:absolute; top:12px; right:12px; background:none; border:none; color:var(--accent-red); cursor:pointer; font-size:1rem;}
 
   .ref-card{ border:1px solid var(--line); border-radius:var(--radius); padding:12px 14px; margin-bottom:10px; background:#fff; }
   .ref-card .ref-top{display:flex; justify-content:space-between; align-items:center; gap:10px; margin-bottom:6px; flex-wrap:wrap;}
-  .ref-card .ref-text{ font-family:'IBM Plex Mono',monospace; font-size:0.78rem; padding:4px 6px; border-radius:2px; }
-  .ref-card .ref-text[contenteditable]:focus{background:var(--accent-navy-soft); outline:1px dashed var(--accent-navy);}
+  .ref-card .ref-text{ font-family:'IBM Plex Mono',monospace; font-size:0.78rem; padding:7px 9px; border-radius:var(--radius); border:1px solid var(--line); background:#fdfdfb; }
+  .ref-card .ref-text[contenteditable]:focus{background:#fff; border-color:var(--accent-navy); box-shadow:0 0 0 2px var(--accent-navy-soft);}
   .ref-meta{font-family:'IBM Plex Mono',monospace; font-size:0.7rem; color:var(--ink-soft); margin-top:4px;}
   .conf.checking{background:var(--line); color:var(--ink-soft);}
 
@@ -227,18 +234,22 @@
         <input type="file" id="fileInput" accept=".docx,.pdf,.txt">
       </div>
       <div class="or-paste"><button id="pasteToggle">…or paste text instead</button></div>
-      <textarea id="pasteArea" placeholder="Paste your manuscript text here, blank line between paragraphs works best."></textarea>
+      <div id="pasteWrap" style="display:none;">
+        <span class="field-label" style="margin:6px 0 0;">Paste manuscript text</span>
+        <textarea id="pasteArea" placeholder="Paste your manuscript text here, blank line between paragraphs works best."></textarea>
+      </div>
     </div>
 
     <div id="topicPanel" style="display:none;">
       <span class="field-label">Field / stream</span>
       <select id="fieldSelect" class="plain-select">
-        <option value="">Choose a field…</option>
+        <option value="">Loading fields…</option>
       </select>
       <div class="file-status" id="topicStatus"></div>
+      <div id="subfieldBrowse"></div>
       <div id="topicBrowse"></div>
       <div id="relatedWorks"></div>
-      <p class="edit-hint" style="margin-top:14px;">Topics and related papers come live from OpenAlex, a free open scholarly index — nothing here is written by the AI. Picking a topic builds you an empty, properly-structured outline to fill in yourself in the next steps.</p>
+      <p class="edit-hint" style="margin-top:14px;">Fields, subfields, topics, and related papers all come live from OpenAlex's own subject taxonomy (26 fields, 254 subfields, ~4,500 topics) — nothing here is written by the AI. Picking a topic builds you an empty, properly-structured outline to fill in yourself in the next steps.</p>
     </div>
 
     <div class="file-status" id="fileStatus"></div>
@@ -320,7 +331,7 @@
     <div class="file-status" id="docxStatus"></div>
   </section>
 
-  <footer>© SK Graphics. All rights reserved. — Files and text never leave your browser except for the optional CrossRef lookup.</footer>
+  <footer>© SK Graphics. All rights reserved. Files and text never leave your browser except for the optional CrossRef lookup.</footer>
 </div>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/mammoth/1.6.0/mammoth.browser.min.js" onerror="window.__mammothFailed=true"></script>
@@ -344,15 +355,6 @@ const state = {
   selectedField: '',
   selectedTopic: null
 };
-
-const FIELDS = [
-  "Agricultural and Biological Sciences","Arts and Humanities","Biochemistry, Genetics and Molecular Biology",
-  "Business, Management and Accounting","Chemical Engineering","Chemistry","Computer Science","Decision Sciences",
-  "Dentistry","Earth and Planetary Sciences","Economics, Econometrics and Finance","Energy","Engineering",
-  "Environmental Science","Health Professions","Immunology and Microbiology","Materials Science","Mathematics",
-  "Medicine","Neuroscience","Nursing","Pharmacology, Toxicology and Pharmaceutics","Physics and Astronomy",
-  "Psychology","Social Sciences","Veterinary"
-];
 
 const SECTION_GUIDANCE = {
   abstract: 'Summarize the problem, your approach, and the key result in about 150-250 words.',
@@ -436,7 +438,8 @@ dropzone.addEventListener('drop', e=>{
 fileInput.addEventListener('change', e=>{ if(e.target.files.length) handleFile(e.target.files[0]); });
 
 $('#pasteToggle').addEventListener('click', ()=>{
-  pasteArea.style.display = pasteArea.style.display==='block' ? 'none' : 'block';
+  const wrap = $('#pasteWrap');
+  wrap.style.display = wrap.style.display==='block' ? 'none' : 'block';
 });
 pasteArea.addEventListener('input', ()=>{
   state.rawText = pasteArea.value;
@@ -456,6 +459,7 @@ function updateContinueButton(){
 }
 
 /* ---- mode toggle ---- */
+let fieldsLoaded = false;
 document.querySelectorAll('#modeGrid .format-pill').forEach(p=>{
   p.addEventListener('click', ()=>{
     document.querySelectorAll('#modeGrid .format-pill').forEach(x=>x.classList.remove('sel'));
@@ -465,66 +469,120 @@ document.querySelectorAll('#modeGrid .format-pill').forEach(p=>{
     $('#topicPanel').style.display = state.entryMode==='topic' ? '' : 'none';
     setStatus('');
     updateContinueButton();
+    if(state.entryMode==='topic' && !fieldsLoaded){ fieldsLoaded = true; loadFields(); }
   });
 });
 
-/* ---- topic suggestion (OpenAlex, free & keyless) ---- */
+/* ---- topic suggestion (OpenAlex's real taxonomy: 26 fields, 254 subfields, ~4500 topics — free & keyless) ---- */
 const fieldSelect = $('#fieldSelect');
-FIELDS.forEach(f=>fieldSelect.appendChild(el('option',{value:f}, f)));
+
+async function loadFields(){
+  const topicStatus = $('#topicStatus');
+  try{
+    const res = await fetch('https://api.openalex.org/fields?per_page=50&select=id,display_name');
+    if(!res.ok) throw new Error('bad response');
+    const data = await res.json();
+    const fields = (data.results || []).slice().sort((a,b)=>a.display_name.localeCompare(b.display_name));
+    fieldSelect.innerHTML = '';
+    fieldSelect.appendChild(el('option',{value:''}, 'Choose a field…'));
+    fields.forEach(f=>fieldSelect.appendChild(el('option',{value:f.id}, f.display_name)));
+  } catch(err){
+    fieldSelect.innerHTML = '';
+    fieldSelect.appendChild(el('option',{value:''}, 'Could not load — retry below'));
+    topicStatus.className = 'file-status err';
+    topicStatus.textContent = "Couldn't reach OpenAlex to load the field list right now.";
+    const retry = el('button',{class:'btn ghost small', type:'button', style:'margin-top:8px;'}, 'Retry loading fields');
+    retry.addEventListener('click', ()=>{ fieldsLoaded = true; loadFields(); });
+    topicStatus.appendChild(document.createElement('br'));
+    topicStatus.appendChild(retry);
+  }
+}
 
 fieldSelect.addEventListener('change', async ()=>{
-  state.selectedField = fieldSelect.value;
+  state.selectedField = fieldSelect.options[fieldSelect.selectedIndex] ? fieldSelect.options[fieldSelect.selectedIndex].text : '';
+  const fieldId = fieldSelect.value;
   state.selectedTopic = null;
   updateContinueButton();
   $('#relatedWorks').innerHTML = '';
-  const browse = $('#topicBrowse');
+  $('#topicBrowse').innerHTML = '';
+  const subBrowse = $('#subfieldBrowse');
   const topicStatus = $('#topicStatus');
-  browse.innerHTML = '';
+  subBrowse.innerHTML = '';
   topicStatus.className = 'file-status';
-  if(!state.selectedField) return;
-  topicStatus.textContent = 'Loading topics for ' + state.selectedField + ' …';
+  topicStatus.textContent = '';
+  if(!fieldId) return;
+  topicStatus.textContent = 'Loading subfields of ' + state.selectedField + ' …';
   try{
-    const url = 'https://api.openalex.org/topics?search=' + encodeURIComponent(state.selectedField) + '&per_page=100&select=id,display_name,subfield,works_count';
+    const url = 'https://api.openalex.org/subfields?filter=field.id:' + encodeURIComponent(fieldId) + '&per_page=50&select=id,display_name,works_count';
     const res = await fetch(url);
     if(!res.ok) throw new Error('bad response');
     const data = await res.json();
-    const topics = data.results || [];
-    if(topics.length===0){ topicStatus.textContent = 'No topics found for that field.'; return; }
+    const subfields = (data.results || []).slice().sort((a,b)=>a.display_name.localeCompare(b.display_name));
     topicStatus.textContent = '';
-    renderTopicBrowse(topics);
+    if(subfields.length===0){ topicStatus.textContent = 'No subfields found for that field.'; return; }
+    renderSubfields(subfields);
   } catch(err){
     topicStatus.className = 'file-status err';
     topicStatus.textContent = "Couldn't reach OpenAlex from this environment right now — try again once this is hosted normally, or switch to uploading a paper instead.";
   }
 });
 
-function renderTopicBrowse(topics){
+function renderSubfields(subfields){
+  const box = $('#subfieldBrowse');
+  box.innerHTML = '';
+  box.appendChild(el('div',{class:'field-label'}, 'Subfield'));
+  const pills = el('div',{class:'topic-pills'});
+  subfields.forEach(sf=>{
+    const pill = el('div',{class:'topic-pill'}, sf.display_name);
+    pill.addEventListener('click', async ()=>{
+      document.querySelectorAll('#subfieldBrowse .topic-pill').forEach(x=>x.classList.remove('sel'));
+      pill.classList.add('sel');
+      state.selectedTopic = null;
+      updateContinueButton();
+      $('#relatedWorks').innerHTML = '';
+      await loadTopicsForSubfield(sf.id, sf.display_name);
+    });
+    pills.appendChild(pill);
+  });
+  box.appendChild(pills);
+}
+
+async function loadTopicsForSubfield(subfieldId, subfieldName){
   const browse = $('#topicBrowse');
   browse.innerHTML = '';
-  const bySubfield = new Map();
+  browse.appendChild(el('div',{class:'file-status'}, 'Loading topics in ' + subfieldName + ' …'));
+  try{
+    const url = 'https://api.openalex.org/topics?filter=subfield.id:' + encodeURIComponent(subfieldId) + '&per_page=100&select=id,display_name,works_count';
+    const res = await fetch(url);
+    if(!res.ok) throw new Error('bad response');
+    const data = await res.json();
+    const topics = (data.results || []).slice().sort((a,b)=>a.display_name.localeCompare(b.display_name));
+    browse.innerHTML = '';
+    if(topics.length===0){ browse.appendChild(el('div',{class:'file-status'}, 'No topics found in this subfield.')); return; }
+    renderTopics(topics, subfieldName);
+  } catch(err){
+    browse.innerHTML = '';
+    browse.appendChild(el('div',{class:'file-status err'}, "Couldn't load topics right now — try a different subfield or retry."));
+  }
+}
+
+function renderTopics(topics, subfieldName){
+  const browse = $('#topicBrowse');
+  browse.innerHTML = '';
+  browse.appendChild(el('div',{class:'field-label'}, 'Topic'));
+  const pills = el('div',{class:'topic-pills'});
   topics.forEach(t=>{
-    const name = (t.subfield && t.subfield.display_name) || 'General';
-    if(!bySubfield.has(name)) bySubfield.set(name, []);
-    bySubfield.get(name).push(t);
-  });
-  bySubfield.forEach((list, subfieldName)=>{
-    const group = el('div',{class:'subfield-group'});
-    group.appendChild(el('div',{class:'subfield-name'}, subfieldName));
-    const pills = el('div',{class:'topic-pills'});
-    list.forEach(t=>{
-      const pill = el('div',{class:'topic-pill'}, t.display_name + (t.works_count ? ' (' + t.works_count.toLocaleString() + ' papers)' : ''));
-      pill.addEventListener('click', ()=>{
-        document.querySelectorAll('.topic-pill').forEach(x=>x.classList.remove('sel'));
-        pill.classList.add('sel');
-        state.selectedTopic = {id:t.id, title:t.display_name, field:state.selectedField, subfield:subfieldName};
-        updateContinueButton();
-        fetchRelatedWorks(t.id);
-      });
-      pills.appendChild(pill);
+    const pill = el('div',{class:'topic-pill'}, t.display_name + (t.works_count ? ' (' + t.works_count.toLocaleString() + ' papers)' : ''));
+    pill.addEventListener('click', ()=>{
+      document.querySelectorAll('#topicBrowse .topic-pill').forEach(x=>x.classList.remove('sel'));
+      pill.classList.add('sel');
+      state.selectedTopic = {id:t.id, title:t.display_name, field:state.selectedField, subfield:subfieldName};
+      updateContinueButton();
+      fetchRelatedWorks(t.id);
     });
-    group.appendChild(pills);
-    browse.appendChild(group);
+    pills.appendChild(pill);
   });
+  browse.appendChild(pills);
 }
 
 async function fetchRelatedWorks(topicId){
@@ -724,17 +782,29 @@ function authorCard(label, data, coIndex){
     const o = el('option',{value:s}, s); if(data.salutation===s) o.setAttribute('selected','selected'); salSel.appendChild(o);
   });
   salSel.addEventListener('change', ()=>data.salutation = salSel.value);
-  const nameInput = el('input',{placeholder:'Full name', value:data.name||''});
+  const nameInput = el('input',{placeholder:'e.g. Jane Doe', value:data.name||''});
   nameInput.addEventListener('input', ()=>data.name = nameInput.value);
-  const desigInput = el('input',{placeholder:'Designation', value:data.designation||''});
+  const desigInput = el('input',{placeholder:'e.g. Assistant Professor', value:data.designation||''});
   desigInput.addEventListener('input', ()=>data.designation = desigInput.value);
-  const emailInput = el('input',{placeholder:'Email', value:data.email||''});
+  const emailInput = el('input',{type:'email', placeholder:'e.g. name@university.edu', value:data.email||''});
   emailInput.addEventListener('input', ()=>data.email = emailInput.value);
-  const affInput = el('input',{placeholder:'Affiliation', value:data.affiliation||''});
+  const affInput = el('input',{placeholder:'e.g. Dept. of CSE, XYZ University', value:data.affiliation||''});
   affInput.addEventListener('input', ()=>data.affiliation = affInput.value);
-  grid.append(salSel, nameInput, desigInput, emailInput, affInput);
+  grid.append(
+    fieldItem('Salutation', salSel),
+    fieldItem('Full name', nameInput),
+    fieldItem('Designation', desigInput),
+    fieldItem('Email', emailInput),
+    fieldItem('Affiliation', affInput)
+  );
   card.appendChild(grid);
   return card;
+}
+function fieldItem(labelText, controlEl){
+  const wrap = el('label',{class:'field-item'});
+  wrap.appendChild(el('span',{class:'field-item-label'}, labelText));
+  wrap.appendChild(controlEl);
+  return wrap;
 }
 $('#addCoAuthorBtn').addEventListener('click', ()=>{
   state.coAuthors.push({salutation:'Mr.', name:'', designation:'', email:'', affiliation:''});
