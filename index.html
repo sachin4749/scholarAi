@@ -1608,7 +1608,7 @@ footer{
       <section id="entryView" class="auth-view active auth-entry">
         <div class="auth-page-label">Secure access</div>
         <h1>Welcome to ScholarAI</h1>
-        <p class="auth-sub">Choose one of the two available access methods.</p>
+        <p class="auth-sub">Choose how you want to access ScholarAI.</p>
         <button class="btn auth-choice" type="button" data-auth-view="loginView">🔐 Login</button>
         <button class="btn ghost auth-choice" type="button" data-auth-view="signupView">✨ Create Account</button>
         <div class="guest-divider">or</div>
@@ -2305,8 +2305,8 @@ async function initScholarAuth(){
     return;
   }
 
-  if(!SUPABASE_PUBLISHABLE_KEY || SUPABASE_PUBLISHABLE_KEY === "sb_publishable_KDji3J_CgBtU4TJhrzaZQw_kF4LyczW"){
-    setAuthMessage("Add your Supabase publishable (anon) key in SUPABASE_PUBLISHABLE_KEY before using authentication.", "error");
+  if(!SUPABASE_PUBLISHABLE_KEY || SUPABASE_PUBLISHABLE_KEY.trim() === ""){
+    setAuthMessage("Add your Supabase publishable key in SUPABASE_PUBLISHABLE_KEY before using authentication.", "error");
     return;
   }
 
