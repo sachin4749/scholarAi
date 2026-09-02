@@ -1547,6 +1547,11 @@ footer{
 .auth-card .auth-sub{color:var(--ink-soft);font-size:.84rem;margin:0 0 22px;}
 .auth-view{display:none;background:var(--paper-raised);border:1px solid var(--line);border-top:3px solid var(--ink);border-radius:var(--radius);box-shadow:var(--shadow);padding:30px 28px;animation:authPageIn .22s ease;}
 .auth-view.active{display:block;}
+.auth-entry{display:block!important;text-align:center;}
+.auth-entry h1{margin-bottom:8px;}
+.auth-choice{width:100%;margin-top:10px;}
+.auth-choice.secondary{background:transparent;}
+.auth-entry-note{margin:18px 0 0;color:var(--ink-faint);font-size:.72rem;line-height:1.5;}
 @keyframes authPageIn{from{opacity:0;transform:translateY(7px)}to{opacity:1;transform:translateY(0)}}
 .auth-page-label{font-family:'IBM Plex Mono',monospace;font-size:.62rem;text-transform:uppercase;letter-spacing:.09em;color:var(--ink-faint);margin-bottom:12px;}
 .auth-back{display:inline-flex;align-items:center;gap:5px;margin-bottom:18px!important;text-decoration:none!important;}
@@ -1565,6 +1570,7 @@ footer{
 .guest-divider{display:flex;align-items:center;gap:10px;margin:20px 0 12px;color:var(--ink-faint);font-family:'IBM Plex Mono',monospace;font-size:.62rem;text-transform:uppercase;letter-spacing:.08em;}
 .guest-divider::before,.guest-divider::after{content:"";height:1px;background:var(--line);flex:1;}
 .guest-btn{width:100%;margin-top:2px;}
+.auth-access-note{margin-top:12px;color:var(--ink-faint);font-size:.72rem;line-height:1.5;text-align:center;}
 .guest-notice{margin-top:10px;padding:10px 12px;border:1px solid var(--line);border-left:3px solid var(--accent-red);background:#f8f5ea;color:var(--ink-soft);font-size:.76rem;line-height:1.55;}
 .guest-notice strong{color:var(--ink);display:block;margin-bottom:2px;}
 .draft-bar{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;margin:0 0 18px;padding:9px 11px;border:1px solid var(--line);background:rgba(255,255,255,.32);border-radius:var(--radius);font-family:'IBM Plex Mono',monospace;font-size:.68rem;color:var(--ink-soft);}
@@ -1599,33 +1605,41 @@ footer{
     <div class="auth-card">
       <div id="authMessage" class="auth-message" role="status" aria-live="polite"></div>
 
-      <section id="loginView" class="auth-view active">
-        <div class="auth-page-label">Account access</div>
-        <h1>Welcome back</h1>
-        <p class="auth-sub">Sign in to continue to your ScholarAI workspace.</p>
+      <section id="entryView" class="auth-view active auth-entry">
+        <div class="auth-page-label">Secure access</div>
+        <h1>Welcome to ScholarAI</h1>
+        <p class="auth-sub">Choose one of the two available access methods.</p>
+        <button class="btn auth-choice" type="button" data-auth-view="loginView">🔐 Login</button>
+        <button class="btn ghost auth-choice" type="button" data-auth-view="signupView">✨ Create Account</button>
+        <div class="guest-divider">or</div>
+        <button class="btn ghost auth-choice" id="guestBtn" type="button">👤 Continue as Guest</button>
+        <div class="guest-notice">
+          <strong>Guest access — no draft recovery</strong>
+          You can create and format your paper, but guest work is not saved to an account. Refreshing, closing the page, or an unexpected browser/network interruption may lose your work.
+        </div>
+        <div class="auth-entry-note">Login gives you personal draft storage and recovery. Guest mode gives temporary access only and does not save your work.</div>
+      </section>
+
+      <section id="loginView" class="auth-view">
+        <button class="auth-link auth-back" type="button" data-auth-view="entryView">← Back</button>
+        <div class="auth-page-label">Existing account</div>
+        <h1>Login</h1>
+        <p class="auth-sub">Sign in with your ScholarAI account to continue. Your drafts are saved to your account and can be recovered later.</p>
         <form id="loginForm" novalidate>
           <div class="auth-field"><label for="loginEmail">Email</label><input id="loginEmail" type="email" autocomplete="email" required placeholder="you@example.com"></div>
           <div class="auth-field"><label for="loginPassword">Password</label><input id="loginPassword" type="password" autocomplete="current-password" required placeholder="Your password"></div>
           <button class="btn auth-submit" type="submit">Sign in →</button>
         </form>
         <div class="auth-links">
-          <button class="auth-link" type="button" data-auth-view="signupView">Create an account</button>
           <button class="auth-link" type="button" data-auth-view="forgotView">Forgot password?</button>
-        </div>
-
-        <div class="guest-divider">or</div>
-        <button class="btn ghost guest-btn" id="guestBtn" type="button">Continue as Guest</button>
-        <div class="guest-notice">
-          <strong>Guest access — no draft recovery</strong>
-          You can create and format your paper, but guest work is not saved to your account. If the page is refreshed, closed, or interrupted by a network or browser issue, your work may be lost.
         </div>
       </section>
 
       <section id="signupView" class="auth-view">
-        <button class="auth-link auth-back" type="button" data-auth-view="loginView">← Back to sign in</button>
+        <button class="auth-link auth-back" type="button" data-auth-view="entryView">← Back</button>
         <div class="auth-page-label">New account</div>
-        <h1>Create account</h1>
-        <p class="auth-sub">Set up your ScholarAI account with email and password.</p>
+        <h1>Create Account</h1>
+        <p class="auth-sub">Create your ScholarAI account to save and recover your drafts across sessions.</p>
         <form id="signupForm" novalidate>
           <div class="auth-field"><label for="signupName">Full name</label><input id="signupName" type="text" autocomplete="name" required placeholder="Your full name"></div>
           <div class="auth-field"><label for="signupEmail">Email</label><input id="signupEmail" type="email" autocomplete="email" required placeholder="you@example.com"></div>
@@ -1633,7 +1647,9 @@ footer{
           <div class="auth-field"><label for="signupConfirm">Confirm password</label><input id="signupConfirm" type="password" autocomplete="new-password" minlength="6" required placeholder="Repeat your password"></div>
           <button class="btn auth-submit" type="submit">Create account →</button>
         </form>
-        <div class="auth-links"></div>
+        <div class="auth-links">
+          <button class="auth-link" type="button" data-auth-view="loginView">Already have an account? Login</button>
+        </div>
       </section>
 
       <section id="forgotView" class="auth-view">
@@ -2259,6 +2275,18 @@ function currentRedirectUrl(){
   return window.location.origin + window.location.pathname;
 }
 
+async function ensureUserProfile(user, fallbackName=""){
+  if(!supabaseClient || !user) return;
+  const fullName = (fallbackName || user.user_metadata?.full_name || "").trim();
+  const { error } = await supabaseClient.from("profiles").upsert({
+    id: user.id,
+    full_name: fullName,
+    email: user.email || "",
+    updated_at: new Date().toISOString()
+  }, { onConflict: "id" });
+  if(error) console.warn("Profile save failed:", error.message);
+}
+
 function enterGuestMode(){
   guestMode = true;
   activeSession = null;
@@ -2298,13 +2326,14 @@ async function initScholarAuth(){
     if(session){
       activeSession = session;
       guestMode = false;
+      ensureUserProfile(session.user);
       setAppVisible(true, session);
       window.dispatchEvent(new CustomEvent("scholar-auth-ready", { detail:{ session, guest:false } }));
     }else{
       activeSession = null;
       if(!guestMode){
         setAppVisible(false, null);
-        showAuthView("loginView");
+        showAuthView("entryView");
         window.dispatchEvent(new CustomEvent("scholar-auth-ready", { detail:{ session:null, guest:false } }));
       }
     }
@@ -2320,10 +2349,12 @@ async function initScholarAuth(){
   if(data.session){
     activeSession = data.session;
     guestMode = false;
+    ensureUserProfile(data.session.user);
     setAppVisible(true, data.session);
     window.dispatchEvent(new CustomEvent("scholar-auth-ready", { detail:{ session:data.session, guest:false } }));
   }else if(!guestMode){
     setAppVisible(false, null);
+    showAuthView("entryView");
     window.dispatchEvent(new CustomEvent("scholar-auth-ready", { detail:{ session:null, guest:false } }));
   }
 }
@@ -2353,27 +2384,38 @@ document.addEventListener("DOMContentLoaded", () => {
   authEl("signupForm")?.addEventListener("submit", async (event) => {
     event.preventDefault();
     if(!supabaseClient || !authReady) return;
+
     const name = authEl("signupName").value.trim();
     const email = authEl("signupEmail").value.trim();
     const password = authEl("signupPassword").value;
     const confirm = authEl("signupConfirm").value;
 
-    if(!name || !email || !password){ setAuthMessage("Complete all required fields.", "error"); return; }
-    if(password.length < 6){ setAuthMessage("Password must be at least 6 characters.", "error"); return; }
-    if(password !== confirm){ setAuthMessage("Passwords do not match.", "error"); return; }
+    if(!name || !email || !password || !confirm){
+      setAuthMessage("Please fill in all fields.", "error");
+      return;
+    }
+    if(password.length < 6){
+      setAuthMessage("Password must be at least 6 characters.", "error");
+      return;
+    }
+    if(password !== confirm){
+      setAuthMessage("Passwords do not match.", "error");
+      return;
+    }
 
     const button = event.submitter;
     button.disabled = true;
     button.textContent = "Creating account…";
     setAuthMessage("");
+
     const { data, error } = await supabaseClient.auth.signUp({
       email,
       password,
       options: {
-        data: { full_name: name },
-        emailRedirectTo: currentRedirectUrl()
+        data: { full_name: name }
       }
     });
+
     button.disabled = false;
     button.textContent = "Create account →";
 
@@ -2383,10 +2425,11 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     if(data.session){
-      setAuthMessage("Account created successfully.");
+      await ensureUserProfile(data.user, name);
+      setAuthMessage("Account created successfully. Opening ScholarAI…", "success");
     }else{
-      setAuthMessage("Account created. Check your email to confirm your account, then sign in.");
       showAuthView("loginView");
+      setAuthMessage("Account created. Please check your email to confirm your account, then log in.", "success");
     }
   });
 
