@@ -2233,7 +2233,7 @@ footer{
    SUPABASE AUTHENTICATION
    ========================================================= */
 const SUPABASE_URL = "https://wbwetdjfpettcjjcbuhr.supabase.co";
-const SUPABASE_PUBLISHABLE_KEY = "YOUR_SUPABASE_PUBLISHABLE_KEY";
+const SUPABASE_PUBLISHABLE_KEY = "sb_publishable_KDji3J_CgBtU4TJhrzaZQw_kF4LyczW";
 
 let supabaseClient = null;
 let authReady = false;
@@ -2305,7 +2305,7 @@ async function initScholarAuth(){
     return;
   }
 
-  if(!SUPABASE_PUBLISHABLE_KEY || SUPABASE_PUBLISHABLE_KEY === "YOUR_SUPABASE_PUBLISHABLE_KEY"){
+  if(!SUPABASE_PUBLISHABLE_KEY || SUPABASE_PUBLISHABLE_KEY === "sb_publishable_KDji3J_CgBtU4TJhrzaZQw_kF4LyczW"){
     setAuthMessage("Add your Supabase publishable (anon) key in SUPABASE_PUBLISHABLE_KEY before using authentication.", "error");
     return;
   }
