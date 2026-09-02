@@ -1526,10 +1526,142 @@ footer{
     display:none !important;
   }
 }
+
+/* =========================================================
+   AUTHENTICATION
+   ========================================================= */
+#authScreen{
+  min-height:100vh;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  padding:28px 18px;
+  background:var(--paper);
+}
+.auth-shell{width:100%;max-width:430px;}
+.auth-brand{text-align:center;margin-bottom:18px;}
+.auth-brand .wordmark{font-size:2.35rem;}
+.auth-kicker{font-family:'IBM Plex Mono',monospace;font-size:.68rem;text-transform:uppercase;letter-spacing:.08em;color:var(--ink-faint);margin-top:4px;}
+.auth-card{background:transparent;border:0;box-shadow:none;padding:0;}
+.auth-card h1{font-family:'Newsreader',serif;font-size:1.75rem;margin:0 0 5px;}
+.auth-card .auth-sub{color:var(--ink-soft);font-size:.84rem;margin:0 0 22px;}
+.auth-view{display:none;background:var(--paper-raised);border:1px solid var(--line);border-top:3px solid var(--ink);border-radius:var(--radius);box-shadow:var(--shadow);padding:30px 28px;animation:authPageIn .22s ease;}
+.auth-view.active{display:block;}
+@keyframes authPageIn{from{opacity:0;transform:translateY(7px)}to{opacity:1;transform:translateY(0)}}
+.auth-page-label{font-family:'IBM Plex Mono',monospace;font-size:.62rem;text-transform:uppercase;letter-spacing:.09em;color:var(--ink-faint);margin-bottom:12px;}
+.auth-back{display:inline-flex;align-items:center;gap:5px;margin-bottom:18px!important;text-decoration:none!important;}
+.auth-field{margin-bottom:12px;}
+.auth-field label{display:block;font-family:'IBM Plex Mono',monospace;font-size:.66rem;text-transform:uppercase;letter-spacing:.05em;color:var(--ink-faint);margin-bottom:5px;}
+.auth-field input{width:100%;min-height:44px;padding:10px 11px;border:1px solid var(--line);border-radius:var(--radius);background:#fff;color:var(--ink);}
+.auth-field input:focus{outline:none;border-color:var(--accent-navy);box-shadow:0 0 0 2px var(--accent-navy-soft);}
+.auth-submit{width:100%;margin-top:4px;}
+.auth-links{display:flex;justify-content:space-between;gap:10px;margin-top:16px;flex-wrap:wrap;}
+.auth-link{border:0;background:none;padding:4px 0;color:var(--accent-navy);text-decoration:underline;cursor:pointer;font-size:.8rem;}
+.auth-message{display:none;padding:9px 11px;border:1px solid var(--accent-navy);background:var(--accent-navy-soft);color:var(--accent-navy);border-radius:var(--radius);font-size:.8rem;margin-bottom:14px;}
+.auth-message.error{border-color:var(--accent-red);background:var(--accent-red-soft);color:#6b2419;}
+.auth-message.show{display:block;}
+.user-area{display:flex;align-items:center;gap:8px;flex-wrap:wrap;justify-content:flex-end;}
+.user-email{font-family:'IBM Plex Mono',monospace;font-size:.68rem;color:var(--ink-soft);max-width:250px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.guest-divider{display:flex;align-items:center;gap:10px;margin:20px 0 12px;color:var(--ink-faint);font-family:'IBM Plex Mono',monospace;font-size:.62rem;text-transform:uppercase;letter-spacing:.08em;}
+.guest-divider::before,.guest-divider::after{content:"";height:1px;background:var(--line);flex:1;}
+.guest-btn{width:100%;margin-top:2px;}
+.guest-notice{margin-top:10px;padding:10px 12px;border:1px solid var(--line);border-left:3px solid var(--accent-red);background:#f8f5ea;color:var(--ink-soft);font-size:.76rem;line-height:1.55;}
+.guest-notice strong{color:var(--ink);display:block;margin-bottom:2px;}
+.draft-bar{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;margin:0 0 18px;padding:9px 11px;border:1px solid var(--line);background:rgba(255,255,255,.32);border-radius:var(--radius);font-family:'IBM Plex Mono',monospace;font-size:.68rem;color:var(--ink-soft);}
+.draft-left{display:flex;align-items:center;gap:8px;min-width:0;}
+.draft-dot{width:7px;height:7px;border-radius:50%;background:var(--success);flex:none;}
+.draft-dot.guest{background:var(--accent-red);}
+.draft-dot.saving{background:var(--flag);}
+.draft-status{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.draft-actions{display:flex;gap:7px;flex-wrap:wrap;}
+#resetPasswordView .btn{margin-top:4px;}
+@media(max-width:600px){
+  #authScreen{padding:18px 12px;align-items:flex-start;padding-top:42px;}
+  .auth-card{padding:22px 18px;}
+  .user-area{width:100%;justify-content:flex-start;}
+  .user-email{max-width:calc(100vw - 110px);}
+}
+@media print{
+  #authScreen{display:none!important;}
+}
+
 </style>
 </head>
 
 <body>
+
+<div id="authScreen" aria-label="ScholarAI authentication">
+  <div class="auth-shell">
+    <div class="auth-brand">
+      <div class="wordmark">Scholar<em>AI</em></div>
+      <div class="auth-kicker">Manuscript Conversion Desk</div>
+    </div>
+    <div class="auth-card">
+      <div id="authMessage" class="auth-message" role="status" aria-live="polite"></div>
+
+      <section id="loginView" class="auth-view active">
+        <div class="auth-page-label">Account access</div>
+        <h1>Welcome back</h1>
+        <p class="auth-sub">Sign in to continue to your ScholarAI workspace.</p>
+        <form id="loginForm" novalidate>
+          <div class="auth-field"><label for="loginEmail">Email</label><input id="loginEmail" type="email" autocomplete="email" required placeholder="you@example.com"></div>
+          <div class="auth-field"><label for="loginPassword">Password</label><input id="loginPassword" type="password" autocomplete="current-password" required placeholder="Your password"></div>
+          <button class="btn auth-submit" type="submit">Sign in →</button>
+        </form>
+        <div class="auth-links">
+          <button class="auth-link" type="button" data-auth-view="signupView">Create an account</button>
+          <button class="auth-link" type="button" data-auth-view="forgotView">Forgot password?</button>
+        </div>
+
+        <div class="guest-divider">or</div>
+        <button class="btn ghost guest-btn" id="guestBtn" type="button">Continue as Guest</button>
+        <div class="guest-notice">
+          <strong>Guest access — no draft recovery</strong>
+          You can create and format your paper, but guest work is not saved to your account. If the page is refreshed, closed, or interrupted by a network or browser issue, your work may be lost.
+        </div>
+      </section>
+
+      <section id="signupView" class="auth-view">
+        <button class="auth-link auth-back" type="button" data-auth-view="loginView">← Back to sign in</button>
+        <div class="auth-page-label">New account</div>
+        <h1>Create account</h1>
+        <p class="auth-sub">Set up your ScholarAI account with email and password.</p>
+        <form id="signupForm" novalidate>
+          <div class="auth-field"><label for="signupName">Full name</label><input id="signupName" type="text" autocomplete="name" required placeholder="Your full name"></div>
+          <div class="auth-field"><label for="signupEmail">Email</label><input id="signupEmail" type="email" autocomplete="email" required placeholder="you@example.com"></div>
+          <div class="auth-field"><label for="signupPassword">Password</label><input id="signupPassword" type="password" autocomplete="new-password" minlength="6" required placeholder="At least 6 characters"></div>
+          <div class="auth-field"><label for="signupConfirm">Confirm password</label><input id="signupConfirm" type="password" autocomplete="new-password" minlength="6" required placeholder="Repeat your password"></div>
+          <button class="btn auth-submit" type="submit">Create account →</button>
+        </form>
+        <div class="auth-links"></div>
+      </section>
+
+      <section id="forgotView" class="auth-view">
+        <button class="auth-link auth-back" type="button" data-auth-view="loginView">← Back to sign in</button>
+        <div class="auth-page-label">Account recovery</div>
+        <h1>Reset password</h1>
+        <p class="auth-sub">Enter your email and we'll send you a password reset link.</p>
+        <form id="forgotForm" novalidate>
+          <div class="auth-field"><label for="forgotEmail">Email</label><input id="forgotEmail" type="email" autocomplete="email" required placeholder="you@example.com"></div>
+          <button class="btn auth-submit" type="submit">Send reset link →</button>
+        </form>
+        <div class="auth-links"></div>
+      </section>
+
+      <section id="resetPasswordView" class="auth-view">
+        <div class="auth-page-label">Account recovery</div>
+        <h1>Choose a new password</h1>
+        <p class="auth-sub">Your reset link is valid. Choose a new password for your ScholarAI account.</p>
+        <form id="resetForm" novalidate>
+          <div class="auth-field"><label for="resetPassword">New password</label><input id="resetPassword" type="password" autocomplete="new-password" minlength="6" required placeholder="At least 6 characters"></div>
+          <div class="auth-field"><label for="resetConfirm">Confirm new password</label><input id="resetConfirm" type="password" autocomplete="new-password" minlength="6" required placeholder="Repeat your password"></div>
+          <button class="btn auth-submit" type="submit">Update password →</button>
+        </form>
+      </section>
+    </div>
+  </div>
+</div>
+
 
 <div class="desk">
 
@@ -1548,7 +1680,23 @@ footer{
       Manuscript Conversion Desk
     </div>
 
+    <div class="user-area" id="userArea" style="display:none;">
+      <span class="user-email" id="userEmail"></span>
+      <button class="btn small ghost" id="logoutBtn" type="button">Sign out</button>
+    </div>
+
   </header>
+
+  <div class="draft-bar" id="draftBar" style="display:none;">
+    <div class="draft-left">
+      <span class="draft-dot" id="draftDot"></span>
+      <span class="draft-status" id="draftStatus">Drafts are saved automatically.</span>
+    </div>
+    <div class="draft-actions">
+      <button class="btn small ghost" id="saveDraftBtn" type="button">Save draft</button>
+      <button class="btn small ghost" id="newDraftBtn" type="button">Start new</button>
+    </div>
+  </div>
 
   <p class="tagline">
     Drop in your paper, pick a journal, get back a formatted manuscript.
@@ -2059,6 +2207,253 @@ footer{
   onerror="window.__jszipFailed=true"
 ></script>
 
+<script
+  src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"
+  onerror="window.__supabaseFailed=true"
+></script>
+
+<script>
+/* =========================================================
+   SUPABASE AUTHENTICATION
+   ========================================================= */
+const SUPABASE_URL = "https://wbwetdjfpettcjjcbuhr.supabase.co";
+const SUPABASE_PUBLISHABLE_KEY = "YOUR_SUPABASE_PUBLISHABLE_KEY";
+
+let supabaseClient = null;
+let authReady = false;
+let guestMode = false;
+let activeSession = null;
+
+function authEl(id){ return document.getElementById(id); }
+
+function setAuthMessage(message, type="info"){
+  const box = authEl("authMessage");
+  if(!box) return;
+  box.textContent = message || "";
+  box.className = "auth-message" + (message ? " show" : "") + (type === "error" ? " error" : "");
+}
+
+function showAuthView(viewId){
+  document.querySelectorAll(".auth-view").forEach(v => v.classList.remove("active"));
+  const view = authEl(viewId);
+  if(view) view.classList.add("active");
+  setAuthMessage("");
+}
+
+function setAppVisible(visible, session){
+  const auth = authEl("authScreen");
+  const desk = document.querySelector(".desk");
+  const userArea = authEl("userArea");
+  const userEmail = authEl("userEmail");
+  const draftBar = authEl("draftBar");
+
+  if(auth) auth.style.display = visible ? "none" : "flex";
+  if(desk) desk.style.display = visible ? "block" : "none";
+  if(userArea) userArea.style.display = visible && session ? "flex" : "none";
+  if(userEmail) userEmail.textContent = session?.user?.email || "";
+  if(draftBar) draftBar.style.display = visible ? "flex" : "none";
+  if(visible && !session) setDraftStatus("Guest mode — this work will not be saved.", "guest");
+}
+
+function currentRedirectUrl(){
+  return window.location.origin + window.location.pathname;
+}
+
+function enterGuestMode(){
+  guestMode = true;
+  activeSession = null;
+  setAppVisible(true, null);
+  window.dispatchEvent(new CustomEvent("scholar-auth-ready", { detail:{ session:null, guest:true } }));
+}
+
+function leaveGuestMode(){
+  guestMode = false;
+}
+
+
+async function initScholarAuth(){
+  if(!window.supabase || typeof window.supabase.createClient !== "function"){
+    setAuthMessage("Supabase Auth library could not be loaded. Check your internet connection.", "error");
+    return;
+  }
+
+  if(!SUPABASE_PUBLISHABLE_KEY || SUPABASE_PUBLISHABLE_KEY === "YOUR_SUPABASE_PUBLISHABLE_KEY"){
+    setAuthMessage("Add your Supabase publishable (anon) key in SUPABASE_PUBLISHABLE_KEY before using authentication.", "error");
+    return;
+  }
+
+  supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY);
+  window.scholarSupabase = supabaseClient;
+
+  supabaseClient.auth.onAuthStateChange((event, session) => {
+    if(event === "PASSWORD_RECOVERY"){
+      activeSession = session;
+      guestMode = false;
+      setAppVisible(false, null);
+      showAuthView("resetPasswordView");
+      setAuthMessage("Choose a new password for your account.");
+      return;
+    }
+
+    if(session){
+      activeSession = session;
+      guestMode = false;
+      setAppVisible(true, session);
+      window.dispatchEvent(new CustomEvent("scholar-auth-ready", { detail:{ session, guest:false } }));
+    }else{
+      activeSession = null;
+      if(!guestMode){
+        setAppVisible(false, null);
+        showAuthView("loginView");
+        window.dispatchEvent(new CustomEvent("scholar-auth-ready", { detail:{ session:null, guest:false } }));
+      }
+    }
+  });
+
+  const { data, error } = await supabaseClient.auth.getSession();
+  if(error){
+    setAuthMessage(error.message, "error");
+    return;
+  }
+
+  authReady = true;
+  if(data.session){
+    activeSession = data.session;
+    guestMode = false;
+    setAppVisible(true, data.session);
+    window.dispatchEvent(new CustomEvent("scholar-auth-ready", { detail:{ session:data.session, guest:false } }));
+  }else if(!guestMode){
+    setAppVisible(false, null);
+    window.dispatchEvent(new CustomEvent("scholar-auth-ready", { detail:{ session:null, guest:false } }));
+  }
+}
+
+document.addEventListener("DOMContentLoaded", () => {
+  document.querySelectorAll("[data-auth-view]").forEach(button => {
+    button.addEventListener("click", () => showAuthView(button.dataset.authView));
+  });
+
+  authEl("loginForm")?.addEventListener("submit", async (event) => {
+    event.preventDefault();
+    if(!supabaseClient || !authReady) return;
+    const email = authEl("loginEmail").value.trim();
+    const password = authEl("loginPassword").value;
+    if(!email || !password){ setAuthMessage("Enter your email and password.", "error"); return; }
+
+    const button = event.submitter;
+    button.disabled = true;
+    button.textContent = "Signing in…";
+    setAuthMessage("");
+    const { error } = await supabaseClient.auth.signInWithPassword({ email, password });
+    button.disabled = false;
+    button.textContent = "Sign in →";
+    if(error) setAuthMessage(error.message, "error");
+  });
+
+  authEl("signupForm")?.addEventListener("submit", async (event) => {
+    event.preventDefault();
+    if(!supabaseClient || !authReady) return;
+    const name = authEl("signupName").value.trim();
+    const email = authEl("signupEmail").value.trim();
+    const password = authEl("signupPassword").value;
+    const confirm = authEl("signupConfirm").value;
+
+    if(!name || !email || !password){ setAuthMessage("Complete all required fields.", "error"); return; }
+    if(password.length < 6){ setAuthMessage("Password must be at least 6 characters.", "error"); return; }
+    if(password !== confirm){ setAuthMessage("Passwords do not match.", "error"); return; }
+
+    const button = event.submitter;
+    button.disabled = true;
+    button.textContent = "Creating account…";
+    setAuthMessage("");
+    const { data, error } = await supabaseClient.auth.signUp({
+      email,
+      password,
+      options: {
+        data: { full_name: name },
+        emailRedirectTo: currentRedirectUrl()
+      }
+    });
+    button.disabled = false;
+    button.textContent = "Create account →";
+
+    if(error){
+      setAuthMessage(error.message, "error");
+      return;
+    }
+
+    if(data.session){
+      setAuthMessage("Account created successfully.");
+    }else{
+      setAuthMessage("Account created. Check your email to confirm your account, then sign in.");
+      showAuthView("loginView");
+    }
+  });
+
+  authEl("forgotForm")?.addEventListener("submit", async (event) => {
+    event.preventDefault();
+    if(!supabaseClient || !authReady) return;
+    const email = authEl("forgotEmail").value.trim();
+    if(!email){ setAuthMessage("Enter your email address.", "error"); return; }
+
+    const button = event.submitter;
+    button.disabled = true;
+    button.textContent = "Sending…";
+    setAuthMessage("");
+    const { error } = await supabaseClient.auth.resetPasswordForEmail(email, {
+      redirectTo: currentRedirectUrl()
+    });
+    button.disabled = false;
+    button.textContent = "Send reset link →";
+
+    if(error){
+      setAuthMessage(error.message, "error");
+      return;
+    }
+    setAuthMessage("If an account exists for that email, a password reset link has been sent. Check your inbox and spam folder.");
+  });
+
+  authEl("resetForm")?.addEventListener("submit", async (event) => {
+    event.preventDefault();
+    if(!supabaseClient || !authReady) return;
+    const password = authEl("resetPassword").value;
+    const confirm = authEl("resetConfirm").value;
+    if(password.length < 6){ setAuthMessage("Password must be at least 6 characters.", "error"); return; }
+    if(password !== confirm){ setAuthMessage("Passwords do not match.", "error"); return; }
+
+    const button = event.submitter;
+    button.disabled = true;
+    button.textContent = "Updating…";
+    const { error } = await supabaseClient.auth.updateUser({ password });
+    button.disabled = false;
+    button.textContent = "Update password →";
+
+    if(error){
+      setAuthMessage(error.message, "error");
+      return;
+    }
+    await supabaseClient.auth.signOut();
+    showAuthView("loginView");
+    setAuthMessage("Password updated successfully. You can now sign in with your new password.");
+  });
+
+  authEl("guestBtn")?.addEventListener("click", () => {
+    setAuthMessage("");
+    enterGuestMode();
+  });
+
+  authEl("logoutBtn")?.addEventListener("click", async () => {
+    if(!supabaseClient) return;
+    const { error } = await supabaseClient.auth.signOut();
+    if(error){ alert(error.message); return; }
+    guestMode = false;
+    activeSession = null;
+  });
+
+  initScholarAuth();
+});
+</script>
+
 <script>
 (function(){
 
@@ -2097,6 +2492,255 @@ const state = {
   selectedTopic:null
 
 };
+
+/* =========================================================
+   DRAFT / WORKSPACE PERSISTENCE
+   ========================================================= */
+
+let currentStep = 1;
+let draftSaveTimer = null;
+let draftSaveInFlight = false;
+let lastDraftSignature = "";
+let lastCloudDraftSignature = "";
+const DRAFT_LOCAL_PREFIX = "scholarai-draft-v2:";
+
+function draftUserId(){
+  return activeSession?.user?.id || "";
+}
+
+function draftLocalKey(){
+  const id = draftUserId();
+  return id ? DRAFT_LOCAL_PREFIX + id : "";
+}
+
+function setDraftStatus(message, mode="saved"){
+  const status = document.getElementById("draftStatus");
+  const dot = document.getElementById("draftDot");
+  if(status) status.textContent = message;
+  if(dot){
+    dot.className = "draft-dot" + (mode === "guest" ? " guest" : mode === "saving" ? " saving" : "");
+  }
+}
+
+function draftSnapshot(){
+  return JSON.parse(JSON.stringify({
+    rawText:state.rawText,
+    targetFormat:state.targetFormat,
+    blocks:state.blocks,
+    authorsDetected:state.authorsDetected,
+    primaryAuthor:state.primaryAuthor,
+    coAuthors:state.coAuthors,
+    references:state.references,
+    entryMode:state.entryMode,
+    selectedField:state.selectedField,
+    selectedTopic:state.selectedTopic,
+    currentStep
+  }));
+}
+
+function saveDraftLocal(snapshot){
+  const key = draftLocalKey();
+  if(!key) return;
+  try{
+    localStorage.setItem(key, JSON.stringify({
+      version:2,
+      updated_at:new Date().toISOString(),
+      ...snapshot
+    }));
+  }catch(error){
+    console.warn("ScholarAI local draft cache failed", error);
+  }
+}
+
+async function saveDraftCloud(snapshot){
+  if(!activeSession?.user?.id || !window.scholarSupabase) return { skipped:true };
+
+  const payload = {
+    user_id:activeSession.user.id,
+    current_step:snapshot.currentStep || 1,
+    draft_data:snapshot,
+    updated_at:new Date().toISOString()
+  };
+
+  const { error } = await window.scholarSupabase
+    .from("scholarai_drafts")
+    .upsert(payload, { onConflict:"user_id" });
+
+  if(error) throw error;
+  return { saved:true };
+}
+
+function scheduleDraftSave(){
+  if(guestMode || !activeSession?.user?.id){
+    setDraftStatus("Guest mode — this work will not be saved.", "guest");
+    return;
+  }
+
+  clearTimeout(draftSaveTimer);
+  draftSaveTimer = setTimeout(() => saveDraft(), 900);
+}
+
+async function saveDraft(){
+  if(guestMode || !activeSession?.user?.id) return;
+  if(draftSaveInFlight){
+    scheduleDraftSave();
+    return;
+  }
+
+  const snapshot = draftSnapshot();
+  const signature = JSON.stringify(snapshot);
+  if(signature === lastCloudDraftSignature){
+    return;
+  }
+
+  lastDraftSignature = signature;
+  saveDraftLocal(snapshot);
+  setDraftStatus("Saving draft…", "saving");
+  draftSaveInFlight = true;
+
+  try{
+    await saveDraftCloud(snapshot);
+    lastCloudDraftSignature = signature;
+    setDraftStatus("Draft saved automatically · " + new Date().toLocaleTimeString([], {hour:"2-digit", minute:"2-digit"}));
+  }catch(error){
+    lastDraftSignature = "";
+    console.warn("ScholarAI cloud draft save failed", error);
+    setDraftStatus("Saved on this device · cloud sync will retry when connection returns", "saving");
+  }finally{
+    draftSaveInFlight = false;
+  }
+}
+
+async function restoreDraft(){
+  if(guestMode || !activeSession?.user?.id || !window.scholarSupabase) return false;
+
+  let cloudDraft = null;
+  let localDraft = null;
+
+  try{
+    const { data, error } = await window.scholarSupabase
+      .from("scholarai_drafts")
+      .select("draft_data,updated_at")
+      .eq("user_id", activeSession.user.id)
+      .maybeSingle();
+    if(!error && data?.draft_data) cloudDraft = data;
+  }catch(error){
+    console.warn("ScholarAI cloud draft restore failed", error);
+  }
+
+  const key = draftLocalKey();
+  if(key){
+    try{
+      const local = JSON.parse(localStorage.getItem(key) || "null");
+      if(local?.draft_data) localDraft = local;
+      else if(local?.rawText || local?.blocks) localDraft = {draft_data:local,updated_at:local.updated_at};
+    }catch(error){
+      console.warn("ScholarAI local draft restore failed", error);
+    }
+  }
+
+  const cloudTime = cloudDraft?.updated_at ? Date.parse(cloudDraft.updated_at) : 0;
+  const localTime = localDraft?.updated_at ? Date.parse(localDraft.updated_at) : 0;
+  const draft = cloudTime >= localTime ? cloudDraft : localDraft;
+
+  if(!draft?.draft_data) return false;
+
+  const saved = draft.draft_data;
+  Object.assign(state, {
+    rawText:saved.rawText || "",
+    targetFormat:saved.targetFormat || null,
+    blocks:Array.isArray(saved.blocks) ? saved.blocks : [],
+    authorsDetected:!!saved.authorsDetected,
+    primaryAuthor:saved.primaryAuthor || state.primaryAuthor,
+    coAuthors:Array.isArray(saved.coAuthors) ? saved.coAuthors : [],
+    references:Array.isArray(saved.references) ? saved.references : [],
+    entryMode:saved.entryMode || "upload",
+    selectedField:saved.selectedField || "",
+    selectedTopic:saved.selectedTopic || null
+  });
+
+  currentStep = Math.min(6, Math.max(1, Number(saved.currentStep) || 1));
+  lastDraftSignature = JSON.stringify(draftSnapshot());
+  lastCloudDraftSignature = cloudDraft === draft ? lastDraftSignature : "";
+  return true;
+}
+
+function applyDraftToUI(){
+  const modePills = document.querySelectorAll("#modeGrid .format-pill");
+  modePills.forEach(pill => pill.classList.toggle("sel", pill.dataset.mode === state.entryMode));
+  const uploadPanel = document.getElementById("uploadPanel");
+  const topicPanel = document.getElementById("topicPanel");
+  if(uploadPanel) uploadPanel.style.display = state.entryMode === "upload" ? "" : "none";
+  if(topicPanel) topicPanel.style.display = state.entryMode === "topic" ? "" : "none";
+
+  const paste = document.getElementById("pasteArea");
+  if(paste) paste.value = state.rawText || "";
+
+  document.querySelectorAll("#formatGrid .format-pill").forEach(pill => {
+    pill.classList.toggle("sel", pill.dataset.fmt === state.targetFormat);
+  });
+  const toStep3 = document.getElementById("toStep3Btn");
+  if(toStep3) toStep3.disabled = !state.targetFormat;
+
+  updateContinueButton();
+
+  if(currentStep >= 3 && state.blocks.length) renderBlocks();
+  if(currentStep >= 4) renderAuthorForm();
+  if(currentStep >= 5) renderReferences();
+  if(currentStep >= 6) buildFormattedOutput();
+  railTo(currentStep, true);
+}
+
+window.addEventListener("scholar-auth-ready", async event => {
+  const detail = event.detail || {};
+  if(detail.guest){
+    setDraftStatus("Guest mode — this work will not be saved.", "guest");
+    return;
+  }
+  if(!detail.session) return;
+  activeSession = detail.session;
+  guestMode = false;
+  const restored = await restoreDraft();
+  applyDraftToUI();
+  setDraftStatus(restored ? "Draft restored · your previous progress is ready" : "Drafts are saved automatically");
+});
+
+document.addEventListener("input", () => setTimeout(scheduleDraftSave, 0), true);
+document.addEventListener("change", () => setTimeout(scheduleDraftSave, 0), true);
+document.addEventListener("click", event => {
+  if(event.target.closest("#modeGrid .format-pill, #formatGrid .format-pill, .topic-pill")){
+    setTimeout(scheduleDraftSave, 0);
+  }
+}, true);
+window.addEventListener("online", () => {
+  if(activeSession?.user?.id && !guestMode) saveDraft();
+});
+
+document.getElementById("saveDraftBtn")?.addEventListener("click", () => saveDraft());
+document.getElementById("newDraftBtn")?.addEventListener("click", async () => {
+  if(guestMode){
+    location.reload();
+    return;
+  }
+  if(!confirm("Start a new manuscript? Your current saved draft will be replaced by the new blank draft.")) return;
+  Object.assign(state, {
+    rawText:"", targetFormat:null, blocks:[], authorsDetected:false,
+    primaryAuthor:{salutation:"Dr.",name:"",designation:"",email:"",affiliation:""},
+    coAuthors:[], references:[], entryMode:"upload", selectedField:"", selectedTopic:null
+  });
+  currentStep = 1;
+  lastDraftSignature = "";
+  lastCloudDraftSignature = "";
+  const paste = document.getElementById("pasteArea");
+  if(paste) paste.value = "";
+  document.querySelectorAll("#formatGrid .format-pill").forEach(p => p.classList.remove("sel"));
+  document.querySelectorAll("#modeGrid .format-pill").forEach(p => p.classList.toggle("sel", p.dataset.mode === "upload"));
+  if(document.getElementById("uploadPanel")) document.getElementById("uploadPanel").style.display = "";
+  if(document.getElementById("topicPanel")) document.getElementById("topicPanel").style.display = "none";
+  document.querySelectorAll(".sheet").forEach((sheet,i) => sheet.classList.toggle("hidden", i > 0));
+  railTo(1, true);
+  await saveDraft();
+});
 
 /* =========================================================
    SECTION GUIDANCE
@@ -2491,7 +3135,9 @@ function xmlText(value){
    NAVIGATION
    ========================================================= */
 
-function railTo(stepNum){
+function railTo(stepNum, skipDraft=false){
+
+  currentStep = stepNum;
 
   document
     .querySelectorAll(".rail-step")
@@ -2541,6 +3187,8 @@ function railTo(stepNum){
     top:0,
     behavior:"smooth"
   });
+
+  if(!skipDraft) scheduleDraftSave();
 
 }
 
@@ -3611,6 +4259,7 @@ async function handleFile(
     }
 
     updateContinueButton();
+    scheduleDraftSave();
 
   }catch(error){
 
@@ -6309,7 +6958,9 @@ function downloadBlob(
    INITIAL APPLICATION STATE
    ========================================================= */
 
-railTo(1);
+if(!activeSession && !guestMode){
+  railTo(1, true);
+}
 
 updateContinueButton();
 
