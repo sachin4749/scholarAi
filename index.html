@@ -2271,31 +2271,70 @@ function showAuthPage(route,replace=false){
 }
 function showApp(){ document.body.classList.remove('auth-redirecting'); document.getElementById('authScreen').style.display='none'; document.querySelector('.desk').style.display='block'; }
 function showGate(route='entry'){ document.body.classList.add('auth-redirecting'); document.querySelector('.desk').style.display='none'; document.getElementById('authScreen').style.display='flex'; showAuthPage(route,true); }
-async function ensureUserProfile(user){
-  if(!supabaseClient||!user)return;
-  const fullName=(user.user_metadata?.full_name||'').trim();
-  const {error}=await supabaseClient.from('profiles').upsert({id:user.id,full_name:fullName,email:user.email||'',updated_at:new Date().toISOString()},{onConflict:'id'});
+async function ensureUserProfile(user, suppliedName=''){
+  if(!supabaseClient||!user)return '';
+  const metadataName=(user.user_metadata?.full_name||'').trim();
+  const providedName=(suppliedName||'').trim();
+  let fullName=metadataName || providedName;
+
+  // For older accounts, recover the name already stored in profiles.
+  if(!fullName){
+    const {data:profile,error:profileError}=await supabaseClient
+      .from('profiles')
+      .select('full_name')
+      .eq('id',user.id)
+      .maybeSingle();
+    if(profileError) console.warn('Profile read failed:',profileError.message);
+    fullName=(profile?.full_name||'').trim();
+  }
+
+  const {error}=await supabaseClient.from('profiles').upsert({
+    id:user.id,
+    full_name:fullName,
+    email:user.email||'',
+    updated_at:new Date().toISOString()
+  },{onConflict:'id'});
   if(error)console.warn('Profile save failed:',error.message);
+  return fullName;
 }
-function setAppSession(session,guest=false){
+
+async function setAppSession(session,guest=false){
   activeSession=session; guestMode=guest;
-  const userArea=document.getElementById('userArea'); const userEmail=document.getElementById('userEmail'); const draftBar=document.getElementById('draftBar');
-  if(userArea)userArea.style.display=session?'flex':'none'; if(userEmail)userEmail.textContent=session?.user?.email||''; if(draftBar)draftBar.style.display=session&&!guest?'flex':'none';
+  const userArea=document.getElementById('userArea');
+  const userEmail=document.getElementById('userEmail');
+  const draftBar=document.getElementById('draftBar');
+
+  let displayName='';
+  if(session?.user && !guest){
+    displayName=await ensureUserProfile(session.user);
+  }
+
+  if(userArea)userArea.style.display=session?'flex':'none';
+  if(userEmail){
+    // Show the user's name after login; email is only used as a fallback.
+    userEmail.textContent=displayName || session?.user?.email || '';
+    userEmail.title=session?.user?.email || '';
+  }
+  if(draftBar)draftBar.style.display=session&&!guest?'flex':'none';
   showApp();
-  window.dispatchEvent(new CustomEvent('scholar-auth-ready',{detail:{session,guest}}));
+  window.dispatchEvent(new CustomEvent('scholar-auth-ready',{detail:{session,guest,displayName}}));
 }
 async function initScholarAuth(){
   if(!SUPABASE_PUBLISHABLE_KEY.trim()){ showGate('entry'); showAuthMessage('loginMsg','Add your Supabase publishable key first.',true); return; }
   if(!window.supabase||typeof window.supabase.createClient!=='function'){ showGate('entry'); showAuthMessage('loginMsg','Supabase could not be loaded. Check your internet connection.',true); return; }
   supabaseClient=window.supabase.createClient(SUPABASE_URL,SUPABASE_PUBLISHABLE_KEY); window.scholarSupabase=supabaseClient;
   supabaseClient.auth.onAuthStateChange((event,session)=>{
-    if(session){ activeSession=session; guestMode=false; ensureUserProfile(session.user); if(document.body.classList.contains('auth-redirecting')) setAppSession(session,false); }
+    if(session){
+      activeSession=session;
+      guestMode=false;
+      if(document.body.classList.contains('auth-redirecting')) setAppSession(session,false);
+    }
     else if(!guestMode && authReady){ activeSession=null; showGate('login'); }
   });
   const {data,error}=await supabaseClient.auth.getSession();
   authReady=true;
   if(error){ showGate('login'); showAuthMessage('loginMsg',error.message,true); return; }
-  if(data.session){ ensureUserProfile(data.session.user); setAppSession(data.session,false); }
+  if(data.session){ setAppSession(data.session,false); }
   else showGate(routeFromHash());
 }
 function enterGuestMode(){
