@@ -2255,6 +2255,11 @@ function appPage(){ return baseUrl(); }
 function showAuthMessage(id,text,error=false){ const el=document.getElementById(id); if(!el)return; el.textContent=text; el.className='auth-message show'+(error?' error':''); }
 function clearAuthMessages(){ document.querySelectorAll('.auth-message').forEach(x=>{x.textContent='';x.className='auth-message';}); }
 function routeFromHash(){ const h=window.location.hash.replace(/^#/,'').toLowerCase(); return Object.keys(AUTH_ROUTES).find(k=>AUTH_ROUTES[k]===h)||'entry'; }
+function isRecoveryFlow(){
+  const qs=new URLSearchParams(window.location.search);
+  const hash=window.location.hash.toLowerCase();
+  return qs.get('reset')==='1' || hash.includes('type=recovery') || hash.includes('access_token=');
+}
 function showAuthPage(route,replace=false){
   const key=AUTH_IDS[route]?route:'entry';
   document.querySelectorAll('.auth-page').forEach(p=>p.classList.remove('active'));
@@ -2317,17 +2322,31 @@ async function initScholarAuth(){
   if(!window.supabase||typeof window.supabase.createClient!=='function'){ showGate('entry'); showAuthMessage('loginMsg','Supabase could not be loaded. Check your internet connection.',true); return; }
   supabaseClient=window.supabase.createClient(SUPABASE_URL,SUPABASE_PUBLISHABLE_KEY); window.scholarSupabase=supabaseClient;
   supabaseClient.auth.onAuthStateChange((event,session)=>{
+    if(event==='PASSWORD_RECOVERY'){
+      activeSession=session;
+      guestMode=false;
+      // Supabase sends the recovery session in the URL fragment. Do not route
+      // it to the normal app/login screen; show the password form instead.
+      showGate('reset');
+      return;
+    }
     if(session){
       activeSession=session;
       guestMode=false;
-      if(document.body.classList.contains('auth-redirecting')) setAppSession(session,false);
+      if(document.body.classList.contains('auth-redirecting') && !isRecoveryFlow()) setAppSession(session,false);
+      else if(isRecoveryFlow()) showGate('reset');
     }
     else if(!guestMode && authReady){ activeSession=null; showGate('login'); }
   });
   const {data,error}=await supabaseClient.auth.getSession();
   authReady=true;
   if(error){ showGate('login'); showAuthMessage('loginMsg',error.message,true); return; }
-  if(data.session){ setAppSession(data.session,false); }
+  if(isRecoveryFlow()){
+    if(data.session) activeSession=data.session;
+    showGate('reset');
+    showAuthMessage('resetMsg','Enter your new password below.');
+  }
+  else if(data.session){ setAppSession(data.session,false); }
   else showGate(routeFromHash());
 }
 function enterGuestMode(){
@@ -2364,7 +2383,7 @@ document.addEventListener('DOMContentLoaded',()=>{
 
   document.getElementById('forgotForm')?.addEventListener('submit',async e=>{
     e.preventDefault(); const email=document.getElementById('forgotEmail').value.trim(); showAuthMessage('forgotMsg','Sending reset link…');
-    const {error}=await supabaseClient.auth.resetPasswordForEmail(email,{redirectTo:baseUrl()+'#reset-password'});
+    const {error}=await supabaseClient.auth.resetPasswordForEmail(email,{redirectTo:baseUrl()+'?reset=1'});
     if(error){showAuthMessage('forgotMsg',error.message,true);return;} showAuthMessage('forgotMsg','Reset link sent. Check your email.');
   });
 
@@ -2372,7 +2391,10 @@ document.addEventListener('DOMContentLoaded',()=>{
     e.preventDefault(); const password=document.getElementById('resetPassword').value; showAuthMessage('resetMsg','Updating password…');
     const {error}=await supabaseClient.auth.updateUser({password});
     if(error){showAuthMessage('resetMsg',error.message,true);return;}
-    showAuthPage('login'); showAuthMessage('loginMsg','Password updated successfully. You can now log in.');
+    await supabaseClient.auth.signOut();
+    activeSession=null; guestMode=false;
+    history.replaceState({},'',baseUrl()+'#login');
+    showGate('login'); showAuthMessage('loginMsg','Password updated successfully. You can now log in.');
   });
 
   document.getElementById('logoutBtn')?.addEventListener('click',async()=>{ if(supabaseClient)await supabaseClient.auth.signOut(); guestMode=false; activeSession=null; showGate('login'); history.replaceState({},'',baseUrl()+'#login'); });
