@@ -29,8 +29,8 @@
   --accent-red:#A03A2C;
   --accent-red-soft:#E7CFC7;
 
-  --accent-navy:#2B3A55;
-  --accent-navy-soft:#D8DEE8;
+  --accent-navy:#A03A2C;
+  --accent-navy-soft:#E7CFC7;
 
   --line:#C7C4B4;
   --flag:#F0D9A8;
@@ -1528,7 +1528,7 @@ footer{
 }
 
 /* =========================================================
-   AUTHENTICATION
+   AUTHENTICATION — single-file access gate
    ========================================================= */
 #authScreen{
   min-height:100vh;
@@ -1596,6 +1596,8 @@ footer{
   #authScreen{display:none!important;}
 }
 
+body.auth-redirecting .desk{display:none!important;}
+
 </style>
 </head>
 
@@ -1610,7 +1612,7 @@ footer{
     <div class="auth-card">
       <div id="authMessage" class="auth-message" role="status" aria-live="polite"></div>
 
-      <section id="entryView" class="auth-view active auth-entry">
+      <section id="entryView" class="auth-view auth-entry">
         <div class="auth-page-label">Secure access</div>
         <h1>Welcome to ScholarAI</h1>
         <p class="auth-sub">Choose how you want to access ScholarAI.</p>
@@ -1625,7 +1627,7 @@ footer{
         <div class="auth-entry-note">Login gives you personal draft storage and recovery. Guest mode gives temporary access only and does not save your work.</div>
       </section>
 
-      <section id="loginView" class="auth-view">
+      <section id="loginView" class="auth-view active">
         <button class="auth-link auth-back" type="button" data-auth-view="entryView">← Back</button>
         <div class="auth-page-label">Existing account</div>
         <h1>Login</h1>
@@ -2304,7 +2306,7 @@ function setAppVisible(visible, session){
 function currentRedirectUrl(){
   // Return to this app after Supabase password recovery. The recovery event
   // will switch the UI to the reset-password page.
-  return window.location.origin + window.location.pathname + "#reset-password";
+  return window.location.href.split("#")[0] + "#reset-password";
 }
 
 async function ensureUserProfile(user, fallbackName=""){
@@ -2334,13 +2336,17 @@ function leaveGuestMode(){
 
 
 async function initScholarAuth(){
+  const guestRequested = new URLSearchParams(window.location.search).get("guest") === "1";
+
   if(!window.supabase || typeof window.supabase.createClient !== "function"){
     setAuthMessage("Supabase Auth library could not be loaded. Check your internet connection.", "error");
+    showAuthView("loginView", false);
     return;
   }
 
   if(!SUPABASE_PUBLISHABLE_KEY || SUPABASE_PUBLISHABLE_KEY.trim() === ""){
     setAuthMessage("Add your Supabase publishable key in SUPABASE_PUBLISHABLE_KEY before using authentication.", "error");
+    showAuthView("loginView", false);
     return;
   }
 
@@ -2352,7 +2358,7 @@ async function initScholarAuth(){
       activeSession = session;
       guestMode = false;
       setAppVisible(false, null);
-      showAuthView("resetPasswordView");
+      showAuthView("resetPasswordView", false);
       setAuthMessage("Choose a new password for your account.");
       return;
     }
@@ -2363,54 +2369,39 @@ async function initScholarAuth(){
       ensureUserProfile(session.user);
       setAppVisible(true, session);
       window.dispatchEvent(new CustomEvent("scholar-auth-ready", { detail:{ session, guest:false } }));
-    }else{
+    }else if(!guestMode && !guestRequested){
       activeSession = null;
-      if(!guestMode){
-        setAppVisible(false, null);
-        showAuthView("entryView");
-        window.dispatchEvent(new CustomEvent("scholar-auth-ready", { detail:{ session:null, guest:false } }));
-      }
+      setAppVisible(false, null);
+      showAuthView("loginView", false);
     }
   });
 
   const { data, error } = await supabaseClient.auth.getSession();
   if(error){
     setAuthMessage(error.message, "error");
+    showAuthView("loginView", false);
     return;
   }
 
   authReady = true;
-  if(data.session){
+
+  if(data.session && !guestRequested){
     activeSession = data.session;
     guestMode = false;
     ensureUserProfile(data.session.user);
     setAppVisible(true, data.session);
     window.dispatchEvent(new CustomEvent("scholar-auth-ready", { detail:{ session:data.session, guest:false } }));
-  }else if(!guestMode){
+  }else if(guestRequested){
+    const cleanUrl = new URL(window.location.href);
+    cleanUrl.searchParams.delete("guest");
+    window.history.replaceState({}, "", cleanUrl.href);
+    enterGuestMode();
+  }else{
     setAppVisible(false, null);
-    showAuthView(authViewFromRoute(), false);
-    window.dispatchEvent(new CustomEvent("scholar-auth-ready", { detail:{ session:null, guest:false } }));
+    showAuthView("loginView", false);
   }
 }
-
 document.addEventListener("DOMContentLoaded", () => {
-  document.querySelectorAll("[data-auth-view]").forEach(button => {
-    button.addEventListener("click", () => showAuthView(button.dataset.authView, true));
-  });
-
-  // Auth screens behave like separate pages while keeping the project as a
-  // single HTML file. Browser Back/Forward also works between auth screens.
-  window.addEventListener("popstate", () => {
-    if(!activeSession && !guestMode){
-      showAuthView(authViewFromRoute(), false);
-    }
-  });
-  window.addEventListener("hashchange", () => {
-    if(!activeSession && !guestMode){
-      showAuthView(authViewFromRoute(), false);
-    }
-  });
-
   authEl("loginForm")?.addEventListener("submit", async (event) => {
     event.preventDefault();
     if(!supabaseClient || !authReady) return;
@@ -2538,10 +2529,10 @@ document.addEventListener("DOMContentLoaded", () => {
     if(error){ alert(error.message); return; }
     guestMode = false;
     activeSession = null;
+    setAppVisible(false, null);
+    showAuthView("loginView", false);
   });
 
-  // Open the correct authentication "page" from the URL when the app loads.
-  showAuthView(authViewFromRoute(), false);
   initScholarAuth();
 });
 </script>
