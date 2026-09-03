@@ -1226,7 +1226,7 @@ footer{
 
 @page{
   size:Letter;
-  margin:0.55in 0.55in 0.55in 0.55in;
+  margin:0.75in 0.625in 1in 0.625in;
 }
 
 @media print{
@@ -1311,45 +1311,63 @@ footer{
     text-align:left !important;
   }
 
-  /* ================= IEEE TWO-COLUMN PAPER ================= */
+  /* ================= IEEE PROFESSIONAL TWO-COLUMN PAPER ================= */
+  /* IEEE-like conference manuscript: US Letter, 0.625in side margins,
+     0.75in top / 1in bottom, 10pt Times, two equal columns. */
   #formattedOutput.fmt-ieee{
     column-count:2 !important;
     column-gap:0.25in !important;
     column-fill:auto !important;
-    column-rule:0 !important;
+    width:100% !important;
+    max-width:none !important;
+    box-sizing:border-box !important;
+    font-family:"Times New Roman", Times, serif !important;
+    font-size:10pt !important;
+    line-height:1.08 !important;
+    color:#000 !important;
+    text-align:left !important;
+    hyphens:auto !important;
   }
 
-  /* Title and author information span the complete page width. */
+  /* Full-width first-page front matter. */
   #formattedOutput.fmt-ieee .author-block{
     column-span:all !important;
     display:block !important;
     width:100% !important;
+    box-sizing:border-box !important;
     text-align:center !important;
-    margin:0 0 12pt !important;
+    margin:0 0 10pt !important;
     padding:0 !important;
-    page-break-after:avoid !important;
+    break-inside:avoid !important;
     break-after:avoid !important;
+    page-break-after:avoid !important;
   }
 
   #formattedOutput.fmt-ieee .author-block .title{
     font-family:"Times New Roman", Times, serif !important;
-    font-size:20pt !important;
-    line-height:1.15 !important;
+    font-size:21pt !important;
+    line-height:1.05 !important;
     font-weight:400 !important;
-    color:#111 !important;
+    letter-spacing:0 !important;
+    color:#000 !important;
     margin:0 0 9pt !important;
+    padding:0 !important;
     text-align:center !important;
   }
 
+  /* Author names and affiliations are kept as independent blocks so long
+     names/emails do not distort the three-column author area. */
   #formattedOutput.fmt-ieee .author-block .names{
     display:grid !important;
     grid-template-columns:repeat(3,minmax(0,1fr)) !important;
-    gap:0.12in !important;
+    align-items:start !important;
+    justify-items:stretch !important;
+    gap:0.18in !important;
     width:100% !important;
     font-family:"Times New Roman", Times, serif !important;
     font-size:9pt !important;
-    line-height:1.2 !important;
-    color:#111 !important;
+    line-height:1.12 !important;
+    color:#000 !important;
     font-style:normal !important;
     text-align:center !important;
   }
@@ -1357,38 +1375,40 @@ footer{
   #formattedOutput.fmt-ieee .author-block .author-item{
     min-width:0 !important;
     overflow-wrap:anywhere !important;
+    word-break:normal !important;
+    break-inside:avoid !important;
   }
 
-  #formattedOutput.fmt-ieee h4{
-    font-family:"Times New Roman", Times, serif !important;
+  #formattedOutput.fmt-ieee .author-block .author-name{
     font-size:10pt !important;
-    line-height:1.15 !important;
-    font-weight:700 !important;
-    color:#111 !important;
-    margin:8pt 0 3pt !important;
-    padding:0 !important;
-    page-break-after:avoid !important;
-    break-after:avoid !important;
-    text-transform:uppercase !important;
-    text-align:left !important;
-    letter-spacing:0 !important;
-  }
-
-  #formattedOutput.fmt-ieee p{
-    font-family:"Times New Roman", Times, serif !important;
-    font-size:9pt !important;
+    font-weight:400 !important;
     line-height:1.12 !important;
-    color:#111 !important;
-    margin:0 0 5pt !important;
-    padding:0 !important;
-    text-align:justify !important;
-    orphans:2;
-    widows:2;
+    margin:0 0 2pt !important;
   }
 
+  #formattedOutput.fmt-ieee .author-block .author-meta{
+    display:block !important;
+    font-size:8.5pt !important;
+    line-height:1.14 !important;
+    font-weight:400 !important;
+  }
+
+  /* Abstract and keywords are front matter and therefore remain above the
+     first numbered section, spanning both columns like the supplied sample. */
   #formattedOutput.fmt-ieee .ieee-abstract,
   #formattedOutput.fmt-ieee .ieee-keywords{
+    column-span:all !important;
+    width:100% !important;
+    box-sizing:border-box !important;
+    font-size:9pt !important;
+    line-height:1.1 !important;
     text-align:justify !important;
+    text-indent:0 !important;
+    margin:0 0 5pt !important;
+    padding:0 !important;
+    color:#000 !important;
+    hyphens:auto !important;
+    break-inside:avoid !important;
   }
 
   #formattedOutput.fmt-ieee .ieee-abstract strong,
@@ -1397,41 +1417,92 @@ footer{
     font-style:italic !important;
   }
 
+  #formattedOutput.fmt-ieee .ieee-keywords{
+    margin-bottom:8pt !important;
+  }
+
+  /* IEEE first-level section headings: I. INTRODUCTION, II. METHOD, etc. */
+  #formattedOutput.fmt-ieee h4{
+    font-family:"Times New Roman", Times, serif !important;
+    font-size:10pt !important;
+    line-height:1.05 !important;
+    font-weight:700 !important;
+    color:#000 !important;
+    margin:8pt 0 4pt !important;
+    padding:0 !important;
+    text-transform:uppercase !important;
+    text-align:center !important;
+    letter-spacing:0 !important;
+    break-after:avoid !important;
+    page-break-after:avoid !important;
+    break-inside:avoid !important;
+  }
+
+  #formattedOutput.fmt-ieee p{
+    font-family:"Times New Roman", Times, serif !important;
+    font-size:10pt !important;
+    line-height:1.08 !important;
+    font-weight:400 !important;
+    color:#000 !important;
+    margin:0 0 3.5pt !important;
+    padding:0 !important;
+    text-align:justify !important;
+    text-indent:0.14in !important;
+    orphans:2 !important;
+    widows:2 !important;
+    hyphens:auto !important;
+  }
+
+  #formattedOutput.fmt-ieee .ieee-abstract,
+  #formattedOutput.fmt-ieee .ieee-keywords{
+    text-indent:0 !important;
+  }
+
+  /* Keep a heading with the paragraph that follows it whenever possible. */
+  #formattedOutput.fmt-ieee h4 + p{
+    break-before:avoid !important;
+    page-break-before:avoid !important;
+  }
+
+  /* IEEE references use compact 8pt text with a true hanging indent. */
   #formattedOutput.fmt-ieee .ref-list{
-    margin:4pt 0 0 0 !important;
+    margin:3pt 0 0 0 !important;
     padding:0 !important;
     list-style:none !important;
     font-family:"Times New Roman", Times, serif !important;
-    font-size:8.5pt !important;
-    line-height:1.1 !important;
+    font-size:8pt !important;
+    line-height:1.08 !important;
+    counter-reset:ieee-ref !important;
   }
 
   #formattedOutput.fmt-ieee .ref-list li{
-    margin:0 0 3pt !important;
+    position:relative !important;
+    margin:0 0 2.5pt 0.23in !important;
     padding:0 !important;
     font-family:"Times New Roman", Times, serif !important;
-    font-size:8.5pt !important;
-    line-height:1.1 !important;
-    color:#111 !important;
+    font-size:8pt !important;
+    line-height:1.08 !important;
+    color:#000 !important;
+    text-align:left !important;
+    text-indent:-0.23in !important;
     break-inside:avoid !important;
     page-break-inside:avoid !important;
-    overflow-wrap:anywhere;
+    overflow-wrap:anywhere !important;
   }
 
   #formattedOutput.fmt-ieee a{
-    color:#111 !important;
+    color:#000 !important;
     text-decoration:none !important;
   }
 
-  #formattedOutput.fmt-ieee h4 + p{
-    page-break-before:avoid !important;
-    break-before:avoid !important;
+  #formattedOutput.fmt-ieee .ref-list li + li{
+    margin-top:0 !important;
   }
 
-  #formattedOutput.fmt-ieee .author-block,
-  #formattedOutput.fmt-ieee h4,
-  #formattedOutput.fmt-ieee .ref-list li{
-    break-inside:avoid !important;
+  @media print{
+    #formattedOutput.fmt-ieee{
+      column-fill:auto !important;
+    }
   }
 
   /* ================= OTHER FORMATS: CLEAN SINGLE COLUMN ================= */
@@ -5688,14 +5759,30 @@ function buildFormattedOutput(){
       );
 
     if(state.targetFormat === "IEEE"){
-      authorNames.forEach(name=>{
-        namesWrap.appendChild(
-          el(
-            "div",
-            {class:"author-item"},
-            name
-          )
-        );
+      const ieeeAuthors=[];
+      if(state.primaryAuthor.name) ieeeAuthors.push(state.primaryAuthor);
+      state.coAuthors.forEach(a=>{ if(a.name) ieeeAuthors.push(a); });
+
+      ieeeAuthors.forEach(author=>{
+        const item=el("div",{class:"author-item"});
+        const nameText=((author.salutation||"")+" "+(author.name||"")).trim();
+        item.appendChild(el("div",{class:"author-name"},nameText));
+
+        const meta=[];
+        if(author.designation) meta.push(author.designation);
+        if(author.affiliation) meta.push(author.affiliation);
+        if(author.city) meta.push(author.city);
+        if(author.email) meta.push(author.email);
+
+        if(meta.length){
+          const metaWrap=el("div",{class:"author-meta"});
+          meta.forEach((value,index)=>{
+            if(index) metaWrap.appendChild(document.createElement("br"));
+            metaWrap.appendChild(document.createTextNode(value));
+          });
+          item.appendChild(metaWrap);
+        }
+        namesWrap.appendChild(item);
       });
     }else{
       namesWrap.appendChild(
@@ -6110,6 +6197,137 @@ p{
   page-break-inside:avoid;
 }
 
+/* IEEE export styling */
+.ieee-export{
+  width:100%;
+  max-width:none;
+  margin:0;
+}
+
+.ieee-export .fmt-ieee{
+  font-family:"Times New Roman", Times, serif;
+  font-size:10pt;
+  line-height:1.08;
+  column-count:2;
+  column-gap:0.25in;
+  column-fill:auto;
+  text-align:left;
+  color:#000;
+  hyphens:auto;
+}
+
+.ieee-export .fmt-ieee .author-block{
+  column-span:all;
+  display:block;
+  text-align:center;
+  margin:0 0 10pt;
+  break-inside:avoid;
+  break-after:avoid;
+  page-break-after:avoid;
+}
+
+.ieee-export .fmt-ieee .author-block .title{
+  font-size:21pt;
+  line-height:1.05;
+  font-weight:400;
+  margin:0 0 9pt;
+}
+
+.ieee-export .fmt-ieee .author-block .names{
+  display:grid;
+  grid-template-columns:repeat(3,minmax(0,1fr));
+  align-items:start;
+  gap:0.18in;
+  font-size:9pt;
+  line-height:1.12;
+  text-align:center;
+}
+
+.ieee-export .fmt-ieee .author-name{
+  font-size:10pt;
+  line-height:1.12;
+}
+
+.ieee-export .fmt-ieee .author-meta{
+  display:block;
+  font-size:8.5pt;
+  line-height:1.14;
+}
+
+.ieee-export .fmt-ieee .ieee-abstract,
+.ieee-export .fmt-ieee .ieee-keywords{
+  column-span:all;
+  font-size:9pt;
+  line-height:1.1;
+  text-align:justify;
+  text-indent:0;
+  margin:0 0 5pt;
+  break-inside:avoid;
+}
+
+.ieee-export .fmt-ieee .ieee-keywords{ margin-bottom:8pt; }
+
+.ieee-export .fmt-ieee .ieee-abstract strong,
+.ieee-export .fmt-ieee .ieee-keywords strong{
+  font-weight:700;
+  font-style:italic;
+}
+
+.ieee-export .fmt-ieee h4{
+  font-size:10pt;
+  line-height:1.05;
+  font-weight:700;
+  text-transform:uppercase;
+  text-align:center;
+  margin:8pt 0 4pt;
+  break-after:avoid;
+  page-break-after:avoid;
+}
+
+.ieee-export .fmt-ieee p{
+  font-size:10pt;
+  line-height:1.08;
+  text-align:justify;
+  text-indent:0.14in;
+  margin:0 0 3.5pt;
+  orphans:2;
+  widows:2;
+  hyphens:auto;
+}
+
+.ieee-export .fmt-ieee .ieee-abstract,
+.ieee-export .fmt-ieee .ieee-keywords{ text-indent:0; }
+
+.ieee-export .fmt-ieee h4 + p{
+  break-before:avoid;
+  page-break-before:avoid;
+}
+
+.ieee-export .fmt-ieee .ref-list{
+  list-style:none;
+  margin:3pt 0 0;
+  padding:0;
+}
+
+.ieee-export .fmt-ieee .ref-list li{
+  font-size:8pt;
+  line-height:1.08;
+  text-align:left;
+  text-indent:-0.23in;
+  margin:0 0 2.5pt 0.23in;
+  padding:0;
+  break-inside:avoid;
+  page-break-inside:avoid;
+}
+
+@media print{
+  @page{
+    size:Letter;
+    margin:0.75in 0.625in 1in 0.625in;
+  }
+  .ieee-export .fmt-ieee{ column-fill:auto; }
+}
+
 @media(max-width:700px){
 
   .manuscript{
@@ -6133,7 +6351,7 @@ p{
 
 <body>
 
-<div class="manuscript">
+<div class="manuscript ${state.targetFormat === "IEEE" ? "ieee-export" : ""}">
 
 ${$("#formattedOutput").innerHTML}
 
