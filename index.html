@@ -1225,8 +1225,8 @@ footer{
    ========================================================= */
 
 @page{
-  size:A4;
-  margin:25mm 22mm 25mm 22mm;
+  size:Letter;
+  margin:0.55in 0.55in 0.55in 0.55in;
 }
 
 @media print{
@@ -1235,31 +1235,22 @@ footer{
   body{
     margin:0 !important;
     padding:0 !important;
-
     background:#fff !important;
     color:#111 !important;
-
     width:100% !important;
   }
 
-  body{
-    overflow:visible !important;
-  }
+  body{ overflow:visible !important; }
 
-  /* Hide normal application */
   body > .desk{
     display:block !important;
-
     width:100% !important;
     max-width:none !important;
-
     margin:0 !important;
     padding:0 !important;
-
     background:#fff !important;
   }
 
-  /* Hide every direct section except Step 6 */
   .desk > header,
   .desk > .tagline,
   .desk > .rail,
@@ -1274,24 +1265,16 @@ footer{
 
   #step6{
     display:block !important;
-
     visibility:visible !important;
-
     position:static !important;
-
     width:100% !important;
     max-width:none !important;
-
     margin:0 !important;
     padding:0 !important;
-
     border:0 !important;
     border-radius:0 !important;
-
     box-shadow:none !important;
-
     background:#fff !important;
-
     transform:none !important;
   }
 
@@ -1304,213 +1287,223 @@ footer{
 
   #printArea{
     display:block !important;
-
     visibility:visible !important;
-
     position:static !important;
-
     width:100% !important;
-
     margin:0 !important;
     padding:0 !important;
-
     background:#fff !important;
   }
 
-  #printArea *{
-    visibility:visible !important;
-  }
-
-  /* =====================================================
-     MANUSCRIPT
-     ===================================================== */
+  #printArea *{ visibility:visible !important; }
 
   #formattedOutput{
     display:block !important;
-
     width:100% !important;
     max-width:none !important;
-
     margin:0 !important;
     padding:0 !important;
-
     background:#fff !important;
     color:#111 !important;
-
     font-family:"Times New Roman", Times, serif !important;
-
-    font-size:11pt !important;
-    line-height:1.55 !important;
-
+    font-size:10pt !important;
+    line-height:1.15 !important;
     text-align:left !important;
   }
 
-  /* =====================================================
-     TITLE / AUTHORS
-     ===================================================== */
+  /* ================= IEEE TWO-COLUMN PAPER ================= */
+  #formattedOutput.fmt-ieee{
+    column-count:2 !important;
+    column-gap:0.25in !important;
+    column-fill:auto !important;
+    column-rule:0 !important;
+  }
 
-  #formattedOutput .author-block{
+  /* Title and author information span the complete page width. */
+  #formattedOutput.fmt-ieee .author-block{
+    column-span:all !important;
     display:block !important;
-
+    width:100% !important;
     text-align:center !important;
-
-    margin:0 0 24pt !important;
-    padding:0 !important;
-
-    page-break-after:avoid !important;
-    break-after:avoid !important;
-  }
-
-  #formattedOutput .author-block .title{
-    font-family:"Times New Roman", Times, serif !important;
-
-    font-size:18pt !important;
-
-    line-height:1.25 !important;
-
-    font-weight:700 !important;
-
-    color:#111 !important;
-
     margin:0 0 12pt !important;
-
-    text-align:center !important;
-  }
-
-  #formattedOutput .author-block .names{
-    font-family:"Times New Roman", Times, serif !important;
-
-    font-size:11pt !important;
-
-    line-height:1.45 !important;
-
-    color:#111 !important;
-
-    font-style:normal !important;
-
-    text-align:center !important;
-  }
-
-  /* =====================================================
-     SECTION HEADINGS
-     ===================================================== */
-
-  #formattedOutput h4{
-    font-family:"Times New Roman", Times, serif !important;
-
-    font-size:12pt !important;
-
-    line-height:1.25 !important;
-
-    font-weight:700 !important;
-
-    color:#111 !important;
-
-    margin:18pt 0 8pt !important;
     padding:0 !important;
-
     page-break-after:avoid !important;
     break-after:avoid !important;
+  }
+
+  #formattedOutput.fmt-ieee .author-block .title{
+    font-family:"Times New Roman", Times, serif !important;
+    font-size:20pt !important;
+    line-height:1.15 !important;
+    font-weight:400 !important;
+    color:#111 !important;
+    margin:0 0 9pt !important;
+    text-align:center !important;
+  }
+
+  #formattedOutput.fmt-ieee .author-block .names{
+    display:grid !important;
+    grid-template-columns:repeat(3,minmax(0,1fr)) !important;
+    gap:0.12in !important;
+    width:100% !important;
+    font-family:"Times New Roman", Times, serif !important;
+    font-size:9pt !important;
+    line-height:1.2 !important;
+    color:#111 !important;
+    font-style:normal !important;
+    text-align:center !important;
+  }
+
+  #formattedOutput.fmt-ieee .author-block .author-item{
+    min-width:0 !important;
+    overflow-wrap:anywhere !important;
   }
 
   #formattedOutput.fmt-ieee h4{
+    font-family:"Times New Roman", Times, serif !important;
+    font-size:10pt !important;
+    line-height:1.15 !important;
+    font-weight:700 !important;
+    color:#111 !important;
+    margin:8pt 0 3pt !important;
+    padding:0 !important;
+    page-break-after:avoid !important;
+    break-after:avoid !important;
     text-transform:uppercase !important;
-
     text-align:left !important;
-
-    letter-spacing:0.02em !important;
+    letter-spacing:0 !important;
   }
 
-  /* =====================================================
-     PARAGRAPHS
-     ===================================================== */
-
-  #formattedOutput p{
+  #formattedOutput.fmt-ieee p{
     font-family:"Times New Roman", Times, serif !important;
-
-    font-size:11pt !important;
-
-    line-height:1.55 !important;
-
+    font-size:9pt !important;
+    line-height:1.12 !important;
     color:#111 !important;
-
-    margin:0 0 9pt !important;
+    margin:0 0 5pt !important;
     padding:0 !important;
-
     text-align:justify !important;
-
-    orphans:3;
-    widows:3;
+    orphans:2;
+    widows:2;
   }
 
-  /* =====================================================
-     REFERENCES
-     ===================================================== */
+  #formattedOutput.fmt-ieee .ieee-abstract,
+  #formattedOutput.fmt-ieee .ieee-keywords{
+    text-align:justify !important;
+  }
 
-  #formattedOutput .ref-list{
-    margin:8pt 0 0 0 !important;
+  #formattedOutput.fmt-ieee .ieee-abstract strong,
+  #formattedOutput.fmt-ieee .ieee-keywords strong{
+    font-weight:700 !important;
+    font-style:italic !important;
+  }
 
+  #formattedOutput.fmt-ieee .ref-list{
+    margin:4pt 0 0 0 !important;
     padding:0 !important;
-
     list-style:none !important;
-
     font-family:"Times New Roman", Times, serif !important;
-
-    font-size:10.5pt !important;
-
-    line-height:1.45 !important;
+    font-size:8.5pt !important;
+    line-height:1.1 !important;
   }
 
-  #formattedOutput .ref-list li{
-    margin:0 0 7pt !important;
+  #formattedOutput.fmt-ieee .ref-list li{
+    margin:0 0 3pt !important;
     padding:0 !important;
-
     font-family:"Times New Roman", Times, serif !important;
-
-    font-size:10.5pt !important;
-
-    line-height:1.45 !important;
-
+    font-size:8.5pt !important;
+    line-height:1.1 !important;
     color:#111 !important;
-
     break-inside:avoid !important;
     page-break-inside:avoid !important;
-
     overflow-wrap:anywhere;
   }
 
-  #formattedOutput a{
+  #formattedOutput.fmt-ieee a{
     color:#111 !important;
     text-decoration:none !important;
   }
 
-  /* =====================================================
-     PAGE FLOW
-     ===================================================== */
-
-  #formattedOutput h4 + p{
+  #formattedOutput.fmt-ieee h4 + p{
     page-break-before:avoid !important;
     break-before:avoid !important;
   }
 
-  #formattedOutput .author-block,
-  #formattedOutput h4,
-  #formattedOutput .ref-list li{
+  #formattedOutput.fmt-ieee .author-block,
+  #formattedOutput.fmt-ieee h4,
+  #formattedOutput.fmt-ieee .ref-list li{
     break-inside:avoid !important;
   }
 
-  /* =====================================================
-     REMOVE SCREEN DECORATIONS
-     ===================================================== */
+  /* ================= OTHER FORMATS: CLEAN SINGLE COLUMN ================= */
+  #formattedOutput:not(.fmt-ieee){
+    font-family:"Times New Roman", Times, serif !important;
+    font-size:11pt !important;
+    line-height:1.55 !important;
+    text-align:left !important;
+  }
+
+  #formattedOutput:not(.fmt-ieee) .author-block{
+    display:block !important;
+    text-align:center !important;
+    margin:0 0 24pt !important;
+    padding:0 !important;
+    page-break-after:avoid !important;
+    break-after:avoid !important;
+  }
+
+  #formattedOutput:not(.fmt-ieee) .author-block .title{
+    font-size:18pt !important;
+    line-height:1.25 !important;
+    font-weight:700 !important;
+    margin:0 0 12pt !important;
+    text-align:center !important;
+  }
+
+  #formattedOutput:not(.fmt-ieee) .author-block .names{
+    font-size:11pt !important;
+    line-height:1.45 !important;
+    text-align:center !important;
+  }
+
+  #formattedOutput:not(.fmt-ieee) h4{
+    font-size:12pt !important;
+    line-height:1.25 !important;
+    font-weight:700 !important;
+    margin:18pt 0 8pt !important;
+    page-break-after:avoid !important;
+    break-after:avoid !important;
+  }
+
+  #formattedOutput:not(.fmt-ieee) p{
+    font-size:11pt !important;
+    line-height:1.55 !important;
+    margin:0 0 9pt !important;
+    text-align:justify !important;
+  }
+
+  #formattedOutput:not(.fmt-ieee) .ref-list{
+    margin:8pt 0 0 0 !important;
+    padding:0 !important;
+    list-style:none !important;
+    font-size:10.5pt !important;
+    line-height:1.45 !important;
+  }
+
+  #formattedOutput:not(.fmt-ieee) .ref-list li{
+    margin:0 0 7pt !important;
+    padding:0 !important;
+    font-size:10.5pt !important;
+    line-height:1.45 !important;
+    break-inside:avoid !important;
+    page-break-inside:avoid !important;
+    overflow-wrap:anywhere;
+  }
 
   .sheet,
   .formatted{
     transform:none !important;
-
     box-shadow:none !important;
-
     border:none !important;
-
     border-radius:0 !important;
   }
 
@@ -5666,14 +5659,32 @@ function buildFormattedOutput(){
 
   if(authorNames.length){
 
-    authorBlock.appendChild(
+    const namesWrap =
       el(
         "div",
-        {
-          class:"names"
-        },
-        authorNames.join(", ")
-      )
+        {class:"names"}
+      );
+
+    if(state.targetFormat === "IEEE"){
+      authorNames.forEach(name=>{
+        namesWrap.appendChild(
+          el(
+            "div",
+            {class:"author-item"},
+            name
+          )
+        );
+      });
+    }else{
+      namesWrap.appendChild(
+        document.createTextNode(
+          authorNames.join(", ")
+        )
+      );
+    }
+
+    authorBlock.appendChild(
+      namesWrap
     );
 
   }
@@ -5794,22 +5805,29 @@ function buildFormattedOutput(){
         ] ||
         sectionKey;
 
-      const headingText =
-        template.numbered
-          ? sectionNumber +
-            ". " +
-            sectionTitle
-          : sectionTitle;
+      /*
+       * IEEE papers treat Abstract and Keywords as front matter,
+       * not as numbered sections. Main sections use Roman numerals
+       * such as "I. INTRODUCTION".
+       */
+      const isIEEE =
+        state.targetFormat === "IEEE";
 
-      container.appendChild(
-        el(
-          "h4",
-          null,
-          headingText
-        )
-      );
-
-      sectionNumber++;
+      const toRoman = n => {
+        const values = [
+          [1000,"M"],[900,"CM"],[500,"D"],[400,"CD"],
+          [100,"C"],[90,"XC"],[50,"L"],[40,"XL"],
+          [10,"X"],[9,"IX"],[5,"V"],[4,"IV"],[1,"I"]
+        ];
+        let result = "";
+        values.forEach(([value,symbol])=>{
+          while(n >= value){
+            result += symbol;
+            n -= value;
+          }
+        });
+        return result;
+      };
 
       matchingBlocks.forEach(
         block=>{
@@ -5818,6 +5836,67 @@ function buildFormattedOutput(){
             getBlockBody(
               block
             );
+
+          /* IEEE Abstract */
+          if(isIEEE && sectionKey === "abstract"){
+            lines.forEach(line=>{
+              if(!line.trim()) return;
+
+              const paragraph =
+                el("p",{class:"ieee-abstract"});
+
+              const label =
+                el("strong",null,"Abstract — ");
+
+              paragraph.appendChild(label);
+              paragraph.appendChild(
+                document.createTextNode(line.trim())
+              );
+              container.appendChild(paragraph);
+            });
+            return;
+          }
+
+          /* IEEE Keywords */
+          if(isIEEE && sectionKey === "keywords"){
+            lines.forEach(line=>{
+              if(!line.trim()) return;
+
+              const paragraph =
+                el("p",{class:"ieee-keywords"});
+
+              const label =
+                el("strong",null,"Keywords — ");
+
+              paragraph.appendChild(label);
+              paragraph.appendChild(
+                document.createTextNode(line.trim())
+              );
+              container.appendChild(paragraph);
+            });
+            return;
+          }
+
+          const headingText =
+            isIEEE
+              ? toRoman(sectionNumber) +
+                ". " +
+                sectionTitle
+              : template.numbered
+                ? sectionNumber +
+                  ". " +
+                  sectionTitle
+                : sectionTitle;
+
+          container.appendChild(
+            el(
+              "h4",
+              null,
+              headingText
+            )
+          );
+
+          sectionNumber++;
 
           lines.forEach(
             line=>{
@@ -5850,10 +5929,12 @@ function buildFormattedOutput(){
   if(state.references.length){
 
     const referencesHeading =
-      template.numbered
-        ? sectionNumber +
-          ". References"
-        : "References";
+      state.targetFormat === "IEEE"
+        ? "REFERENCES"
+        : template.numbered
+          ? sectionNumber +
+            ". References"
+          : "References";
 
     container.appendChild(
       el(
