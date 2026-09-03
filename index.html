@@ -1598,96 +1598,110 @@ footer{
 
 body.auth-redirecting .desk{display:none!important;}
 
+
+/* =========================================================
+   SINGLE-FILE AUTH PAGES
+   ========================================================= */
+.auth-screen{position:fixed;inset:0;z-index:99999;display:flex;align-items:center;justify-content:center;padding:22px;background:var(--paper);overflow:auto}
+.auth-shell{width:100%;max-width:430px}
+.auth-brand{text-align:center;margin-bottom:18px}.auth-logo{font-family:'Newsreader',serif;font-size:2.55rem;font-weight:600}.auth-logo em{color:var(--accent-red);font-style:italic}.auth-kicker{font-family:'IBM Plex Mono',monospace;font-size:.68rem;text-transform:uppercase;letter-spacing:.08em;color:var(--ink-faint);margin-top:3px}
+.auth-page{display:none}.auth-page.active{display:block}.auth-card{background:var(--paper-raised);border:1px solid var(--line);border-top:3px solid var(--ink);border-radius:4px;box-shadow:var(--shadow);padding:30px 28px}.auth-card.center{text-align:center}.auth-label{font-family:'IBM Plex Mono',monospace;font-size:.62rem;text-transform:uppercase;letter-spacing:.09em;color:var(--ink-faint);margin-bottom:10px}.auth-card h1{font-family:'Newsreader',serif;font-size:1.8rem;margin:0 0 6px}.auth-sub{color:var(--ink-soft);font-size:.84rem;line-height:1.55;margin:0 0 22px}.auth-btn{width:100%;min-height:44px;padding:10px 18px;border:1px solid var(--ink);border-radius:4px;background:var(--ink);color:var(--paper);font-weight:600;cursor:pointer;margin-top:10px;transition:opacity .15s,transform .1s}.auth-btn:hover{opacity:.9}.auth-btn:active{transform:translateY(1px)}.auth-btn.ghost{background:transparent;color:var(--ink)}
+.auth-divider{display:flex;gap:10px;align-items:center;margin:20px 0 12px;color:var(--ink-faint);font:.62rem 'IBM Plex Mono',monospace;text-transform:uppercase}.auth-divider:before,.auth-divider:after{content:'';height:1px;background:var(--line);flex:1}.auth-note{margin-top:14px;padding:10px 12px;border:1px solid var(--line);border-left:3px solid var(--accent-red);background:#f8f5ea;color:var(--ink-soft);font-size:.76rem;line-height:1.55;text-align:left}.auth-note strong{display:block;color:var(--ink);margin-bottom:2px}.auth-field{margin-bottom:12px}.auth-field label{display:block;font:.66rem 'IBM Plex Mono',monospace;text-transform:uppercase;letter-spacing:.05em;color:var(--ink-faint);margin-bottom:5px}.auth-field input{width:100%;min-height:44px;padding:10px 11px;border:1px solid var(--line);border-radius:4px;background:#fff;color:var(--ink)}.auth-field input:focus{outline:none;border-color:var(--accent-red);box-shadow:0 0 0 2px var(--accent-red-soft)}.auth-links{display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;margin-top:15px}.auth-links.right{justify-content:flex-end}.auth-link{border:0;background:none;padding:3px 0;color:var(--accent-red);text-decoration:underline;cursor:pointer;font-size:.8rem}.back-center{display:inline-block;margin-top:16px}.auth-message{display:none;padding:9px 11px;border:1px solid var(--accent-red);background:var(--accent-red-soft);color:var(--accent-red);border-radius:4px;font-size:.8rem;margin-bottom:14px}.auth-message.show{display:block}.auth-message.error{background:#f2ddd7;color:#6b2419}.auth-footer{text-align:center;margin-top:16px;font:.64rem 'IBM Plex Mono',monospace;color:var(--ink-faint)}
+body.auth-redirecting>.desk{display:none!important}
+@media(max-width:600px){.auth-screen{padding:14px}.auth-card{padding:24px 18px}}
 </style>
 </head>
+<body class="auth-redirecting">
 
-<body>
-
-<div id="authScreen" aria-label="ScholarAI authentication">
+<!-- =========================================================
+     SCHOLARAI SINGLE-FILE AUTH GATE
+     ========================================================= -->
+<div id="authScreen" class="auth-screen">
   <div class="auth-shell">
-    <div class="auth-brand">
-      <div class="wordmark">Scholar<em>AI</em></div>
-      <div class="auth-kicker">Manuscript Conversion Desk</div>
-    </div>
-    <div class="auth-card">
-      <div id="authMessage" class="auth-message" role="status" aria-live="polite"></div>
+    <div class="auth-brand"><div class="auth-logo">Scholar<em>AI</em></div><div class="auth-kicker">Manuscript Conversion Desk</div></div>
 
-      <section id="entryView" class="auth-view auth-entry">
-        <div class="auth-page-label">Secure access</div>
+    <section id="authEntry" class="auth-page active">
+      <div class="auth-card center">
+        <div class="auth-label">Secure access</div>
         <h1>Welcome to ScholarAI</h1>
         <p class="auth-sub">Choose how you want to access ScholarAI.</p>
-        <button class="btn auth-choice" type="button" data-auth-view="loginView">🔐 Login</button>
-        <button class="btn ghost auth-choice" type="button" data-auth-view="signupView">✨ Create Account</button>
-        <div class="guest-divider">or</div>
-        <button class="btn ghost auth-choice" id="guestBtn" type="button">👤 Continue as Guest</button>
-        <div class="guest-notice">
-          <strong>Guest access — no draft recovery</strong>
-          You can create and format your paper, but guest work is not saved to an account. Refreshing, closing the page, or an unexpected browser/network interruption may lose your work.
-        </div>
-        <div class="auth-entry-note">Login gives you personal draft storage and recovery. Guest mode gives temporary access only and does not save your work.</div>
-      </section>
+        <button class="auth-btn" data-auth-route="login">🔐 Login</button>
+        <button class="auth-btn ghost" data-auth-route="signup">✨ Create Account</button>
+        <div class="auth-divider">or</div>
+        <button class="auth-btn ghost" data-auth-route="guest">👤 Continue as Guest</button>
+        <div class="auth-note"><strong>Guest access — no draft recovery</strong>You can use the full manuscript workflow, but guest work is temporary and is not saved to your account.</div>
+      </div>
+    </section>
 
-      <section id="loginView" class="auth-view active">
-        <button class="auth-link auth-back" type="button" data-auth-view="entryView">← Back</button>
-        <div class="auth-page-label">Existing account</div>
-        <h1>Login</h1>
-        <p class="auth-sub">Sign in with your ScholarAI account to continue. Your drafts are saved to your account and can be recovered later.</p>
-        <form id="loginForm" novalidate>
-          <div class="auth-field"><label for="loginEmail">Email</label><input id="loginEmail" type="email" autocomplete="email" required placeholder="you@example.com"></div>
-          <div class="auth-field"><label for="loginPassword">Password</label><input id="loginPassword" type="password" autocomplete="current-password" required placeholder="Your password"></div>
-          <div class="forgot-password-row">
-            <button class="forgot-password-btn" type="button" data-auth-view="forgotView">Forgot your password?</button>
-          </div>
-          <button class="btn auth-submit" type="submit">Sign in →</button>
+    <section id="authLogin" class="auth-page">
+      <div class="auth-card">
+        <div class="auth-label">Existing account</div><h1>Login</h1>
+        <p class="auth-sub">Sign in to continue. Your drafts are saved to your account and can be recovered later.</p>
+        <div id="loginMsg" class="auth-message"></div>
+        <form id="loginForm">
+          <div class="auth-field"><label>Email</label><input id="loginEmail" type="email" autocomplete="email" required placeholder="you@example.com"></div>
+          <div class="auth-field"><label>Password</label><input id="loginPassword" type="password" autocomplete="current-password" required placeholder="Your password"></div>
+          <div class="auth-links right"><button type="button" class="auth-link" data-auth-route="forgot">Forgot your password?</button></div>
+          <button class="auth-btn" type="submit">Sign in →</button>
         </form>
-        <div class="auth-links auth-secondary-links">
-          <button class="auth-link" type="button" data-auth-view="entryView">← Back to access options</button>
-        </div>
-      </section>
+        <div class="auth-links"><button type="button" class="auth-link" data-auth-route="entry">← Back to access options</button><button type="button" class="auth-link" data-auth-route="signup">Create Account</button></div>
+      </div>
+    </section>
 
-      <section id="signupView" class="auth-view">
-        <button class="auth-link auth-back" type="button" data-auth-view="entryView">← Back</button>
-        <div class="auth-page-label">New account</div>
-        <h1>Create Account</h1>
-        <p class="auth-sub">Create your ScholarAI account to save and recover your drafts across sessions.</p>
-        <form id="signupForm" novalidate>
-          <div class="auth-field"><label for="signupName">Full name</label><input id="signupName" type="text" autocomplete="name" required placeholder="Your full name"></div>
-          <div class="auth-field"><label for="signupEmail">Email</label><input id="signupEmail" type="email" autocomplete="email" required placeholder="you@example.com"></div>
-          <div class="auth-field"><label for="signupPassword">Password</label><input id="signupPassword" type="password" autocomplete="new-password" minlength="6" required placeholder="At least 6 characters"></div>
-          <div class="auth-field"><label for="signupConfirm">Confirm password</label><input id="signupConfirm" type="password" autocomplete="new-password" minlength="6" required placeholder="Repeat your password"></div>
-          <button class="btn auth-submit" type="submit">Create account →</button>
+    <section id="authSignup" class="auth-page">
+      <div class="auth-card">
+        <div class="auth-label">New account</div><h1>Create Account</h1>
+        <p class="auth-sub">Create an account to save and recover your ScholarAI drafts.</p>
+        <div id="signupMsg" class="auth-message"></div>
+        <form id="signupForm">
+          <div class="auth-field"><label>Full name</label><input id="signupName" type="text" autocomplete="name" required placeholder="Your name"></div>
+          <div class="auth-field"><label>Email</label><input id="signupEmail" type="email" autocomplete="email" required placeholder="you@example.com"></div>
+          <div class="auth-field"><label>Password</label><input id="signupPassword" type="password" autocomplete="new-password" minlength="6" required placeholder="At least 6 characters"></div>
+          <button class="auth-btn" type="submit">Create account →</button>
         </form>
-        <div class="auth-links">
-          <button class="auth-link" type="button" data-auth-view="loginView">Already have an account? Login</button>
-        </div>
-      </section>
+        <div class="auth-links"><button type="button" class="auth-link" data-auth-route="entry">← Back to access options</button><button type="button" class="auth-link" data-auth-route="login">Already have an account?</button></div>
+      </div>
+    </section>
 
-      <section id="forgotView" class="auth-view">
-        <button class="auth-link auth-back" type="button" data-auth-view="loginView">← Back to sign in</button>
-        <div class="auth-page-label">Account recovery</div>
-        <h1>Reset password</h1>
-        <p class="auth-sub">Enter your email and we'll send you a password reset link.</p>
-        <form id="forgotForm" novalidate>
-          <div class="auth-field"><label for="forgotEmail">Email</label><input id="forgotEmail" type="email" autocomplete="email" required placeholder="you@example.com"></div>
-          <button class="btn auth-submit" type="submit">Send reset link →</button>
-        </form>
-        <div class="auth-links"></div>
-      </section>
+    <section id="authGuest" class="auth-page">
+      <div class="auth-card center">
+        <div class="auth-label">Temporary access</div><h1>Continue as Guest</h1>
+        <p class="auth-sub">You can use the complete ScholarAI workflow without creating an account.</p>
+        <div class="auth-note"><strong>What happens in Guest mode?</strong>Your manuscript work is available only for this session. Nothing is saved to Supabase and it cannot be recovered after leaving the session.</div>
+        <button class="auth-btn" id="guestContinueBtn">Continue as Guest →</button>
+        <button type="button" class="auth-link back-center" data-auth-route="entry">← Back to access options</button>
+      </div>
+    </section>
 
-      <section id="resetPasswordView" class="auth-view">
-        <div class="auth-page-label">Account recovery</div>
-        <h1>Choose a new password</h1>
-        <p class="auth-sub">Your reset link is valid. Choose a new password for your ScholarAI account.</p>
-        <form id="resetForm" novalidate>
-          <div class="auth-field"><label for="resetPassword">New password</label><input id="resetPassword" type="password" autocomplete="new-password" minlength="6" required placeholder="At least 6 characters"></div>
-          <div class="auth-field"><label for="resetConfirm">Confirm new password</label><input id="resetConfirm" type="password" autocomplete="new-password" minlength="6" required placeholder="Repeat your password"></div>
-          <button class="btn auth-submit" type="submit">Update password →</button>
+    <section id="authForgot" class="auth-page">
+      <div class="auth-card">
+        <div class="auth-label">Account recovery</div><h1>Forgot Password</h1>
+        <p class="auth-sub">Enter your email and we will send you a password reset link.</p>
+        <div id="forgotMsg" class="auth-message"></div>
+        <form id="forgotForm">
+          <div class="auth-field"><label>Email</label><input id="forgotEmail" type="email" autocomplete="email" required placeholder="you@example.com"></div>
+          <button class="auth-btn" type="submit">Send reset link →</button>
         </form>
-      </section>
-    </div>
+        <div class="auth-links"><button type="button" class="auth-link" data-auth-route="login">← Back to login</button></div>
+      </div>
+    </section>
+
+    <section id="authReset" class="auth-page">
+      <div class="auth-card">
+        <div class="auth-label">Set new password</div><h1>Reset Password</h1>
+        <p class="auth-sub">Choose a new password for your ScholarAI account.</p>
+        <div id="resetMsg" class="auth-message"></div>
+        <form id="resetForm">
+          <div class="auth-field"><label>New password</label><input id="resetPassword" type="password" minlength="6" autocomplete="new-password" required placeholder="At least 6 characters"></div>
+          <button class="auth-btn" type="submit">Update password →</button>
+        </form>
+        <div class="auth-links"><button type="button" class="auth-link" data-auth-route="login">← Back to login</button></div>
+      </div>
+    </section>
+
+    <div class="auth-footer">© SK Graphics · Sachin K</div>
   </div>
 </div>
-
 
 <div class="desk">
 
@@ -2228,315 +2242,111 @@ body.auth-redirecting .desk{display:none!important;}
   onerror="window.__pdfjsFailed=true"
 ></script>
 
-<script
-  src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"
-  onerror="window.__jszipFailed=true"
-></script>
-
-<script
-  src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"
-  onerror="window.__supabaseFailed=true"
-></script>
-
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js" onerror="window.__jszipFailed=true"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2" onerror="window.__supabaseFailed=true"></script>
 <script>
 /* =========================================================
-   SUPABASE AUTHENTICATION
+   SCHOLARAI SUPABASE AUTH — SINGLE FILE / HASH ROUTES
    ========================================================= */
 const SUPABASE_URL = "https://wbwetdjfpettcjjcbuhr.supabase.co";
 const SUPABASE_PUBLISHABLE_KEY = "sb_publishable_KDji3J_CgBtU4TJhrzaZQw_kF4LyczW";
-
 let supabaseClient = null;
 let authReady = false;
 let guestMode = false;
 let activeSession = null;
 
-function authEl(id){ return document.getElementById(id); }
-
-function setAuthMessage(message, type="info"){
-  const box = authEl("authMessage");
-  if(!box) return;
-  box.textContent = message || "";
-  box.className = "auth-message" + (message ? " show" : "") + (type === "error" ? " error" : "");
+const AUTH_ROUTES={entry:"",login:"login",signup:"signup",guest:"guest",forgot:"forgot-password",reset:"reset-password"};
+const AUTH_IDS={entry:"authEntry",login:"authLogin",signup:"authSignup",guest:"authGuest",forgot:"authForgot",reset:"authReset"};
+function baseUrl(){ return window.location.href.split('#')[0]; }
+function appPage(){ return baseUrl(); }
+function showAuthMessage(id,text,error=false){ const el=document.getElementById(id); if(!el)return; el.textContent=text; el.className='auth-message show'+(error?' error':''); }
+function clearAuthMessages(){ document.querySelectorAll('.auth-message').forEach(x=>{x.textContent='';x.className='auth-message';}); }
+function routeFromHash(){ const h=window.location.hash.replace(/^#/,'').toLowerCase(); return Object.keys(AUTH_ROUTES).find(k=>AUTH_ROUTES[k]===h)||'entry'; }
+function showAuthPage(route,replace=false){
+  const key=AUTH_IDS[route]?route:'entry';
+  document.querySelectorAll('.auth-page').forEach(p=>p.classList.remove('active'));
+  document.getElementById(AUTH_IDS[key])?.classList.add('active');
+  clearAuthMessages();
+  if(!replace){ const hash=AUTH_ROUTES[key]?`#${AUTH_ROUTES[key]}`:''; if(window.location.hash!==hash) history.pushState({auth:key},'',baseUrl()+hash); }
 }
-
-const AUTH_ROUTES = {
-  entryView:"",
-  loginView:"login",
-  signupView:"signup",
-  forgotView:"forgot-password",
-  resetPasswordView:"reset-password"
-};
-
-function authViewFromRoute(){
-  const route = (window.location.hash || "").replace(/^#/, "").trim().toLowerCase();
-  const match = Object.entries(AUTH_ROUTES).find(([, value]) => value === route);
-  return match ? match[0] : "entryView";
+function showApp(){ document.body.classList.remove('auth-redirecting'); document.getElementById('authScreen').style.display='none'; document.querySelector('.desk').style.display='block'; }
+function showGate(route='entry'){ document.body.classList.add('auth-redirecting'); document.querySelector('.desk').style.display='none'; document.getElementById('authScreen').style.display='flex'; showAuthPage(route,true); }
+async function ensureUserProfile(user){
+  if(!supabaseClient||!user)return;
+  const fullName=(user.user_metadata?.full_name||'').trim();
+  const {error}=await supabaseClient.from('profiles').upsert({id:user.id,full_name:fullName,email:user.email||'',updated_at:new Date().toISOString()},{onConflict:'id'});
+  if(error)console.warn('Profile save failed:',error.message);
 }
-
-function showAuthView(viewId, updateRoute=true){
-  document.querySelectorAll(".auth-view").forEach(v => v.classList.remove("active"));
-  const view = authEl(viewId);
-  if(view) view.classList.add("active");
-  setAuthMessage("");
-  if(updateRoute){
-    const route = AUTH_ROUTES[viewId] || "";
-    const nextHash = route ? `#${route}` : "";
-    if(window.location.hash !== nextHash){
-      history.pushState({authView:viewId}, "", window.location.pathname + window.location.search + nextHash);
-    }
-  }
+function setAppSession(session,guest=false){
+  activeSession=session; guestMode=guest;
+  const userArea=document.getElementById('userArea'); const userEmail=document.getElementById('userEmail'); const draftBar=document.getElementById('draftBar');
+  if(userArea)userArea.style.display=session?'flex':'none'; if(userEmail)userEmail.textContent=session?.user?.email||''; if(draftBar)draftBar.style.display=session&&!guest?'flex':'none';
+  showApp();
+  window.dispatchEvent(new CustomEvent('scholar-auth-ready',{detail:{session,guest}}));
 }
-
-function setAppVisible(visible, session){
-  const auth = authEl("authScreen");
-  const desk = document.querySelector(".desk");
-  const userArea = authEl("userArea");
-  const userEmail = authEl("userEmail");
-  const draftBar = authEl("draftBar");
-
-  if(auth) auth.style.display = visible ? "none" : "flex";
-  if(desk) desk.style.display = visible ? "block" : "none";
-  if(userArea) userArea.style.display = visible && session ? "flex" : "none";
-  if(userEmail) userEmail.textContent = session?.user?.email || "";
-  // Draft controls are available ONLY to authenticated users. Guest mode has no
-  // draft UI and never writes to localStorage or the Supabase draft table.
-  if(draftBar) draftBar.style.display = visible && !!session && !guestMode ? "flex" : "none";
-}
-
-function currentRedirectUrl(){
-  // Return to this app after Supabase password recovery. The recovery event
-  // will switch the UI to the reset-password page.
-  return window.location.href.split("#")[0] + "#reset-password";
-}
-
-async function ensureUserProfile(user, fallbackName=""){
-  if(!supabaseClient || !user) return;
-  const fullName = (fallbackName || user.user_metadata?.full_name || "").trim();
-  const { error } = await supabaseClient.from("profiles").upsert({
-    id: user.id,
-    full_name: fullName,
-    email: user.email || "",
-    updated_at: new Date().toISOString()
-  }, { onConflict: "id" });
-  if(error) console.warn("Profile save failed:", error.message);
-}
-
-function enterGuestMode(){
-  guestMode = true;
-  activeSession = null;
-  setAppVisible(true, null);
-  const draftBar = authEl("draftBar");
-  if(draftBar) draftBar.style.display = "none";
-  window.dispatchEvent(new CustomEvent("scholar-auth-ready", { detail:{ session:null, guest:true } }));
-}
-
-function leaveGuestMode(){
-  guestMode = false;
-}
-
-
 async function initScholarAuth(){
-  const guestRequested = new URLSearchParams(window.location.search).get("guest") === "1";
-
-  if(!window.supabase || typeof window.supabase.createClient !== "function"){
-    setAuthMessage("Supabase Auth library could not be loaded. Check your internet connection.", "error");
-    showAuthView("loginView", false);
-    return;
-  }
-
-  if(!SUPABASE_PUBLISHABLE_KEY || SUPABASE_PUBLISHABLE_KEY.trim() === ""){
-    setAuthMessage("Add your Supabase publishable key in SUPABASE_PUBLISHABLE_KEY before using authentication.", "error");
-    showAuthView("loginView", false);
-    return;
-  }
-
-  supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY);
-  window.scholarSupabase = supabaseClient;
-
-  supabaseClient.auth.onAuthStateChange((event, session) => {
-    if(event === "PASSWORD_RECOVERY"){
-      activeSession = session;
-      guestMode = false;
-      setAppVisible(false, null);
-      showAuthView("resetPasswordView", false);
-      setAuthMessage("Choose a new password for your account.");
-      return;
-    }
-
-    if(session){
-      activeSession = session;
-      guestMode = false;
-      ensureUserProfile(session.user);
-      setAppVisible(true, session);
-      window.dispatchEvent(new CustomEvent("scholar-auth-ready", { detail:{ session, guest:false } }));
-    }else if(!guestMode && !guestRequested){
-      activeSession = null;
-      setAppVisible(false, null);
-      showAuthView("loginView", false);
-    }
+  if(!SUPABASE_PUBLISHABLE_KEY.trim()){ showGate('entry'); showAuthMessage('loginMsg','Add your Supabase publishable key first.',true); return; }
+  if(!window.supabase||typeof window.supabase.createClient!=='function'){ showGate('entry'); showAuthMessage('loginMsg','Supabase could not be loaded. Check your internet connection.',true); return; }
+  supabaseClient=window.supabase.createClient(SUPABASE_URL,SUPABASE_PUBLISHABLE_KEY); window.scholarSupabase=supabaseClient;
+  supabaseClient.auth.onAuthStateChange((event,session)=>{
+    if(session){ activeSession=session; guestMode=false; ensureUserProfile(session.user); if(document.body.classList.contains('auth-redirecting')) setAppSession(session,false); }
+    else if(!guestMode && authReady){ activeSession=null; showGate('login'); }
   });
-
-  const { data, error } = await supabaseClient.auth.getSession();
-  if(error){
-    setAuthMessage(error.message, "error");
-    showAuthView("loginView", false);
-    return;
-  }
-
-  authReady = true;
-
-  if(data.session && !guestRequested){
-    activeSession = data.session;
-    guestMode = false;
-    ensureUserProfile(data.session.user);
-    setAppVisible(true, data.session);
-    window.dispatchEvent(new CustomEvent("scholar-auth-ready", { detail:{ session:data.session, guest:false } }));
-  }else if(guestRequested){
-    const cleanUrl = new URL(window.location.href);
-    cleanUrl.searchParams.delete("guest");
-    window.history.replaceState({}, "", cleanUrl.href);
-    enterGuestMode();
-  }else{
-    setAppVisible(false, null);
-    showAuthView("loginView", false);
-  }
+  const {data,error}=await supabaseClient.auth.getSession();
+  authReady=true;
+  if(error){ showGate('login'); showAuthMessage('loginMsg',error.message,true); return; }
+  if(data.session){ ensureUserProfile(data.session.user); setAppSession(data.session,false); }
+  else showGate(routeFromHash());
 }
-document.addEventListener("DOMContentLoaded", () => {
-  authEl("loginForm")?.addEventListener("submit", async (event) => {
-    event.preventDefault();
-    if(!supabaseClient || !authReady) return;
-    const email = authEl("loginEmail").value.trim();
-    const password = authEl("loginPassword").value;
-    if(!email || !password){ setAuthMessage("Enter your email and password.", "error"); return; }
+function enterGuestMode(){
+  activeSession=null; guestMode=true;
+  const u=new URL(baseUrl()); u.searchParams.set('guest','1'); history.replaceState({guest:true},'',u.href);
+  setAppSession(null,true);
+}
 
-    const button = event.submitter;
-    button.disabled = true;
-    button.textContent = "Signing in…";
-    setAuthMessage("");
-    const { error } = await supabaseClient.auth.signInWithPassword({ email, password });
-    button.disabled = false;
-    button.textContent = "Sign in →";
-    if(error) setAuthMessage(error.message, "error");
+document.addEventListener('DOMContentLoaded',()=>{
+  document.querySelectorAll('[data-auth-route]').forEach(btn=>btn.addEventListener('click',()=>showAuthPage(btn.dataset.authRoute)));
+  window.addEventListener('popstate',()=>{ if(!activeSession&&!guestMode)showAuthPage(routeFromHash(),true); });
+  window.addEventListener('hashchange',()=>{ if(!activeSession&&!guestMode)showAuthPage(routeFromHash(),true); });
+
+  document.getElementById('loginForm')?.addEventListener('submit',async e=>{
+    e.preventDefault();
+    const email=document.getElementById('loginEmail').value.trim(); const password=document.getElementById('loginPassword').value;
+    showAuthMessage('loginMsg','Signing in…');
+    const {data,error}=await supabaseClient.auth.signInWithPassword({email,password});
+    if(error){showAuthMessage('loginMsg',error.message,true);return;}
+    if(data.session)setAppSession(data.session,false);
   });
 
-  authEl("signupForm")?.addEventListener("submit", async (event) => {
-    event.preventDefault();
-    if(!supabaseClient || !authReady) return;
-
-    const name = authEl("signupName").value.trim();
-    const email = authEl("signupEmail").value.trim();
-    const password = authEl("signupPassword").value;
-    const confirm = authEl("signupConfirm").value;
-
-    if(!name || !email || !password || !confirm){
-      setAuthMessage("Please fill in all fields.", "error");
-      return;
-    }
-    if(password.length < 6){
-      setAuthMessage("Password must be at least 6 characters.", "error");
-      return;
-    }
-    if(password !== confirm){
-      setAuthMessage("Passwords do not match.", "error");
-      return;
-    }
-
-    const button = event.submitter;
-    button.disabled = true;
-    button.textContent = "Creating account…";
-    setAuthMessage("");
-
-    const { data, error } = await supabaseClient.auth.signUp({
-      email,
-      password,
-      options: {
-        data: { full_name: name }
-      }
-    });
-
-    button.disabled = false;
-    button.textContent = "Create account →";
-
-    if(error){
-      setAuthMessage(error.message, "error");
-      return;
-    }
-
-    if(data.session){
-      await ensureUserProfile(data.user, name);
-      setAuthMessage("Account created successfully. Opening ScholarAI…", "success");
-    }else{
-      showAuthView("loginView");
-      setAuthMessage("Account created. Please check your email to confirm your account, then log in.", "success");
-    }
+  document.getElementById('signupForm')?.addEventListener('submit',async e=>{
+    e.preventDefault();
+    const name=document.getElementById('signupName').value.trim(); const email=document.getElementById('signupEmail').value.trim(); const password=document.getElementById('signupPassword').value;
+    showAuthMessage('signupMsg','Creating your account…');
+    const {data,error}=await supabaseClient.auth.signUp({email,password,options:{data:{full_name:name},emailRedirectTo:baseUrl()}});
+    if(error){showAuthMessage('signupMsg',error.message,true);return;}
+    if(data.session){ await ensureUserProfile(data.user,name); setAppSession(data.session,false); }
+    else { showAuthPage('login'); showAuthMessage('loginMsg','Account created. Check your email, click the verification link, then log in.',''); }
   });
 
-  authEl("forgotForm")?.addEventListener("submit", async (event) => {
-    event.preventDefault();
-    if(!supabaseClient || !authReady) return;
-    const email = authEl("forgotEmail").value.trim();
-    if(!email){ setAuthMessage("Enter your email address.", "error"); return; }
+  document.getElementById('guestContinueBtn')?.addEventListener('click',enterGuestMode);
 
-    const button = event.submitter;
-    button.disabled = true;
-    button.textContent = "Sending…";
-    setAuthMessage("");
-    const { error } = await supabaseClient.auth.resetPasswordForEmail(email, {
-      redirectTo: currentRedirectUrl()
-    });
-    button.disabled = false;
-    button.textContent = "Send reset link →";
-
-    if(error){
-      setAuthMessage(error.message, "error");
-      return;
-    }
-    setAuthMessage("If an account exists for that email, a password reset link has been sent. Check your inbox and spam folder.");
+  document.getElementById('forgotForm')?.addEventListener('submit',async e=>{
+    e.preventDefault(); const email=document.getElementById('forgotEmail').value.trim(); showAuthMessage('forgotMsg','Sending reset link…');
+    const {error}=await supabaseClient.auth.resetPasswordForEmail(email,{redirectTo:baseUrl()+'#reset-password'});
+    if(error){showAuthMessage('forgotMsg',error.message,true);return;} showAuthMessage('forgotMsg','Reset link sent. Check your email.');
   });
 
-  authEl("resetForm")?.addEventListener("submit", async (event) => {
-    event.preventDefault();
-    if(!supabaseClient || !authReady) return;
-    const password = authEl("resetPassword").value;
-    const confirm = authEl("resetConfirm").value;
-    if(password.length < 6){ setAuthMessage("Password must be at least 6 characters.", "error"); return; }
-    if(password !== confirm){ setAuthMessage("Passwords do not match.", "error"); return; }
-
-    const button = event.submitter;
-    button.disabled = true;
-    button.textContent = "Updating…";
-    const { error } = await supabaseClient.auth.updateUser({ password });
-    button.disabled = false;
-    button.textContent = "Update password →";
-
-    if(error){
-      setAuthMessage(error.message, "error");
-      return;
-    }
-    await supabaseClient.auth.signOut();
-    showAuthView("loginView");
-    setAuthMessage("Password updated successfully. You can now sign in with your new password.");
+  document.getElementById('resetForm')?.addEventListener('submit',async e=>{
+    e.preventDefault(); const password=document.getElementById('resetPassword').value; showAuthMessage('resetMsg','Updating password…');
+    const {error}=await supabaseClient.auth.updateUser({password});
+    if(error){showAuthMessage('resetMsg',error.message,true);return;}
+    showAuthPage('login'); showAuthMessage('loginMsg','Password updated successfully. You can now log in.');
   });
 
-  authEl("guestBtn")?.addEventListener("click", () => {
-    setAuthMessage("");
-    enterGuestMode();
-  });
-
-  authEl("logoutBtn")?.addEventListener("click", async () => {
-    if(!supabaseClient) return;
-    const { error } = await supabaseClient.auth.signOut();
-    if(error){ alert(error.message); return; }
-    guestMode = false;
-    activeSession = null;
-    setAppVisible(false, null);
-    showAuthView("loginView", false);
-  });
-
+  document.getElementById('logoutBtn')?.addEventListener('click',async()=>{ if(supabaseClient)await supabaseClient.auth.signOut(); guestMode=false; activeSession=null; showGate('login'); history.replaceState({},'',baseUrl()+'#login'); });
   initScholarAuth();
 });
 </script>
-
 <script>
 (function(){
 
@@ -7047,6 +6857,10 @@ updateContinueButton();
 
 })();
 </script>
+
+</body>
+</html>
+```
 
 </body>
 </html>
