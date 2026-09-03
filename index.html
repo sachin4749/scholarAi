@@ -1561,6 +1561,11 @@ footer{
 .auth-field input:focus{outline:none;border-color:var(--accent-navy);box-shadow:0 0 0 2px var(--accent-navy-soft);}
 .auth-submit{width:100%;margin-top:4px;}
 .auth-links{display:flex;justify-content:space-between;gap:10px;margin-top:16px;flex-wrap:wrap;}
+.forgot-password-row{display:flex;justify-content:flex-end;margin:-3px 0 12px;}
+.forgot-password-btn{border:0;background:transparent;padding:2px 0;color:var(--accent-navy);font-family:'IBM Plex Mono',monospace;font-size:.72rem;text-decoration:underline;cursor:pointer;}
+.forgot-password-btn:hover{opacity:.72;}
+.auth-secondary-links{margin-top:12px;}
+
 .auth-link{border:0;background:none;padding:4px 0;color:var(--accent-navy);text-decoration:underline;cursor:pointer;font-size:.8rem;}
 .auth-message{display:none;padding:9px 11px;border:1px solid var(--accent-navy);background:var(--accent-navy-soft);color:var(--accent-navy);border-radius:var(--radius);font-size:.8rem;margin-bottom:14px;}
 .auth-message.error{border-color:var(--accent-red);background:var(--accent-red-soft);color:#6b2419;}
@@ -1628,10 +1633,13 @@ footer{
         <form id="loginForm" novalidate>
           <div class="auth-field"><label for="loginEmail">Email</label><input id="loginEmail" type="email" autocomplete="email" required placeholder="you@example.com"></div>
           <div class="auth-field"><label for="loginPassword">Password</label><input id="loginPassword" type="password" autocomplete="current-password" required placeholder="Your password"></div>
+          <div class="forgot-password-row">
+            <button class="forgot-password-btn" type="button" data-auth-view="forgotView">Forgot your password?</button>
+          </div>
           <button class="btn auth-submit" type="submit">Sign in →</button>
         </form>
-        <div class="auth-links">
-          <button class="auth-link" type="button" data-auth-view="forgotView">Forgot password?</button>
+        <div class="auth-links auth-secondary-links">
+          <button class="auth-link" type="button" data-auth-view="entryView">← Back to access options</button>
         </div>
       </section>
 
@@ -2249,11 +2257,32 @@ function setAuthMessage(message, type="info"){
   box.className = "auth-message" + (message ? " show" : "") + (type === "error" ? " error" : "");
 }
 
-function showAuthView(viewId){
+const AUTH_ROUTES = {
+  entryView:"",
+  loginView:"login",
+  signupView:"signup",
+  forgotView:"forgot-password",
+  resetPasswordView:"reset-password"
+};
+
+function authViewFromRoute(){
+  const route = (window.location.hash || "").replace(/^#/, "").trim().toLowerCase();
+  const match = Object.entries(AUTH_ROUTES).find(([, value]) => value === route);
+  return match ? match[0] : "entryView";
+}
+
+function showAuthView(viewId, updateRoute=true){
   document.querySelectorAll(".auth-view").forEach(v => v.classList.remove("active"));
   const view = authEl(viewId);
   if(view) view.classList.add("active");
   setAuthMessage("");
+  if(updateRoute){
+    const route = AUTH_ROUTES[viewId] || "";
+    const nextHash = route ? `#${route}` : "";
+    if(window.location.hash !== nextHash){
+      history.pushState({authView:viewId}, "", window.location.pathname + window.location.search + nextHash);
+    }
+  }
 }
 
 function setAppVisible(visible, session){
@@ -2267,12 +2296,15 @@ function setAppVisible(visible, session){
   if(desk) desk.style.display = visible ? "block" : "none";
   if(userArea) userArea.style.display = visible && session ? "flex" : "none";
   if(userEmail) userEmail.textContent = session?.user?.email || "";
-  if(draftBar) draftBar.style.display = visible ? "flex" : "none";
-  if(visible && !session) setDraftStatus("Guest mode — this work will not be saved.", "guest");
+  // Draft controls are available ONLY to authenticated users. Guest mode has no
+  // draft UI and never writes to localStorage or the Supabase draft table.
+  if(draftBar) draftBar.style.display = visible && !!session && !guestMode ? "flex" : "none";
 }
 
 function currentRedirectUrl(){
-  return window.location.origin + window.location.pathname;
+  // Return to this app after Supabase password recovery. The recovery event
+  // will switch the UI to the reset-password page.
+  return window.location.origin + window.location.pathname + "#reset-password";
 }
 
 async function ensureUserProfile(user, fallbackName=""){
@@ -2291,6 +2323,8 @@ function enterGuestMode(){
   guestMode = true;
   activeSession = null;
   setAppVisible(true, null);
+  const draftBar = authEl("draftBar");
+  if(draftBar) draftBar.style.display = "none";
   window.dispatchEvent(new CustomEvent("scholar-auth-ready", { detail:{ session:null, guest:true } }));
 }
 
@@ -2354,14 +2388,27 @@ async function initScholarAuth(){
     window.dispatchEvent(new CustomEvent("scholar-auth-ready", { detail:{ session:data.session, guest:false } }));
   }else if(!guestMode){
     setAppVisible(false, null);
-    showAuthView("entryView");
+    showAuthView(authViewFromRoute(), false);
     window.dispatchEvent(new CustomEvent("scholar-auth-ready", { detail:{ session:null, guest:false } }));
   }
 }
 
 document.addEventListener("DOMContentLoaded", () => {
   document.querySelectorAll("[data-auth-view]").forEach(button => {
-    button.addEventListener("click", () => showAuthView(button.dataset.authView));
+    button.addEventListener("click", () => showAuthView(button.dataset.authView, true));
+  });
+
+  // Auth screens behave like separate pages while keeping the project as a
+  // single HTML file. Browser Back/Forward also works between auth screens.
+  window.addEventListener("popstate", () => {
+    if(!activeSession && !guestMode){
+      showAuthView(authViewFromRoute(), false);
+    }
+  });
+  window.addEventListener("hashchange", () => {
+    if(!activeSession && !guestMode){
+      showAuthView(authViewFromRoute(), false);
+    }
   });
 
   authEl("loginForm")?.addEventListener("submit", async (event) => {
@@ -2493,6 +2540,8 @@ document.addEventListener("DOMContentLoaded", () => {
     activeSession = null;
   });
 
+  // Open the correct authentication "page" from the URL when the app loads.
+  showAuthView(authViewFromRoute(), false);
   initScholarAuth();
 });
 </script>
@@ -2614,10 +2663,8 @@ async function saveDraftCloud(snapshot){
 }
 
 function scheduleDraftSave(){
-  if(guestMode || !activeSession?.user?.id){
-    setDraftStatus("Guest mode — this work will not be saved.", "guest");
-    return;
-  }
+  // Guest work is intentionally ephemeral. Do not save locally or to Supabase.
+  if(guestMode || !activeSession?.user?.id) return;
 
   clearTimeout(draftSaveTimer);
   draftSaveTimer = setTimeout(() => saveDraft(), 900);
@@ -2737,7 +2784,7 @@ function applyDraftToUI(){
 window.addEventListener("scholar-auth-ready", async event => {
   const detail = event.detail || {};
   if(detail.guest){
-    setDraftStatus("Guest mode — this work will not be saved.", "guest");
+    // Guest mode deliberately skips draft restoration and all draft storage.
     return;
   }
   if(!detail.session) return;
@@ -7012,4 +7059,3 @@ updateContinueButton();
 
 </body>
 </html>
-```
