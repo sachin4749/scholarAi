@@ -1252,7 +1252,7 @@ footer{
    ========================================================= */
 
 @page{
-  size:Letter;
+  size:8.5in 11in;
   margin:0.75in 0.625in 1in 0.625in;
 }
 
@@ -1316,20 +1316,30 @@ footer{
     display:block !important;
     visibility:visible !important;
     position:static !important;
-    width:100% !important;
+    width:7.25in !important;
+    max-width:7.25in !important;
     margin:0 !important;
     padding:0 !important;
+    border:0 !important;
     background:#FFFFFF !important;
+  }
+
+  /* Never allow the editor's autosave status to enter the PDF. */
+  .draft-status,
+  #draftStatus{
+    display:none !important;
   }
 
   #printArea *{ visibility:visible !important; }
 
   #formattedOutput{
     display:block !important;
-    width:100% !important;
-    max-width:none !important;
+    width:7.25in !important;
+    max-width:7.25in !important;
+    min-width:7.25in !important;
     margin:0 !important;
     padding:0 !important;
+    border:0 !important;
     background:#FFFFFF !important;
     color:#111 !important;
     font-family:"Times New Roman", Times, serif !important;
@@ -1342,6 +1352,9 @@ footer{
   /* IEEE-like conference manuscript: US Letter, 0.625in side margins,
      0.75in top / 1in bottom, 10pt Times, two equal columns. */
   #formattedOutput.fmt-ieee{
+    width:7.25in !important;
+    max-width:7.25in !important;
+    min-width:7.25in !important;
     column-count:2 !important;
     column-gap:0.25in !important;
     column-fill:auto !important;
@@ -1360,6 +1373,9 @@ footer{
   #formattedOutput.fmt-ieee .author-block{
     column-span:all !important;
     display:block !important;
+    width:7.25in !important;
+    max-width:7.25in !important;
+    box-sizing:border-box !important;
     width:100% !important;
     box-sizing:border-box !important;
     text-align:center !important;
@@ -1373,6 +1389,7 @@ footer{
   #formattedOutput.fmt-ieee .author-block .title{
     font-family:"Times New Roman", Times, serif !important;
     font-size:21pt !important;
+    max-width:7.25in !important;
     line-height:1.05 !important;
     font-weight:400 !important;
     letter-spacing:0 !important;
@@ -1386,6 +1403,8 @@ footer{
      names/emails do not distort the three-column author area. */
   #formattedOutput.fmt-ieee .author-block .names{
     display:grid !important;
+    width:7.25in !important;
+    max-width:7.25in !important;
     grid-template-columns:repeat(3,minmax(0,1fr)) !important;
     align-items:start !important;
     justify-items:stretch !important;
@@ -6360,9 +6379,16 @@ p{
 
 @media print{
   @page{
+    size:8.5in 11in;
     margin:0.75in 0.625in 1in 0.625in;
   }
-  .ieee-export .fmt-ieee{ column-fill:auto; }
+  .ieee-export .fmt-ieee{
+    width:7.25in;
+    max-width:7.25in;
+    margin:0;
+    padding:0;
+    column-fill:auto;
+  }
 }
 
 @media(max-width:700px){
