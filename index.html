@@ -1255,13 +1255,14 @@ footer{
 #printArea{
   width:8.5in;
   min-height:11in;
-  max-width:8.5in;
+  max-width:none;
   box-sizing:border-box;
   margin:24px auto;
   padding:0.75in 0.625in 1in 0.625in;
   background:#FFFFFF;
-  border:1px solid #E2E8F0;
-  box-shadow:0 8px 30px rgba(15,23,42,.10);
+  border:1px solid #CBD5E1;
+  box-shadow:0 12px 36px rgba(15,23,42,.14);
+  overflow:visible;
 }
 
 #formattedOutput{
@@ -1270,6 +1271,145 @@ footer{
   min-width:7.25in;
   margin:0;
   box-sizing:border-box;
+}
+
+/* =========================================================
+   IEEE SCREEN PREVIEW
+   The preview is a real US-Letter sheet. The manuscript itself
+   occupies the exact IEEE printable area inside the sheet.
+   ========================================================= */
+.formatted.fmt-ieee{
+  width:7.25in;
+  max-width:7.25in;
+  min-width:7.25in;
+  box-sizing:border-box;
+  column-count:2;
+  column-gap:0.25in;
+  column-fill:balance;
+  font-family:"Times New Roman", Times, serif;
+  font-size:10pt;
+  line-height:1.08;
+  color:#000;
+  text-align:left;
+  hyphens:auto;
+}
+
+.formatted.fmt-ieee .author-block{
+  column-span:all;
+  display:block;
+  width:7.25in;
+  max-width:7.25in;
+  box-sizing:border-box;
+  text-align:center;
+  margin:0 0 10pt;
+  padding:0;
+  break-inside:avoid;
+}
+
+.formatted.fmt-ieee .author-block .title{
+  font-family:"Times New Roman", Times, serif;
+  font-size:21pt;
+  line-height:1.05;
+  font-weight:400;
+  letter-spacing:0;
+  color:#000;
+  margin:0 0 9pt;
+  text-align:center;
+}
+
+.formatted.fmt-ieee .author-block .names{
+  display:grid;
+  width:100%;
+  grid-template-columns:repeat(3,minmax(0,1fr));
+  align-items:start;
+  gap:0.18in;
+  font-family:"Times New Roman", Times, serif;
+  font-size:9pt;
+  line-height:1.12;
+  color:#000;
+  font-style:normal;
+  text-align:center;
+}
+
+.formatted.fmt-ieee .author-block .author-item{
+  min-width:0;
+  text-align:center;
+}
+
+.formatted.fmt-ieee .author-block .author-name{
+  font-size:10pt;
+  line-height:1.12;
+}
+
+.formatted.fmt-ieee .author-block .author-meta{
+  display:block;
+  font-size:8.5pt;
+  line-height:1.14;
+}
+
+.formatted.fmt-ieee .ieee-abstract,
+.formatted.fmt-ieee .ieee-keywords{
+  column-span:all;
+  font-size:9pt;
+  line-height:1.1;
+  text-align:justify;
+  text-indent:0;
+  margin:0 0 5pt;
+  break-inside:avoid;
+}
+
+.formatted.fmt-ieee .ieee-keywords{margin-bottom:8pt;}
+
+.formatted.fmt-ieee .ieee-abstract strong,
+.formatted.fmt-ieee .ieee-keywords strong{
+  font-weight:700;
+  font-style:italic;
+}
+
+.formatted.fmt-ieee h4{
+  font-family:"Times New Roman", Times, serif;
+  font-size:10pt;
+  line-height:1.05;
+  font-weight:700;
+  text-transform:uppercase;
+  text-align:center;
+  margin:8pt 0 4pt;
+  break-after:avoid;
+}
+
+.formatted.fmt-ieee p{
+  font-family:"Times New Roman", Times, serif;
+  font-size:10pt;
+  line-height:1.08;
+  color:#000;
+  text-align:justify;
+  text-indent:0.14in;
+  margin:0 0 3.5pt;
+  orphans:2;
+  widows:2;
+  hyphens:auto;
+}
+
+.formatted.fmt-ieee .ieee-abstract,
+.formatted.fmt-ieee .ieee-keywords{
+  text-indent:0;
+}
+
+.formatted.fmt-ieee .ref-list{
+  list-style:none;
+  margin:3pt 0 0;
+  padding:0;
+}
+
+.formatted.fmt-ieee .ref-list li{
+  font-family:"Times New Roman", Times, serif;
+  font-size:8pt;
+  line-height:1.08;
+  text-align:left;
+  text-indent:-0.23in;
+  margin:0 0 2.5pt 0.23in;
+  padding:0;
+  break-inside:avoid;
 }
 
 @page{
