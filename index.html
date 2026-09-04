@@ -6650,166 +6650,158 @@ $("#dlTxtBtn").addEventListener(
 
 function openPdfPrintDocument(){
   const source = document.getElementById("formattedOutput");
-  if(!source || !source.innerHTML.trim()){
+  const step6 = document.getElementById("step6");
+  if(!source || !source.innerHTML.trim() || !step6){
     alert("Please build the formatted manuscript first.");
     return;
   }
 
-  // Print the EXACT rendered manuscript preview. We clone the preview DOM
-  // instead of rebuilding/reformatting its content, so PDF matches Step 6.
-  const printWindow = window.open("", "_blank", "width=1000,height=1200");
-  if(!printWindow){
-    alert("Please allow pop-ups for ScholarAI so the PDF can be generated.");
-    return;
-  }
-
-  const titleNode = source.querySelector(".author-block .title");
-  const safeTitle = titleNode ? titleNode.textContent.trim() : "ScholarAI Manuscript";
-
-  // Copy the application's relevant stylesheet rules so the printed clone
-  // has the same visual formatting as the on-screen IEEE preview.
-  const css = Array.from(document.querySelectorAll("style"))
-    .map(style => style.textContent)
-    .join("\n");
-
-  const clone = source.cloneNode(true);
-  clone.removeAttribute("contenteditable");
-  clone.querySelectorAll(".draft-status,#draftStatus,.figure-dropzone,.figure-editor,.editor-only")
-    .forEach(el => el.remove());
-
-  printWindow.document.open();
-  printWindow.document.write(`<!doctype html>
-<html lang="en">
-<head>
-<meta charset="utf-8">
-<title>${escapeHtml(safeTitle)}</title>
-<style>
-${css}
-
-/* =========================================================
-   SCHOLARAI PDF — EXACT STEP 6 IEEE PREVIEW GEOMETRY
-   ========================================================= */
-@page {
-  size: 8.5in 11in;
-  margin: 0.75in 0.625in 1in 0.625in;
-}
-
-html, body {
-  margin: 0 !important;
-  padding: 0 !important;
-  width: auto !important;
-  min-width: 0 !important;
-  background: #fff !important;
-  color: #000 !important;
-}
-
-body {
-  font-family: "Times New Roman", Times, serif !important;
-  overflow: visible !important;
-}
-
-#printClone {
-  width: 7.25in !important;
-  max-width: 7.25in !important;
-  min-width: 7.25in !important;
-  margin: 0 !important;
-  padding: 0 !important;
-  border: 0 !important;
-  box-sizing: border-box !important;
-}
-
-#formattedOutput {
-  width: 7.25in !important;
-  max-width: 7.25in !important;
-  min-width: 7.25in !important;
-  margin: 0 !important;
-  padding: 0 !important;
-  border: 0 !important;
-  box-sizing: border-box !important;
-}
-
-#formattedOutput.fmt-ieee {
-  width: 7.25in !important;
-  max-width: 7.25in !important;
-  min-width: 7.25in !important;
-  column-count: 2 !important;
-  column-gap: 0.25in !important;
-  column-fill: balance !important;
-  box-sizing: border-box !important;
-  background: #fff !important;
-  color: #000 !important;
-}
-
-#formattedOutput.fmt-ieee .author-block,
-#formattedOutput.fmt-ieee .ieee-abstract,
-#formattedOutput.fmt-ieee .ieee-keywords {
-  column-span: all !important;
-}
-
-.draft-status,#draftStatus,.figure-dropzone,.figure-editor,.editor-only,
-#readinessPanel,.btn-row,.sub,h2 {
-  display: none !important;
-}
-
-#formattedOutput a {
-  color: #000 !important;
-  text-decoration: none !important;
-}
-
-#formattedOutput img {
-  break-inside: avoid !important;
-  page-break-inside: avoid !important;
-}
-
-@media print {
-  html, body {
-    overflow: visible !important;
-    background: #fff !important;
-  }
-}
-</style>
-</head>
-<body>
-<div id="printClone">${clone.outerHTML}</div>
-<script>
-(function(){
-  function ready(){
-    var imgs = Array.prototype.slice.call(document.images || []);
-    if(!imgs.length){
-      setTimeout(function(){ window.focus(); window.print(); }, 350);
-      return;
+  // Print directly from the current page. This is more reliable than opening
+  // a popup and guarantees that the PDF uses the exact Step 6 preview DOM.
+  const style = document.createElement("style");
+  style.id = "scholarai-pdf-print-style";
+  style.textContent = `
+    @page{
+      size:8.5in 11in;
+      margin:0.75in 0.625in 1in 0.625in;
     }
-    var pending = imgs.length;
-    var done = false;
-    function finish(){
-      if(done) return;
-      pending--;
-      if(pending <= 0){
-        done = true;
-        setTimeout(function(){ window.focus(); window.print(); }, 350);
+
+    @media print{
+      html,body{
+        margin:0 !important;
+        padding:0 !important;
+        width:auto !important;
+        min-width:0 !important;
+        background:#fff !important;
+        color:#000 !important;
+        overflow:visible !important;
+      }
+
+      body > .desk{
+        width:100% !important;
+        max-width:none !important;
+        margin:0 !important;
+        padding:0 !important;
+        background:#fff !important;
+        box-shadow:none !important;
+      }
+
+      .desk > header,
+      .desk > .tagline,
+      .desk > .rail,
+      .desk > #step1,
+      .desk > #step2,
+      .desk > #step3,
+      .desk > #step4,
+      .desk > #step5,
+      .desk > footer,
+      #step6 > h2,
+      #step6 > .sub,
+      #readinessPanel,
+      #step6 > .btn-row,
+      #docxStatus,
+      .draft-status,
+      #draftStatus,
+      .figure-dropzone,
+      .figure-editor,
+      .editor-only{
+        display:none !important;
+      }
+
+      #step6{
+        display:block !important;
+        visibility:visible !important;
+        position:static !important;
+        width:100% !important;
+        max-width:none !important;
+        margin:0 !important;
+        padding:0 !important;
+        border:0 !important;
+        box-shadow:none !important;
+        background:#fff !important;
+      }
+
+      #printArea{
+        display:block !important;
+        width:7.25in !important;
+        max-width:7.25in !important;
+        min-height:9.25in !important;
+        margin:0 !important;
+        padding:0 !important;
+        border:0 !important;
+        box-shadow:none !important;
+        background:#fff !important;
+        overflow:visible !important;
+      }
+
+      #formattedOutput{
+        display:block !important;
+        width:7.25in !important;
+        max-width:7.25in !important;
+        min-width:7.25in !important;
+        margin:0 !important;
+        padding:0 !important;
+        border:0 !important;
+        background:#fff !important;
+        color:#000 !important;
+        box-sizing:border-box !important;
+        font-family:"Times New Roman",Times,serif !important;
+      }
+
+      #formattedOutput.fmt-ieee{
+        column-count:2 !important;
+        column-gap:0.25in !important;
+        column-fill:balance !important;
+        width:7.25in !important;
+        max-width:7.25in !important;
+        min-width:7.25in !important;
+      }
+
+      #formattedOutput.fmt-ieee .author-block,
+      #formattedOutput.fmt-ieee .ieee-abstract,
+      #formattedOutput.fmt-ieee .ieee-keywords{
+        column-span:all !important;
+      }
+
+      #formattedOutput p,
+      #formattedOutput h1,
+      #formattedOutput h2,
+      #formattedOutput h3,
+      #formattedOutput h4,
+      #formattedOutput h5,
+      #formattedOutput figure{
+        color:#000 !important;
+      }
+
+      #formattedOutput a{
+        color:#000 !important;
+        text-decoration:none !important;
+      }
+
+      #formattedOutput img{
+        max-width:100% !important;
+        break-inside:avoid !important;
+        page-break-inside:avoid !important;
       }
     }
-    imgs.forEach(function(img){
-      if(img.complete) finish();
-      else {
-        img.addEventListener('load', finish, {once:true});
-        img.addEventListener('error', finish, {once:true});
-      }
+  `;
+  document.head.appendChild(style);
+
+  const cleanup = ()=>{
+    style.remove();
+    window.removeEventListener("afterprint", cleanup);
+  };
+  window.addEventListener("afterprint", cleanup, {once:true});
+
+  // Give the browser one frame to apply the print stylesheet before opening
+  // its native Print / Save as PDF dialog.
+  requestAnimationFrame(()=>{
+    requestAnimationFrame(()=>{
+      window.print();
+      // Some browsers do not fire afterprint reliably.
+      setTimeout(cleanup, 2000);
     });
-    setTimeout(function(){
-      if(!done){ done=true; window.focus(); window.print(); }
-    }, 3000);
-  }
-  if(document.fonts && document.fonts.ready){
-    document.fonts.ready.then(ready).catch(ready);
-  } else {
-    ready();
-  }
-})();
-<\/script>
-</body>
-</html>`);
-  printWindow.document.close();
+  });
 }
 
 $("printBtn").addEventListener("click", openPdfPrintDocument);
