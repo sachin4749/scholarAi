@@ -6649,283 +6649,170 @@ $("#dlTxtBtn").addEventListener(
    ========================================================= */
 
 function openPdfPrintDocument(){
-  const source = $("#formattedOutput");
+  const source = document.getElementById("formattedOutput");
   if(!source || !source.innerHTML.trim()){
     alert("Please build the formatted manuscript first.");
     return;
   }
 
-  const title = (state.blocks.find(b=>b.type==="frontmatter")?.text || "Manuscript")
-    .split("\n").map(s=>s.trim()).filter(Boolean)[0] || "Manuscript";
-
+  // Print the EXACT rendered manuscript preview. We clone the preview DOM
+  // instead of rebuilding/reformatting its content, so PDF matches Step 6.
   const printWindow = window.open("", "_blank", "width=1000,height=1200");
   if(!printWindow){
     alert("Please allow pop-ups for ScholarAI so the PDF can be generated.");
     return;
   }
 
-  /*
-   * IMPORTANT:
-   * The PDF is intentionally generated from the SAME formatted manuscript
-   * DOM and the SAME IEEE geometry used by the on-screen preview.
-   * Do not reflow it into a separate/single-column PDF layout.
-   */
+  const titleNode = source.querySelector(".author-block .title");
+  const safeTitle = titleNode ? titleNode.textContent.trim() : "ScholarAI Manuscript";
+
+  // Copy the application's relevant stylesheet rules so the printed clone
+  // has the same visual formatting as the on-screen IEEE preview.
+  const css = Array.from(document.querySelectorAll("style"))
+    .map(style => style.textContent)
+    .join("\n");
+
+  const clone = source.cloneNode(true);
+  clone.removeAttribute("contenteditable");
+  clone.querySelectorAll(".draft-status,#draftStatus,.figure-dropzone,.figure-editor,.editor-only")
+    .forEach(el => el.remove());
+
   printWindow.document.open();
-  printWindow.document.write(`<!DOCTYPE html>
+  printWindow.document.write(`<!doctype html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<title>${escapeHtml(title)}</title>
+<meta charset="utf-8">
+<title>${escapeHtml(safeTitle)}</title>
 <style>
-  /* =====================================================
-     EXACTLY THE SAME PAPER GEOMETRY AS THE PREVIEW
-     ===================================================== */
-  @page{
-    size: Letter portrait;
-    margin: 0.75in 0.625in 1in 0.625in;
+${css}
+
+/* =========================================================
+   SCHOLARAI PDF — EXACT STEP 6 IEEE PREVIEW GEOMETRY
+   ========================================================= */
+@page {
+  size: 8.5in 11in;
+  margin: 0.75in 0.625in 1in 0.625in;
+}
+
+html, body {
+  margin: 0 !important;
+  padding: 0 !important;
+  width: auto !important;
+  min-width: 0 !important;
+  background: #fff !important;
+  color: #000 !important;
+}
+
+body {
+  font-family: "Times New Roman", Times, serif !important;
+  overflow: visible !important;
+}
+
+#printClone {
+  width: 7.25in !important;
+  max-width: 7.25in !important;
+  min-width: 7.25in !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  border: 0 !important;
+  box-sizing: border-box !important;
+}
+
+#formattedOutput {
+  width: 7.25in !important;
+  max-width: 7.25in !important;
+  min-width: 7.25in !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  border: 0 !important;
+  box-sizing: border-box !important;
+}
+
+#formattedOutput.fmt-ieee {
+  width: 7.25in !important;
+  max-width: 7.25in !important;
+  min-width: 7.25in !important;
+  column-count: 2 !important;
+  column-gap: 0.25in !important;
+  column-fill: balance !important;
+  box-sizing: border-box !important;
+  background: #fff !important;
+  color: #000 !important;
+}
+
+#formattedOutput.fmt-ieee .author-block,
+#formattedOutput.fmt-ieee .ieee-abstract,
+#formattedOutput.fmt-ieee .ieee-keywords {
+  column-span: all !important;
+}
+
+.draft-status,#draftStatus,.figure-dropzone,.figure-editor,.editor-only,
+#readinessPanel,.btn-row,.sub,h2 {
+  display: none !important;
+}
+
+#formattedOutput a {
+  color: #000 !important;
+  text-decoration: none !important;
+}
+
+#formattedOutput img {
+  break-inside: avoid !important;
+  page-break-inside: avoid !important;
+}
+
+@media print {
+  html, body {
+    overflow: visible !important;
+    background: #fff !important;
   }
-
-  *{box-sizing:border-box;}
-
-  html,body{
-    margin:0 !important;
-    padding:0 !important;
-    background:#fff !important;
-    color:#000 !important;
-    width:auto !important;
-    min-width:0 !important;
-  }
-
-  body{
-    font-family:"Times New Roman", Times, serif;
-    font-size:10pt;
-    line-height:1.08;
-    -webkit-print-color-adjust:exact;
-    print-color-adjust:exact;
-  }
-
-  /* The browser's printable area is 7.25in wide after the
-     exact IEEE @page margins above. */
-  #formattedOutput{
-    width:7.25in !important;
-    max-width:7.25in !important;
-    min-width:7.25in !important;
-    margin:0 !important;
-    padding:0 !important;
-    border:0 !important;
-    background:#fff !important;
-  }
-
-  .formatted.fmt-ieee{
-    width:7.25in !important;
-    max-width:7.25in !important;
-    min-width:7.25in !important;
-    box-sizing:border-box !important;
-    column-count:2 !important;
-    column-gap:0.25in !important;
-    column-fill:balance !important;
-    font-family:"Times New Roman", Times, serif !important;
-    font-size:10pt !important;
-    line-height:1.08 !important;
-    color:#000 !important;
-    text-align:left !important;
-    hyphens:auto !important;
-  }
-
-  /* =====================================================
-     FRONT MATTER — SAME AS SCREEN PREVIEW
-     ===================================================== */
-  .formatted.fmt-ieee .author-block{
-    column-span:all !important;
-    display:block !important;
-    width:7.25in !important;
-    max-width:7.25in !important;
-    box-sizing:border-box !important;
-    text-align:center !important;
-    margin:0 0 10pt !important;
-    padding:0 !important;
-    break-inside:avoid !important;
-    page-break-inside:avoid !important;
-  }
-
-  .formatted.fmt-ieee .author-block .title{
-    font-family:"Times New Roman", Times, serif !important;
-    font-size:21pt !important;
-    line-height:1.05 !important;
-    font-weight:400 !important;
-    letter-spacing:0 !important;
-    color:#000 !important;
-    margin:0 0 9pt !important;
-    padding:0 !important;
-    text-align:center !important;
-  }
-
-  .formatted.fmt-ieee .author-block .names{
-    display:grid !important;
-    width:100% !important;
-    grid-template-columns:repeat(3,minmax(0,1fr)) !important;
-    align-items:start !important;
-    gap:0.18in !important;
-    font-family:"Times New Roman", Times, serif !important;
-    font-size:9pt !important;
-    line-height:1.12 !important;
-    color:#000 !important;
-    font-style:normal !important;
-    text-align:center !important;
-  }
-
-  .formatted.fmt-ieee .author-block .author-item{
-    min-width:0 !important;
-    text-align:center !important;
-  }
-
-  .formatted.fmt-ieee .author-block .author-name{
-    font-size:10pt !important;
-    line-height:1.12 !important;
-  }
-
-  .formatted.fmt-ieee .author-block .author-meta{
-    display:block !important;
-    font-size:8.5pt !important;
-    line-height:1.14 !important;
-  }
-
-  .formatted.fmt-ieee .ieee-abstract,
-  .formatted.fmt-ieee .ieee-keywords{
-    column-span:all !important;
-    display:block !important;
-    width:100% !important;
-    max-width:100% !important;
-    font-size:9pt !important;
-    line-height:1.1 !important;
-    text-align:justify !important;
-    text-indent:0 !important;
-    margin:0 0 5pt !important;
-    padding:0 !important;
-    break-inside:avoid !important;
-    page-break-inside:avoid !important;
-  }
-
-  .formatted.fmt-ieee .ieee-keywords{margin-bottom:8pt !important;}
-
-  .formatted.fmt-ieee .ieee-abstract strong,
-  .formatted.fmt-ieee .ieee-keywords strong{
-    font-weight:700 !important;
-    font-style:italic !important;
-  }
-
-  /* =====================================================
-     BODY — SAME TWO-COLUMN PREVIEW
-     ===================================================== */
-  .formatted.fmt-ieee h4{
-    font-family:"Times New Roman", Times, serif !important;
-    font-size:10pt !important;
-    line-height:1.05 !important;
-    font-weight:700 !important;
-    text-transform:uppercase !important;
-    text-align:center !important;
-    margin:8pt 0 4pt !important;
-    padding:0 !important;
-    break-after:avoid !important;
-    page-break-after:avoid !important;
-  }
-
-  .formatted.fmt-ieee p{
-    font-family:"Times New Roman", Times, serif !important;
-    font-size:10pt !important;
-    line-height:1.08 !important;
-    color:#000 !important;
-    text-align:justify !important;
-    text-indent:0.14in !important;
-    margin:0 0 3.5pt !important;
-    padding:0 !important;
-    orphans:2 !important;
-    widows:2 !important;
-    hyphens:auto !important;
-  }
-
-  .formatted.fmt-ieee .ieee-abstract,
-  .formatted.fmt-ieee .ieee-keywords{
-    text-indent:0 !important;
-  }
-
-  .formatted.fmt-ieee .ref-list{
-    list-style:none !important;
-    margin:3pt 0 0 !important;
-    padding:0 !important;
-  }
-
-  .formatted.fmt-ieee .ref-list li{
-    font-family:"Times New Roman", Times, serif !important;
-    font-size:8pt !important;
-    line-height:1.08 !important;
-    text-align:left !important;
-    text-indent:-0.23in !important;
-    margin:0 0 2.5pt 0.23in !important;
-    padding:0 !important;
-    break-inside:avoid !important;
-    page-break-inside:avoid !important;
-  }
-
-  /* =====================================================
-     FIGURES — SAME PREVIEW WIDTH RULES
-     ===================================================== */
-  .formatted.fmt-ieee .manuscript-figure{
-    display:block !important;
-    break-inside:avoid !important;
-    page-break-inside:avoid !important;
-    margin:8pt auto 10pt !important;
-    text-align:center !important;
-  }
-
-  .formatted.fmt-ieee .manuscript-figure img{
-    display:block !important;
-    max-width:100% !important;
-    height:auto !important;
-    margin:0 auto !important;
-  }
-
-  .formatted.fmt-ieee .manuscript-figure figcaption{
-    font-family:"Times New Roman", Times, serif !important;
-    font-size:8.5pt !important;
-    line-height:1.1 !important;
-    text-align:center !important;
-    margin-top:3pt !important;
-  }
-
-  /* Do not allow application-only status elements into the PDF. */
-  .draft-status,
-  #draftStatus,
-  .figure-dropzone,
-  .figure-editor,
-  .editor-only{
-    display:none !important;
-  }
-
-  @media print{
-    html,body{
-      background:#fff !important;
-      overflow:visible !important;
-    }
-  }
+}
 </style>
 </head>
 <body>
-  ${source.outerHTML}
+<div id="printClone">${clone.outerHTML}</div>
 <script>
-  window.addEventListener('load', function(){
+(function(){
+  function ready(){
+    var imgs = Array.prototype.slice.call(document.images || []);
+    if(!imgs.length){
+      setTimeout(function(){ window.focus(); window.print(); }, 350);
+      return;
+    }
+    var pending = imgs.length;
+    var done = false;
+    function finish(){
+      if(done) return;
+      pending--;
+      if(pending <= 0){
+        done = true;
+        setTimeout(function(){ window.focus(); window.print(); }, 350);
+      }
+    }
+    imgs.forEach(function(img){
+      if(img.complete) finish();
+      else {
+        img.addEventListener('load', finish, {once:true});
+        img.addEventListener('error', finish, {once:true});
+      }
+    });
     setTimeout(function(){
-      window.focus();
-      window.print();
-    }, 250);
-  });
+      if(!done){ done=true; window.focus(); window.print(); }
+    }, 3000);
+  }
+  if(document.fonts && document.fonts.ready){
+    document.fonts.ready.then(ready).catch(ready);
+  } else {
+    ready();
+  }
+})();
 <\/script>
 </body>
 </html>`);
   printWindow.document.close();
 }
 
-$("#printBtn").addEventListener("click", openPdfPrintDocument);
+$("printBtn").addEventListener("click", openPdfPrintDocument);
 
 /* =========================================================
    DOCX XML HELPERS
