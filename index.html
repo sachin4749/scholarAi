@@ -6640,46 +6640,233 @@ $("#dlTxtBtn").addEventListener(
 
 /* =========================================================
    PROFESSIONAL PDF PRINT
+   Creates a clean PDF-only document instead of printing the
+   ScholarAI "Formatted manuscript" application screen.
+   The print document is a true US Letter sheet and follows the
+   visual structure of the requested reference: centered title,
+   author information, abstract/keywords, numbered sections and
+   references, with clean page margins.
    ========================================================= */
 
-$("#printBtn").addEventListener(
-  "click",
-  ()=>{
-
-    if(
-      !$("#formattedOutput")
-        .innerHTML.trim()
-    ){
-
-      alert(
-        "Please build the formatted manuscript first."
-      );
-
-      return;
-
-    }
-
-    /*
-     * Force browser to finish layout before
-     * opening the print dialog.
-     *
-     * This is particularly helpful on
-     * Android Chrome.
-     */
-
-    requestAnimationFrame(
-      ()=>{
-        setTimeout(
-          ()=>{
-            window.print();
-          },
-          180
-        );
-      }
-    );
-
+function openPdfPrintDocument(){
+  const source = $("#formattedOutput");
+  if(!source || !source.innerHTML.trim()){
+    alert("Please build the formatted manuscript first.");
+    return;
   }
-);
+
+  const isIEEE = state.targetFormat === "IEEE" || source.classList.contains("fmt-ieee");
+  const title = (state.blocks.find(b=>b.type==="frontmatter")?.text || "Manuscript")
+    .split("\n").map(s=>s.trim()).filter(Boolean)[0] || "Manuscript";
+
+  const printWindow = window.open("", "_blank", "width=900,height=1100");
+  if(!printWindow){
+    alert("Please allow pop-ups for ScholarAI so the PDF can be generated.");
+    return;
+  }
+
+  printWindow.document.open();
+  printWindow.document.write(`<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>${escapeHtml(title)}</title>
+<style>
+  @page{
+    size: Letter portrait;
+    margin: 0.75in 0.70in 0.75in 0.70in;
+  }
+  *{box-sizing:border-box;}
+  html,body{
+    margin:0;
+    padding:0;
+    background:#fff;
+    color:#000;
+  }
+  body{
+    font-family:"Times New Roman", Times, serif;
+    font-size:10pt;
+    line-height:1.15;
+    -webkit-print-color-adjust:exact;
+    print-color-adjust:exact;
+  }
+  .pdf-page{
+    width:7.10in;
+    max-width:7.10in;
+    margin:0 auto;
+    padding:0;
+  }
+  .pdf-content{
+    width:100%;
+  }
+
+  /* Clean single-column document matching the requested reference. */
+  .fmt-ieee{
+    width:100% !important;
+    max-width:100% !important;
+    min-width:0 !important;
+    column-count:1 !important;
+    column-gap:0 !important;
+    column-fill:auto !important;
+    font-family:"Times New Roman", Times, serif !important;
+    font-size:10pt !important;
+    line-height:1.15 !important;
+    color:#000 !important;
+    text-align:left !important;
+    hyphens:auto !important;
+  }
+  .fmt-ieee .author-block{
+    width:100% !important;
+    max-width:100% !important;
+    display:block !important;
+    text-align:center !important;
+    margin:0 0 13pt !important;
+    padding:0 !important;
+    break-inside:avoid !important;
+    page-break-inside:avoid !important;
+  }
+  .fmt-ieee .author-block .title{
+    width:100% !important;
+    max-width:100% !important;
+    font-family:"Times New Roman", Times, serif !important;
+    font-size:20pt !important;
+    line-height:1.05 !important;
+    font-weight:400 !important;
+    text-align:center !important;
+    margin:0 0 12pt !important;
+    padding:0 !important;
+  }
+  .fmt-ieee .author-block .names{
+    width:100% !important;
+    max-width:100% !important;
+    display:grid !important;
+    grid-template-columns:repeat(3,minmax(0,1fr)) !important;
+    gap:0.16in !important;
+    font-size:9pt !important;
+    line-height:1.15 !important;
+    text-align:center !important;
+  }
+  .fmt-ieee .author-block .author-item{
+    min-width:0 !important;
+    overflow-wrap:anywhere !important;
+    break-inside:avoid !important;
+  }
+  .fmt-ieee .author-block .author-name{
+    font-size:10pt !important;
+    line-height:1.12 !important;
+    margin:0 0 2pt !important;
+  }
+  .fmt-ieee .author-block .author-meta{
+    display:block !important;
+    font-size:8.5pt !important;
+    line-height:1.14 !important;
+  }
+  .fmt-ieee .ieee-abstract,
+  .fmt-ieee .ieee-keywords{
+    width:100% !important;
+    max-width:100% !important;
+    display:block !important;
+    font-size:9pt !important;
+    line-height:1.15 !important;
+    text-align:justify !important;
+    text-indent:0 !important;
+    margin:0 0 6pt !important;
+    padding:0 !important;
+    break-inside:avoid !important;
+    page-break-inside:avoid !important;
+  }
+  .fmt-ieee .ieee-keywords{margin-bottom:10pt !important;}
+  .fmt-ieee h4{
+    font-family:"Times New Roman", Times, serif !important;
+    font-size:10pt !important;
+    line-height:1.1 !important;
+    font-weight:700 !important;
+    text-transform:uppercase !important;
+    text-align:center !important;
+    margin:10pt 0 4pt !important;
+    padding:0 !important;
+    break-after:avoid !important;
+    page-break-after:avoid !important;
+  }
+  .fmt-ieee p{
+    font-family:"Times New Roman", Times, serif !important;
+    font-size:10pt !important;
+    line-height:1.15 !important;
+    color:#000 !important;
+    text-align:justify !important;
+    text-indent:0.14in !important;
+    margin:0 0 4pt !important;
+    padding:0 !important;
+    orphans:2;
+    widows:2;
+    hyphens:auto;
+  }
+  .fmt-ieee h4 + p{
+    break-before:avoid !important;
+    page-break-before:avoid !important;
+  }
+  .fmt-ieee .ref-list{
+    list-style:none !important;
+    margin:4pt 0 0 !important;
+    padding:0 !important;
+  }
+  .fmt-ieee .ref-list li{
+    font-family:"Times New Roman", Times, serif !important;
+    font-size:8.5pt !important;
+    line-height:1.12 !important;
+    text-align:left !important;
+    text-indent:-0.23in !important;
+    margin:0 0 3pt 0.23in !important;
+    padding:0 !important;
+    break-inside:avoid !important;
+    page-break-inside:avoid !important;
+  }
+  .manuscript-figure{
+    display:block !important;
+    width:100% !important;
+    margin:8pt auto 10pt !important;
+    text-align:center !important;
+    break-inside:avoid !important;
+    page-break-inside:avoid !important;
+  }
+  .manuscript-figure img{
+    display:block !important;
+    max-width:100% !important;
+    max-height:4.5in !important;
+    width:auto !important;
+    height:auto !important;
+    margin:0 auto !important;
+  }
+  .manuscript-figure figcaption{
+    font-size:8.5pt !important;
+    line-height:1.1 !important;
+    text-align:center !important;
+    margin-top:3pt !important;
+  }
+
+  @media print{
+    html,body{width:auto !important; background:#fff !important;}
+    .pdf-page{width:auto !important; max-width:none !important; margin:0 !important;}
+  }
+</style>
+</head>
+<body>
+  <main class="pdf-page">
+    <div class="pdf-content">
+      ${source.outerHTML}
+    </div>
+  </main>
+<script>
+  window.addEventListener('load', function(){
+    setTimeout(function(){ window.focus(); window.print(); }, 250);
+  });
+<\/script>
+</body>
+</html>`);
+  printWindow.document.close();
+}
+
+$("#printBtn").addEventListener("click", openPdfPrintDocument);
 
 /* =========================================================
    DOCX XML HELPERS
