@@ -6649,162 +6649,20 @@ $("#dlTxtBtn").addEventListener(
    ========================================================= */
 
 function openPdfPrintDocument(){
-  const source = document.getElementById("formattedOutput");
-  const step6 = document.getElementById("step6");
-  if(!source || !source.innerHTML.trim() || !step6){
-    alert("Please build the formatted manuscript first.");
-    return;
-  }
-
-  // Print directly from the current page. This is more reliable than opening
-  // a popup and guarantees that the PDF uses the exact Step 6 preview DOM.
-  const style = document.createElement("style");
-  style.id = "scholarai-pdf-print-style";
-  style.textContent = `
-    @page{
-      size:8.5in 11in;
-      margin:0.75in 0.625in 1in 0.625in;
-    }
-
-    @media print{
-      html,body{
-        margin:0 !important;
-        padding:0 !important;
-        width:auto !important;
-        min-width:0 !important;
-        background:#fff !important;
-        color:#000 !important;
-        overflow:visible !important;
-      }
-
-      body > .desk{
-        width:100% !important;
-        max-width:none !important;
-        margin:0 !important;
-        padding:0 !important;
-        background:#fff !important;
-        box-shadow:none !important;
-      }
-
-      .desk > header,
-      .desk > .tagline,
-      .desk > .rail,
-      .desk > #step1,
-      .desk > #step2,
-      .desk > #step3,
-      .desk > #step4,
-      .desk > #step5,
-      .desk > footer,
-      #step6 > h2,
-      #step6 > .sub,
-      #readinessPanel,
-      #step6 > .btn-row,
-      #docxStatus,
-      .draft-status,
-      #draftStatus,
-      .figure-dropzone,
-      .figure-editor,
-      .editor-only{
-        display:none !important;
-      }
-
-      #step6{
-        display:block !important;
-        visibility:visible !important;
-        position:static !important;
-        width:100% !important;
-        max-width:none !important;
-        margin:0 !important;
-        padding:0 !important;
-        border:0 !important;
-        box-shadow:none !important;
-        background:#fff !important;
-      }
-
-      #printArea{
-        display:block !important;
-        width:7.25in !important;
-        max-width:7.25in !important;
-        min-height:9.25in !important;
-        margin:0 !important;
-        padding:0 !important;
-        border:0 !important;
-        box-shadow:none !important;
-        background:#fff !important;
-        overflow:visible !important;
-      }
-
-      #formattedOutput{
-        display:block !important;
-        width:7.25in !important;
-        max-width:7.25in !important;
-        min-width:7.25in !important;
-        margin:0 !important;
-        padding:0 !important;
-        border:0 !important;
-        background:#fff !important;
-        color:#000 !important;
-        box-sizing:border-box !important;
-        font-family:"Times New Roman",Times,serif !important;
-      }
-
-      #formattedOutput.fmt-ieee{
-        column-count:2 !important;
-        column-gap:0.25in !important;
-        column-fill:balance !important;
-        width:7.25in !important;
-        max-width:7.25in !important;
-        min-width:7.25in !important;
-      }
-
-      #formattedOutput.fmt-ieee .author-block,
-      #formattedOutput.fmt-ieee .ieee-abstract,
-      #formattedOutput.fmt-ieee .ieee-keywords{
-        column-span:all !important;
-      }
-
-      #formattedOutput p,
-      #formattedOutput h1,
-      #formattedOutput h2,
-      #formattedOutput h3,
-      #formattedOutput h4,
-      #formattedOutput h5,
-      #formattedOutput figure{
-        color:#000 !important;
-      }
-
-      #formattedOutput a{
-        color:#000 !important;
-        text-decoration:none !important;
-      }
-
-      #formattedOutput img{
-        max-width:100% !important;
-        break-inside:avoid !important;
-        page-break-inside:avoid !important;
-      }
-    }
-  `;
-  document.head.appendChild(style);
-
-  const cleanup = ()=>{
-    style.remove();
-    window.removeEventListener("afterprint", cleanup);
-  };
-  window.addEventListener("afterprint", cleanup, {once:true});
-
-  // Give the browser one frame to apply the print stylesheet before opening
-  // its native Print / Save as PDF dialog.
-  requestAnimationFrame(()=>{
-    requestAnimationFrame(()=>{
-      window.print();
-      // Some browsers do not fire afterprint reliably.
-      setTimeout(cleanup, 2000);
-    });
-  });
+  const source=document.getElementById("formattedOutput");
+  if(!source || !source.innerHTML.trim()){ alert("Please build the formatted manuscript first."); return; }
+  let st=document.getElementById("scholarai-pdf-print-style"); if(st) st.remove();
+  st=document.createElement("style"); st.id="scholarai-pdf-print-style";
+  st.textContent=`@page{size:Letter portrait;margin:.75in .625in 1in .625in}
+  @media print{*{-webkit-print-color-adjust:exact!important;print-color-adjust:exact!important}html,body{margin:0!important;padding:0!important;background:#fff!important;color:#000!important;overflow:visible!important}body>.desk{width:100%!important;max-width:none!important;margin:0!important;padding:0!important;background:#fff!important;box-shadow:none!important}.desk>header,.desk>.tagline,.desk>.rail,.desk>#step1,.desk>#step2,.desk>#step3,.desk>#step4,.desk>#step5,.desk>footer,#step6>h2,#step6>.sub,#readinessPanel,#step6>.btn-row,#docxStatus,.draft-status,#draftStatus,.figure-dropzone,.figure-editor,.editor-only{display:none!important}#step6{display:block!important;visibility:visible!important;position:static!important;width:100%!important;margin:0!important;padding:0!important;border:0!important;box-shadow:none!important;background:#fff!important;transform:none!important}#printArea,#formattedOutput{display:block!important;visibility:visible!important;width:7.25in!important;max-width:7.25in!important;min-width:7.25in!important;margin:0!important;padding:0!important;border:0!important;background:#fff!important;color:#000!important;box-sizing:border-box!important}#formattedOutput{font-family:"Times New Roman",Times,serif!important}#formattedOutput.fmt-ieee{column-count:2!important;column-gap:.25in!important;column-fill:balance!important}#formattedOutput.fmt-ieee .author-block,#formattedOutput.fmt-ieee .ieee-abstract,#formattedOutput.fmt-ieee .ieee-keywords{column-span:all!important}#formattedOutput img{max-width:100%!important;height:auto!important;break-inside:avoid!important}}`;
+  document.head.appendChild(st);
+  const cleanup=()=>{const x=document.getElementById("scholarai-pdf-print-style");if(x)x.remove();window.removeEventListener("afterprint",cleanup)};
+  window.addEventListener("afterprint",cleanup); void source.offsetHeight;
+  setTimeout(()=>window.print(),100);
 }
 
-$("printBtn").addEventListener("click", openPdfPrintDocument);
+const printButton=document.getElementById("printBtn");
+if(printButton){printButton.type="button";printButton.disabled=false;printButton.onclick=function(e){e.preventDefault();openPdfPrintDocument()};}
 
 /* =========================================================
    DOCX XML HELPERS
