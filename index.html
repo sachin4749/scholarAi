@@ -6655,16 +6655,21 @@ function openPdfPrintDocument(){
     return;
   }
 
-  const isIEEE = state.targetFormat === "IEEE" || source.classList.contains("fmt-ieee");
   const title = (state.blocks.find(b=>b.type==="frontmatter")?.text || "Manuscript")
     .split("\n").map(s=>s.trim()).filter(Boolean)[0] || "Manuscript";
 
-  const printWindow = window.open("", "_blank", "width=900,height=1100");
+  const printWindow = window.open("", "_blank", "width=1000,height=1200");
   if(!printWindow){
     alert("Please allow pop-ups for ScholarAI so the PDF can be generated.");
     return;
   }
 
+  /*
+   * IMPORTANT:
+   * The PDF is intentionally generated from the SAME formatted manuscript
+   * DOM and the SAME IEEE geometry used by the on-screen preview.
+   * Do not reflow it into a separate/single-column PDF layout.
+   */
   printWindow.document.open();
   printWindow.document.write(`<!DOCTYPE html>
 <html lang="en">
@@ -6672,193 +6677,247 @@ function openPdfPrintDocument(){
 <meta charset="UTF-8">
 <title>${escapeHtml(title)}</title>
 <style>
+  /* =====================================================
+     EXACTLY THE SAME PAPER GEOMETRY AS THE PREVIEW
+     ===================================================== */
   @page{
     size: Letter portrait;
-    margin: 0.75in 0.70in 0.75in 0.70in;
+    margin: 0.75in 0.625in 1in 0.625in;
   }
+
   *{box-sizing:border-box;}
+
   html,body{
-    margin:0;
-    padding:0;
-    background:#fff;
-    color:#000;
+    margin:0 !important;
+    padding:0 !important;
+    background:#fff !important;
+    color:#000 !important;
+    width:auto !important;
+    min-width:0 !important;
   }
+
   body{
     font-family:"Times New Roman", Times, serif;
     font-size:10pt;
-    line-height:1.15;
+    line-height:1.08;
     -webkit-print-color-adjust:exact;
     print-color-adjust:exact;
   }
-  .pdf-page{
-    width:7.10in;
-    max-width:7.10in;
-    margin:0 auto;
-    padding:0;
-  }
-  .pdf-content{
-    width:100%;
+
+  /* The browser's printable area is 7.25in wide after the
+     exact IEEE @page margins above. */
+  #formattedOutput{
+    width:7.25in !important;
+    max-width:7.25in !important;
+    min-width:7.25in !important;
+    margin:0 !important;
+    padding:0 !important;
+    border:0 !important;
+    background:#fff !important;
   }
 
-  /* Clean single-column document matching the requested reference. */
-  .fmt-ieee{
-    width:100% !important;
-    max-width:100% !important;
-    min-width:0 !important;
-    column-count:1 !important;
-    column-gap:0 !important;
-    column-fill:auto !important;
+  .formatted.fmt-ieee{
+    width:7.25in !important;
+    max-width:7.25in !important;
+    min-width:7.25in !important;
+    box-sizing:border-box !important;
+    column-count:2 !important;
+    column-gap:0.25in !important;
+    column-fill:balance !important;
     font-family:"Times New Roman", Times, serif !important;
     font-size:10pt !important;
-    line-height:1.15 !important;
+    line-height:1.08 !important;
     color:#000 !important;
     text-align:left !important;
     hyphens:auto !important;
   }
-  .fmt-ieee .author-block{
-    width:100% !important;
-    max-width:100% !important;
+
+  /* =====================================================
+     FRONT MATTER — SAME AS SCREEN PREVIEW
+     ===================================================== */
+  .formatted.fmt-ieee .author-block{
+    column-span:all !important;
     display:block !important;
+    width:7.25in !important;
+    max-width:7.25in !important;
+    box-sizing:border-box !important;
     text-align:center !important;
-    margin:0 0 13pt !important;
+    margin:0 0 10pt !important;
     padding:0 !important;
     break-inside:avoid !important;
     page-break-inside:avoid !important;
   }
-  .fmt-ieee .author-block .title{
-    width:100% !important;
-    max-width:100% !important;
+
+  .formatted.fmt-ieee .author-block .title{
     font-family:"Times New Roman", Times, serif !important;
-    font-size:20pt !important;
+    font-size:21pt !important;
     line-height:1.05 !important;
     font-weight:400 !important;
-    text-align:center !important;
-    margin:0 0 12pt !important;
+    letter-spacing:0 !important;
+    color:#000 !important;
+    margin:0 0 9pt !important;
     padding:0 !important;
-  }
-  .fmt-ieee .author-block .names{
-    width:100% !important;
-    max-width:100% !important;
-    display:grid !important;
-    grid-template-columns:repeat(3,minmax(0,1fr)) !important;
-    gap:0.16in !important;
-    font-size:9pt !important;
-    line-height:1.15 !important;
     text-align:center !important;
   }
-  .fmt-ieee .author-block .author-item{
-    min-width:0 !important;
-    overflow-wrap:anywhere !important;
-    break-inside:avoid !important;
+
+  .formatted.fmt-ieee .author-block .names{
+    display:grid !important;
+    width:100% !important;
+    grid-template-columns:repeat(3,minmax(0,1fr)) !important;
+    align-items:start !important;
+    gap:0.18in !important;
+    font-family:"Times New Roman", Times, serif !important;
+    font-size:9pt !important;
+    line-height:1.12 !important;
+    color:#000 !important;
+    font-style:normal !important;
+    text-align:center !important;
   }
-  .fmt-ieee .author-block .author-name{
+
+  .formatted.fmt-ieee .author-block .author-item{
+    min-width:0 !important;
+    text-align:center !important;
+  }
+
+  .formatted.fmt-ieee .author-block .author-name{
     font-size:10pt !important;
     line-height:1.12 !important;
-    margin:0 0 2pt !important;
   }
-  .fmt-ieee .author-block .author-meta{
+
+  .formatted.fmt-ieee .author-block .author-meta{
     display:block !important;
     font-size:8.5pt !important;
     line-height:1.14 !important;
   }
-  .fmt-ieee .ieee-abstract,
-  .fmt-ieee .ieee-keywords{
+
+  .formatted.fmt-ieee .ieee-abstract,
+  .formatted.fmt-ieee .ieee-keywords{
+    column-span:all !important;
+    display:block !important;
     width:100% !important;
     max-width:100% !important;
-    display:block !important;
     font-size:9pt !important;
-    line-height:1.15 !important;
+    line-height:1.1 !important;
     text-align:justify !important;
     text-indent:0 !important;
-    margin:0 0 6pt !important;
+    margin:0 0 5pt !important;
     padding:0 !important;
     break-inside:avoid !important;
     page-break-inside:avoid !important;
   }
-  .fmt-ieee .ieee-keywords{margin-bottom:10pt !important;}
-  .fmt-ieee h4{
+
+  .formatted.fmt-ieee .ieee-keywords{margin-bottom:8pt !important;}
+
+  .formatted.fmt-ieee .ieee-abstract strong,
+  .formatted.fmt-ieee .ieee-keywords strong{
+    font-weight:700 !important;
+    font-style:italic !important;
+  }
+
+  /* =====================================================
+     BODY — SAME TWO-COLUMN PREVIEW
+     ===================================================== */
+  .formatted.fmt-ieee h4{
     font-family:"Times New Roman", Times, serif !important;
     font-size:10pt !important;
-    line-height:1.1 !important;
+    line-height:1.05 !important;
     font-weight:700 !important;
     text-transform:uppercase !important;
     text-align:center !important;
-    margin:10pt 0 4pt !important;
+    margin:8pt 0 4pt !important;
     padding:0 !important;
     break-after:avoid !important;
     page-break-after:avoid !important;
   }
-  .fmt-ieee p{
+
+  .formatted.fmt-ieee p{
     font-family:"Times New Roman", Times, serif !important;
     font-size:10pt !important;
-    line-height:1.15 !important;
+    line-height:1.08 !important;
     color:#000 !important;
     text-align:justify !important;
     text-indent:0.14in !important;
-    margin:0 0 4pt !important;
+    margin:0 0 3.5pt !important;
     padding:0 !important;
-    orphans:2;
-    widows:2;
-    hyphens:auto;
+    orphans:2 !important;
+    widows:2 !important;
+    hyphens:auto !important;
   }
-  .fmt-ieee h4 + p{
-    break-before:avoid !important;
-    page-break-before:avoid !important;
+
+  .formatted.fmt-ieee .ieee-abstract,
+  .formatted.fmt-ieee .ieee-keywords{
+    text-indent:0 !important;
   }
-  .fmt-ieee .ref-list{
+
+  .formatted.fmt-ieee .ref-list{
     list-style:none !important;
-    margin:4pt 0 0 !important;
+    margin:3pt 0 0 !important;
     padding:0 !important;
   }
-  .fmt-ieee .ref-list li{
+
+  .formatted.fmt-ieee .ref-list li{
     font-family:"Times New Roman", Times, serif !important;
-    font-size:8.5pt !important;
-    line-height:1.12 !important;
+    font-size:8pt !important;
+    line-height:1.08 !important;
     text-align:left !important;
     text-indent:-0.23in !important;
-    margin:0 0 3pt 0.23in !important;
+    margin:0 0 2.5pt 0.23in !important;
     padding:0 !important;
     break-inside:avoid !important;
     page-break-inside:avoid !important;
   }
-  .manuscript-figure{
+
+  /* =====================================================
+     FIGURES — SAME PREVIEW WIDTH RULES
+     ===================================================== */
+  .formatted.fmt-ieee .manuscript-figure{
     display:block !important;
-    width:100% !important;
-    margin:8pt auto 10pt !important;
-    text-align:center !important;
     break-inside:avoid !important;
     page-break-inside:avoid !important;
+    margin:8pt auto 10pt !important;
+    text-align:center !important;
   }
-  .manuscript-figure img{
+
+  .formatted.fmt-ieee .manuscript-figure img{
     display:block !important;
     max-width:100% !important;
-    max-height:4.5in !important;
-    width:auto !important;
     height:auto !important;
     margin:0 auto !important;
   }
-  .manuscript-figure figcaption{
+
+  .formatted.fmt-ieee .manuscript-figure figcaption{
+    font-family:"Times New Roman", Times, serif !important;
     font-size:8.5pt !important;
     line-height:1.1 !important;
     text-align:center !important;
     margin-top:3pt !important;
   }
 
+  /* Do not allow application-only status elements into the PDF. */
+  .draft-status,
+  #draftStatus,
+  .figure-dropzone,
+  .figure-editor,
+  .editor-only{
+    display:none !important;
+  }
+
   @media print{
-    html,body{width:auto !important; background:#fff !important;}
-    .pdf-page{width:auto !important; max-width:none !important; margin:0 !important;}
+    html,body{
+      background:#fff !important;
+      overflow:visible !important;
+    }
   }
 </style>
 </head>
 <body>
-  <main class="pdf-page">
-    <div class="pdf-content">
-      ${source.outerHTML}
-    </div>
-  </main>
+  ${source.outerHTML}
 <script>
   window.addEventListener('load', function(){
-    setTimeout(function(){ window.focus(); window.print(); }, 250);
+    setTimeout(function(){
+      window.focus();
+      window.print();
+    }, 250);
   });
 <\/script>
 </body>
