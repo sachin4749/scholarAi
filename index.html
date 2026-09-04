@@ -1837,7 +1837,7 @@ body.auth-redirecting>.desk{display:none!important}
 
   </header>
 
-  <div class="draft-bar" id="draftBar" style="display:none;">
+  <div class="draft-bar" id="draftBar" style="display:none !important;">
     <div class="draft-left">
       <span class="draft-dot" id="draftDot"></span>
       <span class="draft-status" id="draftStatus">Drafts are saved automatically.</span>
@@ -2430,7 +2430,7 @@ async function setAppSession(session,guest=false){
     userEmail.textContent=displayName || session?.user?.email || '';
     userEmail.title=session?.user?.email || '';
   }
-  if(draftBar)draftBar.style.display=session&&!guest?'flex':'none';
+  if(draftBar)draftBar.style.display='none';
   showApp();
   window.dispatchEvent(new CustomEvent('scholar-auth-ready',{detail:{session,guest,displayName}}));
 }
