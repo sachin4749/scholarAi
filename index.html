@@ -6650,16 +6650,65 @@ $("#dlTxtBtn").addEventListener(
 
 function openPdfPrintDocument(){
   const source=document.getElementById("formattedOutput");
+  const area=document.getElementById("printArea");
   if(!source || !source.innerHTML.trim()){ alert("Please build the formatted manuscript first."); return; }
-  let st=document.getElementById("scholarai-pdf-print-style"); if(st) st.remove();
-  st=document.createElement("style"); st.id="scholarai-pdf-print-style";
-  st.textContent=`@page{size:Letter portrait;margin:.75in .625in 1in .625in}
-  @media print{*{-webkit-print-color-adjust:exact!important;print-color-adjust:exact!important}html,body{margin:0!important;padding:0!important;background:#fff!important;color:#000!important;overflow:visible!important}body>.desk{width:100%!important;max-width:none!important;margin:0!important;padding:0!important;background:#fff!important;box-shadow:none!important}.desk>header,.desk>.tagline,.desk>.rail,.desk>#step1,.desk>#step2,.desk>#step3,.desk>#step4,.desk>#step5,.desk>footer,#step6>h2,#step6>.sub,#readinessPanel,#step6>.btn-row,#docxStatus,.draft-status,#draftStatus,.figure-dropzone,.figure-editor,.editor-only{display:none!important}#step6{display:block!important;visibility:visible!important;position:static!important;width:100%!important;margin:0!important;padding:0!important;border:0!important;box-shadow:none!important;background:#fff!important;transform:none!important}#printArea,#formattedOutput{display:block!important;visibility:visible!important;width:7.25in!important;max-width:7.25in!important;min-width:7.25in!important;margin:0!important;padding:0!important;border:0!important;background:#fff!important;color:#000!important;box-sizing:border-box!important}#formattedOutput{font-family:"Times New Roman",Times,serif!important}#formattedOutput.fmt-ieee{column-count:2!important;column-gap:.25in!important;column-fill:balance!important}#formattedOutput.fmt-ieee .author-block,#formattedOutput.fmt-ieee .ieee-abstract,#formattedOutput.fmt-ieee .ieee-keywords{column-span:all!important}#formattedOutput img{max-width:100%!important;height:auto!important;break-inside:avoid!important}}`;
+
+  let st=document.getElementById("scholarai-pdf-print-style");
+  if(st) st.remove();
+  st=document.createElement("style");
+  st.id="scholarai-pdf-print-style";
+  st.textContent=`
+    @page{size:8.5in 11in;margin:0}
+    @media print{
+      *{-webkit-print-color-adjust:exact!important;print-color-adjust:exact!important}
+      html,body{margin:0!important;padding:0!important;background:#fff!important;color:#000!important;overflow:visible!important;width:auto!important;min-width:0!important}
+      body>.desk{display:block!important;width:100%!important;max-width:none!important;margin:0!important;padding:0!important;background:#fff!important;box-shadow:none!important}
+      .desk>header,.desk>.tagline,.desk>.rail,.desk>#step1,.desk>#step2,.desk>#step3,.desk>#step4,.desk>#step5,.desk>footer,#step6>h2,#step6>.sub,#step6>.btn-row,#readinessPanel,#docxStatus,.draft-status,#draftStatus,.figure-dropzone,.figure-editor,.editor-only{display:none!important}
+      #step6{display:block!important;visibility:visible!important;position:static!important;width:100%!important;max-width:none!important;margin:0!important;padding:0!important;border:0!important;box-shadow:none!important;background:#fff!important;transform:none!important}
+
+      /* Print the exact physical sheet used by the Formatted manuscript preview. */
+      #printArea{display:block!important;visibility:visible!important;position:static!important;width:8.5in!important;min-height:11in!important;max-width:none!important;margin:0!important;padding:.75in .625in 1in .625in!important;box-sizing:border-box!important;border:0!important;border-radius:0!important;background:#fff!important;box-shadow:none!important;overflow:visible!important}
+      #printArea *{visibility:visible!important}
+      #formattedOutput{display:block!important;visibility:visible!important;width:7.25in!important;max-width:7.25in!important;min-width:7.25in!important;margin:0!important;padding:0!important;box-sizing:border-box!important;border:0!important;background:#fff!important;color:#000!important}
+
+      /* Keep the manuscript typography/layout identical to the screen preview. */
+      #formattedOutput.fmt-ieee{width:7.25in!important;max-width:7.25in!important;min-width:7.25in!important;column-count:2!important;column-gap:.25in!important;column-fill:balance!important;box-sizing:border-box!important;font-family:"Times New Roman",Times,serif!important;font-size:10pt!important;line-height:1.08!important;color:#000!important;text-align:left!important;hyphens:auto!important}
+      #formattedOutput.fmt-ieee .author-block{column-span:all!important;display:block!important;width:7.25in!important;max-width:7.25in!important;box-sizing:border-box!important;text-align:center!important;margin:0 0 10pt!important;padding:0!important;break-inside:avoid!important;break-after:avoid!important;page-break-after:avoid!important}
+      #formattedOutput.fmt-ieee .author-block .title{font-family:"Times New Roman",Times,serif!important;font-size:21pt!important;max-width:7.25in!important;line-height:1.05!important;font-weight:400!important;letter-spacing:0!important;color:#000!important;margin:0 0 9pt!important;padding:0!important;text-align:center!important}
+      #formattedOutput.fmt-ieee .author-block .names{display:grid!important;width:7.25in!important;max-width:7.25in!important;grid-template-columns:repeat(3,minmax(0,1fr))!important;align-items:start!important;justify-items:stretch!important;gap:.18in!important;box-sizing:border-box!important;font-family:"Times New Roman",Times,serif!important;font-size:9pt!important;line-height:1.12!important;color:#000!important;text-align:center!important}
+      #formattedOutput.fmt-ieee .author-block .author-item{min-width:0!important;overflow-wrap:anywhere!important;word-break:normal!important;break-inside:avoid!important}
+      #formattedOutput.fmt-ieee .author-block .author-name{font-size:10pt!important;font-weight:400!important;line-height:1.12!important;margin:0 0 2pt!important}
+      #formattedOutput.fmt-ieee .author-block .author-meta{display:block!important;font-size:8.5pt!important;line-height:1.14!important;font-weight:400!important}
+      #formattedOutput.fmt-ieee .ieee-abstract,#formattedOutput.fmt-ieee .ieee-keywords{column-span:all!important;width:100%!important;box-sizing:border-box!important;font-size:9pt!important;line-height:1.1!important;text-align:justify!important;text-indent:0!important;margin:0 0 5pt!important;padding:0!important;color:#000!important;hyphens:auto!important;break-inside:avoid!important}
+      #formattedOutput.fmt-ieee .ieee-abstract strong,#formattedOutput.fmt-ieee .ieee-keywords strong{font-weight:700!important;font-style:italic!important}
+      #formattedOutput.fmt-ieee .ieee-keywords{margin-bottom:8pt!important}
+      #formattedOutput.fmt-ieee h4{font-family:"Times New Roman",Times,serif!important;font-size:10pt!important;line-height:1.05!important;font-weight:700!important;color:#000!important;margin:8pt 0 4pt!important;padding:0!important;text-transform:uppercase!important;text-align:center!important;letter-spacing:0!important;break-after:avoid!important;page-break-after:avoid!important;break-inside:avoid!important}
+      #formattedOutput.fmt-ieee p{font-family:"Times New Roman",Times,serif!important;font-size:10pt!important;line-height:1.08!important;font-weight:400!important;color:#000!important;margin:0 0 3.5pt!important;padding:0!important;text-align:justify!important;text-indent:.14in!important;orphans:2!important;widows:2!important;hyphens:auto!important}
+      #formattedOutput.fmt-ieee .ieee-abstract,#formattedOutput.fmt-ieee .ieee-keywords{ text-indent:0!important }
+      #formattedOutput.fmt-ieee h4+p{break-before:avoid!important;page-break-before:avoid!important}
+      #formattedOutput.fmt-ieee .ref-list{margin:3pt 0 0!important;padding:0!important;list-style:none!important;font-family:"Times New Roman",Times,serif!important;font-size:8pt!important;line-height:1.08!important;counter-reset:ieee-ref!important}
+      #formattedOutput.fmt-ieee .ref-list li{position:relative!important;margin:0 0 2.5pt .23in!important;padding:0!important;font-family:"Times New Roman",Times,serif!important;font-size:8pt!important;line-height:1.08!important;color:#000!important;text-align:left!important;text-indent:-.23in!important;break-inside:avoid!important;page-break-inside:avoid!important;overflow-wrap:anywhere!important}
+      #formattedOutput.fmt-ieee a{color:#000!important;text-decoration:none!important}
+      #formattedOutput.fmt-ieee .ref-list li+li{margin-top:0!important}
+      #formattedOutput .manuscript-figure{break-inside:avoid!important;page-break-inside:avoid!important}
+      #formattedOutput .manuscript-figure.two-column{column-span:all!important}
+      #formattedOutput img{max-width:100%!important;height:auto!important}
+    }
+  `;
   document.head.appendChild(st);
-  const cleanup=()=>{const x=document.getElementById("scholarai-pdf-print-style");if(x)x.remove();window.removeEventListener("afterprint",cleanup)};
-  window.addEventListener("afterprint",cleanup); void source.offsetHeight;
-  setTimeout(()=>window.print(),100);
+
+  const cleanup=()=>{
+    const x=document.getElementById("scholarai-pdf-print-style");
+    if(x)x.remove();
+    window.removeEventListener("afterprint",cleanup);
+  };
+  window.addEventListener("afterprint",cleanup);
+
+  /* Let the browser paginate the same manuscript that is visible in the preview. */
+  void (area && area.offsetHeight);
+  requestAnimationFrame(()=>requestAnimationFrame(()=>window.print()));
 }
+
 
 const printButton=document.getElementById("printBtn");
 if(printButton){printButton.type="button";printButton.disabled=false;printButton.onclick=function(e){e.preventDefault();openPdfPrintDocument()};}
