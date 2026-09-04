@@ -1251,6 +1251,27 @@ footer{
    PROFESSIONAL PDF / PRINT OUTPUT
    ========================================================= */
 
+/* Physical IEEE paper preview on screen: US Letter page with real margins. */
+#printArea{
+  width:8.5in;
+  min-height:11in;
+  max-width:8.5in;
+  box-sizing:border-box;
+  margin:24px auto;
+  padding:0.75in 0.625in 1in 0.625in;
+  background:#FFFFFF;
+  border:1px solid #E2E8F0;
+  box-shadow:0 8px 30px rgba(15,23,42,.10);
+}
+
+#formattedOutput{
+  width:7.25in;
+  max-width:7.25in;
+  min-width:7.25in;
+  margin:0;
+  box-sizing:border-box;
+}
+
 @page{
   size:8.5in 11in;
   margin:0.75in 0.625in 1in 0.625in;
@@ -1338,7 +1359,7 @@ footer{
     width:7.25in !important;
     max-width:7.25in !important;
     min-width:7.25in !important;
-    margin:0 auto !important;
+    margin:0 !important;
     padding:0 !important;
     border:0 !important;
     background:#FFFFFF !important;
@@ -6170,8 +6191,8 @@ $("#dlHtmlBtn").addEventListener(
 <style>
 
 @page{
-  size:A4;
-  margin:25mm 22mm;
+  size:8.5in 11in;
+  margin:0.75in 0.625in 1in 0.625in;
 }
 
 body{
