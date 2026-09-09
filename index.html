@@ -1846,6 +1846,14 @@ footer{
 .auth-access-note{margin-top:12px;color:var(--ink-faint);font-size:.72rem;line-height:1.5;text-align:center;}
 .guest-notice{margin-top:10px;padding:10px 12px;border:1px solid var(--line);border-left:3px solid var(--accent-red);background:#F8FAFC;color:var(--ink-soft);font-size:.76rem;line-height:1.55;}
 .guest-notice strong{color:var(--ink);display:block;margin-bottom:2px;}
+#draftBar{display:none !important;}
+#draftBar.account-draft-visible{display:flex !important;}
+#saveDraftBtn{white-space:nowrap;}
+.draft-bar .draft-status{display:none;}
+.draft-bar .draft-dot{display:none;}
+.draft-bar .draft-left{min-height:36px;}
+.draft-bar .draft-left::before{content:"Your manuscript draft is linked to your account.";color:var(--ink-soft);}
+.draft-bar .draft-actions{margin-left:auto;}
 .draft-bar{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;margin:0 0 18px;padding:9px 11px;border:1px solid var(--line);background:rgba(255,255,255,.32);border-radius:var(--radius);font-family:'IBM Plex Mono',monospace;font-size:.68rem;color:var(--ink-soft);}
 .draft-left{display:flex;align-items:center;gap:8px;min-width:0;}
 .draft-dot{width:7px;height:7px;border-radius:50%;background:var(--success);flex:none;}
@@ -1995,14 +2003,14 @@ body.auth-redirecting>.desk{display:none!important}
 
   </header>
 
-  <div class="draft-bar" id="draftBar" style="display:none !important;">
+  <div class="draft-bar" id="draftBar">
     <div class="draft-left">
       <span class="draft-dot" id="draftDot"></span>
       <span class="draft-status" id="draftStatus">Drafts are saved automatically.</span>
     </div>
     <div class="draft-actions">
-      <button class="btn small ghost" id="saveDraftBtn" type="button">Save draft</button>
-      <button class="btn small ghost" id="newDraftBtn" type="button">Start new</button>
+      <button class="btn small ghost" id="saveDraftBtn" type="button" title="Save your current manuscript draft to your account">Save draft</button>
+      <button class="btn small ghost" id="newDraftBtn" type="button" title="Discard the current manuscript and start a new one">Start new</button>
     </div>
   </div>
 
@@ -2588,7 +2596,12 @@ async function setAppSession(session,guest=false){
     userEmail.textContent=displayName || session?.user?.email || '';
     userEmail.title=session?.user?.email || '';
   }
-  if(draftBar)draftBar.style.display='none';
+  if(draftBar){
+    // Manual draft saving is available only to authenticated account users.
+    draftBar.classList.toggle('account-draft-visible', !!(session && !guest));
+  }
+  const newDraftBtn = document.getElementById('newDraftBtn');
+  if(newDraftBtn) newDraftBtn.style.display = (session && !guest) ? 'inline-flex' : 'none';
   showApp();
   window.dispatchEvent(new CustomEvent('scholar-auth-ready',{detail:{session,guest,displayName}}));
 }
@@ -2939,11 +2952,41 @@ window.addEventListener("online", () => {
 
 document.getElementById("saveDraftBtn")?.addEventListener("click", () => saveDraft());
 document.getElementById("newDraftBtn")?.addEventListener("click", async () => {
-  if(guestMode){
-    location.reload();
+  if(guestMode || !activeSession?.user?.id) return;
+
+  const confirmed = confirm(
+    "Do you really want to start a new manuscript?\n\n" +
+    "Your current manuscript data will be lost completely, including the saved draft linked to this account.\n\n" +
+    "This action cannot be undone.\n\n" +
+    "Click OK to permanently clear the current draft and start a new one."
+  );
+  if(!confirmed) return;
+
+  clearTimeout(draftSaveTimer);
+  draftSaveTimer = null;
+  draftSaveInFlight = false;
+
+  // Remove the account's saved cloud draft first so an old manuscript cannot be restored.
+  try{
+    if(window.scholarSupabase){
+      const { error } = await window.scholarSupabase
+        .from("scholarai_drafts")
+        .delete()
+        .eq("user_id", activeSession.user.id);
+      if(error) throw error;
+    }
+  }catch(error){
+    console.warn("ScholarAI could not clear the cloud draft", error);
+    alert("The current draft could not be cleared from your account.\n\nYour manuscript has NOT been reset. Please try again when you are online.");
     return;
   }
-  if(!confirm("Start a new manuscript? Your current saved draft will be replaced by the new blank draft.")) return;
+
+  // Remove the device copy as well.
+  const localKey = draftLocalKey();
+  if(localKey){
+    try{ localStorage.removeItem(localKey); }catch(error){ console.warn("ScholarAI local draft clear failed", error); }
+  }
+
   Object.assign(state, {
     rawText:"", targetFormat:null, blocks:[], authorsDetected:false,
     primaryAuthor:{salutation:"Dr.",name:"",designation:"",email:"",affiliation:"",city:""},
@@ -2952,6 +2995,7 @@ document.getElementById("newDraftBtn")?.addEventListener("click", async () => {
   currentStep = 1;
   lastDraftSignature = "";
   lastCloudDraftSignature = "";
+
   const paste = document.getElementById("pasteArea");
   if(paste) paste.value = "";
   document.querySelectorAll("#formatGrid .format-pill").forEach(p => p.classList.remove("sel"));
@@ -2960,7 +3004,8 @@ document.getElementById("newDraftBtn")?.addEventListener("click", async () => {
   if(document.getElementById("topicPanel")) document.getElementById("topicPanel").style.display = "none";
   document.querySelectorAll(".sheet").forEach((sheet,i) => sheet.classList.toggle("hidden", i > 0));
   railTo(1, true);
-  await saveDraft();
+
+  alert("Your previous manuscript has been cleared completely. You can start a new one now.");
 });
 
 /* =========================================================
