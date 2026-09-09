@@ -1846,14 +1846,6 @@ footer{
 .auth-access-note{margin-top:12px;color:var(--ink-faint);font-size:.72rem;line-height:1.5;text-align:center;}
 .guest-notice{margin-top:10px;padding:10px 12px;border:1px solid var(--line);border-left:3px solid var(--accent-red);background:#F8FAFC;color:var(--ink-soft);font-size:.76rem;line-height:1.55;}
 .guest-notice strong{color:var(--ink);display:block;margin-bottom:2px;}
-#draftBar{display:none !important;}
-#draftBar.account-draft-visible{display:flex !important;}
-#saveDraftBtn{white-space:nowrap;}
-.draft-bar .draft-status{display:none;}
-.draft-bar .draft-dot{display:none;}
-.draft-bar .draft-left{min-height:36px;}
-.draft-bar .draft-left::before{content:"Your manuscript draft is linked to your account.";color:var(--ink-soft);}
-.draft-bar .draft-actions{margin-left:auto;}
 .draft-bar{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;margin:0 0 18px;padding:9px 11px;border:1px solid var(--line);background:rgba(255,255,255,.32);border-radius:var(--radius);font-family:'IBM Plex Mono',monospace;font-size:.68rem;color:var(--ink-soft);}
 .draft-left{display:flex;align-items:center;gap:8px;min-width:0;}
 .draft-dot{width:7px;height:7px;border-radius:50%;background:var(--success);flex:none;}
@@ -1886,6 +1878,531 @@ body.auth-redirecting .desk{display:none!important;}
 body.auth-redirecting>.desk{display:none!important}
 @media(max-width:600px){.auth-screen{padding:14px}.auth-card{padding:24px 18px}}
 </style>
+
+<style>
+/* =========================================================
+   NEW: BRAND LOGO + HEADER NAV
+   ========================================================= */
+
+.masthead-brand{
+  display:flex;
+  align-items:center;
+  gap:10px;
+}
+
+.masthead-logo{
+  max-height:40px;
+  width:auto;
+  object-fit:contain;
+  border-radius:6px;
+  display:block;
+}
+
+.masthead-right{
+  display:flex;
+  align-items:center;
+  gap:14px;
+  flex-wrap:wrap;
+}
+
+@media (max-width:600px){
+  .masthead-logo{
+    max-height:30px;
+  }
+  .masthead-right{
+    gap:10px;
+    align-items:flex-start;
+  }
+}
+
+/* =========================================================
+   NEW: PUBLISHER GUIDELINES MODAL
+   ========================================================= */
+
+.pub-overlay{
+  position:fixed;
+  inset:0;
+  z-index:2000;
+
+  display:none;
+  align-items:center;
+  justify-content:center;
+
+  padding:22px;
+
+  background:rgba(15,23,42,0.45);
+  backdrop-filter:blur(2px);
+}
+
+.pub-overlay.open{
+  display:flex;
+}
+
+.pub-panel{
+  width:100%;
+  max-width:620px;
+  max-height:min(82vh,720px);
+
+  display:flex;
+  flex-direction:column;
+
+  background:var(--paper-raised);
+  border:1px solid var(--line);
+  border-top:3px solid var(--accent-navy);
+  border-radius:var(--radius);
+  box-shadow:var(--shadow);
+
+  overflow:hidden;
+}
+
+.pub-panel-head{
+  display:flex;
+  align-items:flex-start;
+  justify-content:space-between;
+  gap:14px;
+
+  padding:22px 24px 16px;
+  border-bottom:1px solid var(--line);
+}
+
+.pub-panel-head h2{
+  font-family:'Newsreader',serif;
+  font-weight:600;
+  font-size:1.3rem;
+  margin:0 0 4px;
+}
+
+.pub-panel-head p{
+  margin:0;
+  color:var(--ink-soft);
+  font-size:0.85rem;
+}
+
+.pub-close{
+  border:none;
+  background:none;
+  cursor:pointer;
+  color:var(--ink-soft);
+  font-size:1.3rem;
+  line-height:1;
+  padding:4px;
+  border-radius:var(--radius);
+}
+
+.pub-close:hover{
+  color:var(--ink);
+  background:var(--paper);
+}
+
+.pub-panel-body{
+  padding:20px 24px 26px;
+  overflow-y:auto;
+}
+
+.pub-panel-body label{
+  display:block;
+  font-family:'IBM Plex Mono',monospace;
+  font-size:0.68rem;
+  text-transform:uppercase;
+  letter-spacing:.05em;
+  color:var(--ink-faint);
+  margin-bottom:6px;
+}
+
+.pub-time-badge{
+  display:inline-flex;
+  align-items:center;
+  gap:6px;
+
+  margin:16px 0 4px;
+  padding:5px 12px;
+  border-radius:20px;
+
+  background:var(--accent-navy-soft);
+  color:var(--accent-navy);
+
+  font-family:'IBM Plex Mono',monospace;
+  font-size:0.72rem;
+  letter-spacing:.02em;
+}
+
+.pub-time-badge strong{
+  font-weight:600;
+}
+
+.pub-section-title{
+  font-family:'Newsreader',serif;
+  font-weight:600;
+  font-size:1.02rem;
+  margin:22px 0 10px;
+}
+
+.pub-roadmap{
+  margin:0;
+  padding:0;
+  list-style:none;
+  counter-reset:pubstep;
+}
+
+.pub-roadmap li{
+  counter-increment:pubstep;
+  position:relative;
+  padding:0 0 14px 30px;
+  font-size:0.86rem;
+  line-height:1.55;
+  color:var(--ink);
+}
+
+.pub-roadmap li::before{
+  content:counter(pubstep);
+  position:absolute;
+  left:0;
+  top:0;
+
+  width:20px;
+  height:20px;
+
+  display:flex;
+  align-items:center;
+  justify-content:center;
+
+  border-radius:50%;
+  background:var(--ink);
+  color:var(--paper);
+
+  font-family:'IBM Plex Mono',monospace;
+  font-size:0.68rem;
+}
+
+.pub-checklist{
+  margin:0;
+  padding:0;
+  list-style:none;
+}
+
+.pub-checklist li{
+  position:relative;
+  padding:0 0 10px 22px;
+  font-size:0.86rem;
+  line-height:1.5;
+  color:var(--ink-soft);
+}
+
+.pub-checklist li::before{
+  content:"✓";
+  position:absolute;
+  left:0;
+  top:0;
+  color:var(--success);
+  font-weight:600;
+}
+
+@media (max-width:600px){
+  .pub-overlay{
+    padding:0;
+    align-items:flex-end;
+  }
+  .pub-panel{
+    max-width:none;
+    max-height:88vh;
+    border-radius:var(--radius) var(--radius) 0 0;
+  }
+}
+
+/* =========================================================
+   NEW: MR. BEAN FLOATING ASSISTANT
+   ========================================================= */
+
+.mrbean-launcher{
+  position:fixed;
+  bottom:20px;
+  right:20px;
+  z-index:1000;
+
+  width:56px;
+  height:56px;
+  border-radius:50%;
+
+  border:2px solid var(--ink);
+  background:var(--paper-raised);
+  box-shadow:var(--shadow);
+
+  display:flex;
+  align-items:center;
+  justify-content:center;
+
+  cursor:pointer;
+  padding:0;
+
+  transition:transform .15s ease;
+}
+
+.mrbean-launcher:hover{
+  transform:translateY(-2px);
+}
+
+.mrbean-launcher img,
+.mrbean-header-avatar img{
+  width:100%;
+  height:100%;
+  border-radius:50%;
+  object-fit:cover;
+  display:block;
+}
+
+.mrbean-launcher-badge{
+  position:absolute;
+  top:-3px;
+  right:-3px;
+
+  width:14px;
+  height:14px;
+  border-radius:50%;
+
+  background:var(--accent-red);
+  border:2px solid var(--paper-raised);
+}
+
+.mrbean-window{
+  position:fixed;
+  right:20px;
+  bottom:88px;
+  z-index:1000;
+
+  width:min(360px, calc(100vw - 32px));
+  height:min(520px, calc(100vh - 140px));
+
+  display:flex;
+  flex-direction:column;
+
+  background:var(--paper-raised);
+  border:1px solid var(--line);
+  border-radius:var(--radius);
+  box-shadow:var(--shadow);
+
+  opacity:0;
+  transform:translateY(14px) scale(.98);
+  pointer-events:none;
+
+  transition:
+    opacity .2s ease,
+    transform .2s ease;
+
+  overflow:hidden;
+}
+
+.mrbean-window.open{
+  opacity:1;
+  transform:translateY(0) scale(1);
+  pointer-events:auto;
+}
+
+.mrbean-header{
+  display:flex;
+  align-items:center;
+  gap:10px;
+
+  padding:12px 14px;
+
+  background:var(--ink);
+  color:var(--paper);
+  flex:none;
+}
+
+.mrbean-header-avatar{
+  width:34px;
+  height:34px;
+  border-radius:50%;
+  overflow:hidden;
+  flex:none;
+  background:var(--paper);
+}
+
+.mrbean-header-text{
+  flex:1;
+  min-width:0;
+}
+
+.mrbean-header-text .name{
+  font-family:'Newsreader',serif;
+  font-weight:600;
+  font-size:0.92rem;
+  line-height:1.2;
+}
+
+.mrbean-header-text .status{
+  font-family:'IBM Plex Mono',monospace;
+  font-size:0.62rem;
+  color:#CBD5E1;
+  text-transform:uppercase;
+  letter-spacing:.04em;
+}
+
+.mrbean-header-close{
+  border:none;
+  background:none;
+  color:var(--paper);
+  opacity:.75;
+  cursor:pointer;
+  font-size:1.15rem;
+  line-height:1;
+  padding:4px;
+  flex:none;
+}
+
+.mrbean-header-close:hover{
+  opacity:1;
+}
+
+.mrbean-messages{
+  flex:1;
+  overflow-y:auto;
+
+  padding:14px;
+
+  display:flex;
+  flex-direction:column;
+  gap:10px;
+
+  background:var(--paper);
+}
+
+.mrbean-msg{
+  max-width:82%;
+  padding:9px 12px;
+  border-radius:12px;
+  font-size:0.82rem;
+  line-height:1.45;
+  word-wrap:break-word;
+}
+
+.mrbean-msg.bot{
+  align-self:flex-start;
+  background:var(--paper-raised);
+  border:1px solid var(--line);
+  border-bottom-left-radius:3px;
+  color:var(--ink);
+}
+
+.mrbean-msg.user{
+  align-self:flex-end;
+  background:var(--accent-navy);
+  color:#FFFFFF;
+  border-bottom-right-radius:3px;
+}
+
+.mrbean-chips-wrap{
+  flex:none;
+  border-top:1px solid var(--line);
+  background:var(--paper-raised);
+  max-height:150px;
+  overflow-y:auto;
+  padding:10px 12px 4px;
+}
+
+.mrbean-chip-group{
+  margin-bottom:8px;
+}
+
+.mrbean-chip-group-label{
+  font-family:'IBM Plex Mono',monospace;
+  font-size:0.6rem;
+  text-transform:uppercase;
+  letter-spacing:.05em;
+  color:var(--ink-faint);
+  margin-bottom:5px;
+}
+
+.mrbean-chips{
+  display:flex;
+  flex-wrap:wrap;
+  gap:6px;
+}
+
+.mrbean-chip{
+  border:1px solid var(--line);
+  border-radius:14px;
+  background:#FFFFFF;
+  color:var(--ink-soft);
+  font-size:0.72rem;
+  padding:6px 11px;
+  cursor:pointer;
+  transition:all .15s;
+}
+
+.mrbean-chip:hover{
+  border-color:var(--accent-navy);
+  color:var(--accent-navy);
+}
+
+.mrbean-input-row{
+  flex:none;
+  display:flex;
+  gap:8px;
+
+  padding:10px 12px;
+  border-top:1px solid var(--line);
+  background:var(--paper-raised);
+}
+
+.mrbean-input-row input{
+  flex:1;
+  min-height:38px;
+  padding:7px 10px;
+  border:1px solid var(--line);
+  border-radius:20px;
+  font-family:'Inter';
+  font-size:0.8rem;
+  background:#FFFFFF;
+  color:var(--ink);
+}
+
+.mrbean-input-row input:focus{
+  outline:none;
+  border-color:var(--accent-navy);
+  box-shadow:0 0 0 2px var(--accent-navy-soft);
+}
+
+.mrbean-input-row button{
+  flex:none;
+  width:38px;
+  height:38px;
+  border-radius:50%;
+  border:1px solid var(--ink);
+  background:var(--ink);
+  color:var(--paper);
+  cursor:pointer;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+}
+
+.mrbean-input-row button:hover{
+  opacity:.9;
+}
+
+@media (max-width:600px){
+  .mrbean-window{
+    right:14px;
+    bottom:82px;
+    width:min(340px, calc(100vw - 24px));
+    height:min(70vh, 480px);
+  }
+  .mrbean-launcher{
+    right:14px;
+    bottom:14px;
+  }
+}
+
+@media print{
+  .mrbean-launcher,
+  .mrbean-window,
+  .pub-overlay{
+    display:none !important;
+  }
+}
+</style>
+
 </head>
 <body class="auth-redirecting">
 
@@ -1975,7 +2492,7 @@ body.auth-redirecting>.desk{display:none!important}
       </div>
     </section>
 
-    <div class="auth-footer">© SK Graphics · Sachin & Team</div>
+    <div class="auth-footer">© SK Graphics · Sachin K</div>
   </div>
 </div>
 
@@ -1987,30 +2504,46 @@ body.auth-redirecting>.desk{display:none!important}
 
   <header class="masthead">
 
-    <div class="wordmark">
-      Scholar<em>AI</em>
+    <div class="masthead-brand">
+      <img
+        class="masthead-logo"
+        src="https://raw.githubusercontent.com/sachin4749/scholarAi/main/ScholarAI%20Logo.jpeg"
+        alt="ScholarAI logo"
+        loading="lazy"
+      >
+      <div class="wordmark">
+        Scholar<em>AI</em>
+      </div>
     </div>
 
-    <div class="masthead-meta">
-      © SK Graphics<br>
-      Manuscript Conversion Desk
-    </div>
+    <div class="masthead-right">
 
-    <div class="user-area" id="userArea" style="display:none;">
-      <span class="user-email" id="userEmail"></span>
-      <button class="btn small ghost" id="logoutBtn" type="button">Sign out</button>
+      <button class="btn small ghost" id="publisherGuidelinesBtn" type="button">
+        Publisher Guidelines
+      </button>
+
+      <div class="masthead-meta">
+        © SK Graphics<br>
+        Manuscript Conversion Desk
+      </div>
+
+      <div class="user-area" id="userArea" style="display:none;">
+        <span class="user-email" id="userEmail"></span>
+        <button class="btn small ghost" id="logoutBtn" type="button">Sign out</button>
+      </div>
+
     </div>
 
   </header>
 
-  <div class="draft-bar" id="draftBar">
+  <div class="draft-bar" id="draftBar" style="display:none !important;">
     <div class="draft-left">
       <span class="draft-dot" id="draftDot"></span>
       <span class="draft-status" id="draftStatus">Drafts are saved automatically.</span>
     </div>
     <div class="draft-actions">
-      <button class="btn small ghost" id="saveDraftBtn" type="button" title="Save your current manuscript draft to your account">Save draft</button>
-      <button class="btn small ghost" id="newDraftBtn" type="button" title="Discard the current manuscript and start a new one">Start new</button>
+      <button class="btn small ghost" id="saveDraftBtn" type="button">Save draft</button>
+      <button class="btn small ghost" id="newDraftBtn" type="button">Start new</button>
     </div>
   </div>
 
@@ -2479,7 +3012,7 @@ body.auth-redirecting>.desk{display:none!important}
     </div>
 
     <div>
-      Developed by Sachin & Team.
+      Developed by Sachin K.
 
       <a
         href="mailto:Sachin7080@outlook.com"
@@ -2501,6 +3034,90 @@ body.auth-redirecting>.desk{display:none!important}
     </div>
 
   </footer>
+
+</div>
+
+<!-- =========================================================
+     NEW: PUBLISHER SUBMISSION GUIDELINES MODAL
+     ========================================================= -->
+
+<div class="pub-overlay" id="pubOverlay">
+  <div class="pub-panel" role="dialog" aria-modal="true" aria-labelledby="pubPanelTitle">
+
+    <div class="pub-panel-head">
+      <div>
+        <h2 id="pubPanelTitle">Publisher Submission Guidelines</h2>
+        <p>Pick a publisher to see typical timelines, submission steps, and requirements.</p>
+      </div>
+      <button class="pub-close" id="pubCloseBtn" type="button" aria-label="Close">×</button>
+    </div>
+
+    <div class="pub-panel-body">
+
+      <label for="pubPublisherSelect">Target publisher</label>
+      <select class="plain-select" id="pubPublisherSelect">
+        <option value="IEEE">IEEE</option>
+        <option value="Springer">Springer</option>
+        <option value="Elsevier">Elsevier</option>
+        <option value="ACM">ACM</option>
+        <option value="Nature">Nature / Standard Journal</option>
+      </select>
+
+      <div class="pub-time-badge" id="pubTimeBadge">
+        Estimated time to publish: <strong id="pubTimeValue">4–8 Weeks</strong>
+      </div>
+
+      <div class="pub-section-title">Step-by-step submission roadmap</div>
+      <ol class="pub-roadmap" id="pubRoadmap"></ol>
+
+      <div class="pub-section-title">Key checklist</div>
+      <ul class="pub-checklist" id="pubChecklist"></ul>
+
+    </div>
+
+  </div>
+</div>
+
+<!-- =========================================================
+     NEW: MR. BEAN FLOATING ASSISTANT
+     ========================================================= -->
+
+<button class="mrbean-launcher" id="mrbeanLauncher" type="button" aria-label="Open ScholarAI assistant chat">
+  <svg viewBox="0 0 64 64" width="100%" height="100%" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+    <circle cx="32" cy="32" r="32" fill="var(--accent-navy)"/>
+    <circle cx="22" cy="27" r="4.2" fill="var(--paper)"/>
+    <circle cx="42" cy="27" r="4.2" fill="var(--paper)"/>
+    <path d="M19 39 Q32 50 45 39" stroke="var(--paper)" stroke-width="4.4" fill="none" stroke-linecap="round"/>
+  </svg>
+  <span class="mrbean-launcher-badge"></span>
+</button>
+
+<div class="mrbean-window" id="mrbeanWindow" role="dialog" aria-modal="false" aria-labelledby="mrbeanTitle">
+
+  <div class="mrbean-header">
+    <div class="mrbean-header-avatar">
+      <svg viewBox="0 0 64 64" width="100%" height="100%" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+        <circle cx="32" cy="32" r="32" fill="var(--accent-navy)"/>
+        <circle cx="22" cy="27" r="4.2" fill="var(--paper)"/>
+        <circle cx="42" cy="27" r="4.2" fill="var(--paper)"/>
+        <path d="M19 39 Q32 50 45 39" stroke="var(--paper)" stroke-width="4.4" fill="none" stroke-linecap="round"/>
+      </svg>
+    </div>
+    <div class="mrbean-header-text">
+      <div class="name" id="mrbeanTitle">Mr. Bean · ScholarAI Assistant</div>
+      <div class="status">Quick answers, no waiting</div>
+    </div>
+    <button class="mrbean-header-close" id="mrbeanCloseBtn" type="button" aria-label="Close chat">×</button>
+  </div>
+
+  <div class="mrbean-messages" id="mrbeanMessages"></div>
+
+  <div class="mrbean-chips-wrap" id="mrbeanChipsWrap"></div>
+
+  <div class="mrbean-input-row">
+    <input type="text" id="mrbeanInput" placeholder="Ask a question…" autocomplete="off">
+    <button id="mrbeanSendBtn" type="button" aria-label="Send">→</button>
+  </div>
 
 </div>
 
@@ -2596,12 +3213,7 @@ async function setAppSession(session,guest=false){
     userEmail.textContent=displayName || session?.user?.email || '';
     userEmail.title=session?.user?.email || '';
   }
-  if(draftBar){
-    // Manual draft saving is available only to authenticated account users.
-    draftBar.classList.toggle('account-draft-visible', !!(session && !guest));
-  }
-  const newDraftBtn = document.getElementById('newDraftBtn');
-  if(newDraftBtn) newDraftBtn.style.display = (session && !guest) ? 'inline-flex' : 'none';
+  if(draftBar)draftBar.style.display='none';
   showApp();
   window.dispatchEvent(new CustomEvent('scholar-auth-ready',{detail:{session,guest,displayName}}));
 }
@@ -2952,41 +3564,11 @@ window.addEventListener("online", () => {
 
 document.getElementById("saveDraftBtn")?.addEventListener("click", () => saveDraft());
 document.getElementById("newDraftBtn")?.addEventListener("click", async () => {
-  if(guestMode || !activeSession?.user?.id) return;
-
-  const confirmed = confirm(
-    "Do you really want to start a new manuscript?\n\n" +
-    "Your current manuscript data will be lost completely, including the saved draft linked to this account.\n\n" +
-    "This action cannot be undone.\n\n" +
-    "Click OK to permanently clear the current draft and start a new one."
-  );
-  if(!confirmed) return;
-
-  clearTimeout(draftSaveTimer);
-  draftSaveTimer = null;
-  draftSaveInFlight = false;
-
-  // Remove the account's saved cloud draft first so an old manuscript cannot be restored.
-  try{
-    if(window.scholarSupabase){
-      const { error } = await window.scholarSupabase
-        .from("scholarai_drafts")
-        .delete()
-        .eq("user_id", activeSession.user.id);
-      if(error) throw error;
-    }
-  }catch(error){
-    console.warn("ScholarAI could not clear the cloud draft", error);
-    alert("The current draft could not be cleared from your account.\n\nYour manuscript has NOT been reset. Please try again when you are online.");
+  if(guestMode){
+    location.reload();
     return;
   }
-
-  // Remove the device copy as well.
-  const localKey = draftLocalKey();
-  if(localKey){
-    try{ localStorage.removeItem(localKey); }catch(error){ console.warn("ScholarAI local draft clear failed", error); }
-  }
-
+  if(!confirm("Start a new manuscript? Your current saved draft will be replaced by the new blank draft.")) return;
   Object.assign(state, {
     rawText:"", targetFormat:null, blocks:[], authorsDetected:false,
     primaryAuthor:{salutation:"Dr.",name:"",designation:"",email:"",affiliation:"",city:""},
@@ -2995,7 +3577,6 @@ document.getElementById("newDraftBtn")?.addEventListener("click", async () => {
   currentStep = 1;
   lastDraftSignature = "";
   lastCloudDraftSignature = "";
-
   const paste = document.getElementById("pasteArea");
   if(paste) paste.value = "";
   document.querySelectorAll("#formatGrid .format-pill").forEach(p => p.classList.remove("sel"));
@@ -3004,8 +3585,7 @@ document.getElementById("newDraftBtn")?.addEventListener("click", async () => {
   if(document.getElementById("topicPanel")) document.getElementById("topicPanel").style.display = "none";
   document.querySelectorAll(".sheet").forEach((sheet,i) => sheet.classList.toggle("hidden", i > 0));
   railTo(1, true);
-
-  alert("Your previous manuscript has been cleared completely. You can start a new one now.");
+  await saveDraft();
 });
 
 /* =========================================================
@@ -7593,9 +8173,382 @@ updateContinueButton();
 })();
 </script>
 
-</body>
-</html>
-```
+<script>
+(function(){
+"use strict";
+
+/* =========================================================
+   NEW: PUBLISHER SUBMISSION GUIDELINES — DATA + LOGIC
+   ========================================================= */
+
+var PUBLISHER_DATA = {
+
+  IEEE:{
+    time:"4–8 Weeks",
+    roadmap:[
+      "Finish structuring your paper in Steps 1–4, choosing \u201cIEEE\u201d as the target format so section numbering and layout follow the IEEE convention automatically.",
+      "In Step 5, run Verify Citations so every reference resolves to a DOI and is numbered in IEEE's bracketed [1], [2] style.",
+      "Check the Step 6 Readiness Assessment for abstract length and missing-section warnings before you export.",
+      "Export the formatted manuscript as DOCX or HTML from Step 6, then copy the content into the official IEEE two-column manuscript template (Word or LaTeX).",
+      "Submit through the IEEE Author Portal or ScholarOne for your target conference or transaction, attaching the IEEE Copyright Form if requested."
+    ],
+    checklist:[
+      "Abstract: 150–250 words, written without citations inside it",
+      "References: numbered in citation order, IEEE style",
+      "Figures: at least 300 dpi, embedded near their first mention",
+      "Layout: double-column once placed in the official IEEE template",
+      "Keywords: 4–6 index terms listed directly after the abstract"
+    ]
+  },
+
+  Springer:{
+    time:"6–10 Weeks",
+    roadmap:[
+      "Structure your manuscript in Steps 1–4, selecting \u201cSpringer\u201d as the target format so headings follow Springer's numbered section convention.",
+      "Use Step 5 to verify every reference against CrossRef — Springer journals generally expect complete, resolved DOIs.",
+      "Review the Step 6 checklist for abstract length and figure completeness.",
+      "Export your formatted draft, then transfer the content into the specific journal's Springer Nature template (Word or LaTeX) — templates vary by journal.",
+      "Submit via Editorial Manager or the journal's own system, including a cover letter and any required author disclosures."
+    ],
+    checklist:[
+      "Abstract: usually 150–250 words; some journals require a structured abstract",
+      "References: numbered or author–year, depending on the specific journal",
+      "Figures: minimum 300 dpi for halftones, 600+ dpi for line art",
+      "Author info: ORCID iD recommended for the corresponding author",
+      "Always confirm exact limits on your target journal's own guidelines page — they vary across Springer's catalog"
+    ]
+  },
+
+  Elsevier:{
+    time:"8–12 Weeks",
+    roadmap:[
+      "Complete Steps 1–4, choosing \u201cElsevier\u201d as the target format for section and reference styling.",
+      "Prepare 3–5 short Highlights bullet points and, if your journal requests one, a graphical abstract — many Elsevier journals ask for both.",
+      "Run Step 5's citation verification so your reference list carries resolved DOIs.",
+      "Export the formatted manuscript, place it into your journal's Elsevier template, and upload it through Editorial Manager with the highlights file and any supplementary data.",
+      "Track review status through Editorial Manager and respond to reviewer comments within the given deadline."
+    ],
+    checklist:[
+      "Abstract: typically up to 250 words",
+      "Highlights: 3–5 bullet points, roughly 85 characters each",
+      "References: numbered or author–year style, per journal",
+      "Figures: 300 dpi minimum for color/grayscale, 500–1000 dpi for line art",
+      "Title page: submitted separately with full author and affiliation details"
+    ]
+  },
+
+  ACM:{
+    time:"4–6 Weeks",
+    roadmap:[
+      "Structure your paper across Steps 1–4 with \u201cACM\u201d selected as the target format.",
+      "Verify references in Step 5 — ACM's reference style is numbered and DOI-linked wherever possible.",
+      "Check the Step 6 readiness panel, then export your manuscript.",
+      "Place the exported content into the ACM primary article template (LaTeX or Word) for your target venue.",
+      "Submit through the conference or journal's ACM submission system and complete the ACM rights/licensing form."
+    ],
+    checklist:[
+      "Abstract: concise, generally under 250 words",
+      "References: numbered, ACM Reference Format",
+      "Figures: minimum 300 dpi; vector formats preferred for diagrams",
+      "Template: the ACM primary article template for the specific venue",
+      "Rights: ACM copyright/licensing form completed at submission"
+    ]
+  },
+
+  Nature:{
+    time:"12–16 Weeks",
+    roadmap:[
+      "Draft and structure your manuscript in Steps 1–4 — Nature-family journals accept a \u201cformat-free\u201d initial submission, so exact styling matters less at this stage.",
+      "Still run Step 5's citation check so references are complete and correctly numbered; strict formatting is only required after acceptance.",
+      "Write a short cover letter summarizing your paper's significance — this typically matters more than formatting for the initial editorial decision.",
+      "Export your draft as DOCX or PDF and submit it with the cover letter through the journal's online system.",
+      "If invited to revise after peer review, reformat references and figures to the journal's house style at that stage."
+    ],
+    checklist:[
+      "Summary/abstract: roughly 150–200 words as a single unstructured paragraph",
+      "References: numbered, Nature house style, applied at the revision stage",
+      "Figures: lower-resolution previews are fine at first submission; 300+ dpi files are requested after acceptance",
+      "Cover letter: required, explaining the paper's significance",
+      "Always check the exact journal's current guidelines — requirements differ across the Nature portfolio"
+    ]
+  }
+
+};
+
+function renderPublisherGuidelines(key){
+
+  var data = PUBLISHER_DATA[key] || PUBLISHER_DATA.IEEE;
+
+  var timeValue = document.getElementById("pubTimeValue");
+  var roadmapEl = document.getElementById("pubRoadmap");
+  var checklistEl = document.getElementById("pubChecklist");
+
+  if(timeValue) timeValue.textContent = data.time;
+
+  if(roadmapEl){
+    roadmapEl.innerHTML = "";
+    data.roadmap.forEach(function(step){
+      var li = document.createElement("li");
+      li.textContent = step;
+      roadmapEl.appendChild(li);
+    });
+  }
+
+  if(checklistEl){
+    checklistEl.innerHTML = "";
+    data.checklist.forEach(function(item){
+      var li = document.createElement("li");
+      li.textContent = item;
+      checklistEl.appendChild(li);
+    });
+  }
+
+}
+
+function handlePubEscape(e){
+  if(e.key === "Escape") closePublisherModal();
+}
+
+function openPublisherModal(){
+  var overlay = document.getElementById("pubOverlay");
+  var select = document.getElementById("pubPublisherSelect");
+  if(!overlay) return;
+  renderPublisherGuidelines(select ? select.value : "IEEE");
+  overlay.classList.add("open");
+  document.addEventListener("keydown", handlePubEscape);
+}
+
+function closePublisherModal(){
+  var overlay = document.getElementById("pubOverlay");
+  if(!overlay) return;
+  overlay.classList.remove("open");
+  document.removeEventListener("keydown", handlePubEscape);
+}
+
+var pubGuidelinesBtn = document.getElementById("publisherGuidelinesBtn");
+if(pubGuidelinesBtn) pubGuidelinesBtn.addEventListener("click", openPublisherModal);
+
+var pubCloseBtn = document.getElementById("pubCloseBtn");
+if(pubCloseBtn) pubCloseBtn.addEventListener("click", closePublisherModal);
+
+var pubSelect = document.getElementById("pubPublisherSelect");
+if(pubSelect) pubSelect.addEventListener("change", function(e){
+  renderPublisherGuidelines(e.target.value);
+});
+
+var pubOverlayEl = document.getElementById("pubOverlay");
+if(pubOverlayEl) pubOverlayEl.addEventListener("click", function(e){
+  if(e.target.id === "pubOverlay") closePublisherModal();
+});
+
+/* =========================================================
+   NEW: MR. BEAN ASSISTANT — DATA + LOGIC
+   ========================================================= */
+
+var MRBEAN_FALLBACK = "I'm Mr. Bean! Please click one of the quick question chips above or visit the \u201cPublisher Guidelines\u201d tab for full details!";
+
+var MRBEAN_QA = [
+  {
+    category:"File Upload & Input",
+    items:[
+      {q:"How do I upload my manuscript?", a:"In Step 1, drag and drop your file into the dropzone or select it via the file browser."},
+      {q:"Which file formats are supported?", a:"Plain Text (.txt), Microsoft Word (.docx), and PDF (.pdf) files are supported."},
+      {q:"Can I paste text manually instead of uploading a file?", a:"Yes! Toggle the \u201cPaste Text\u201d option in Step 1 to copy and paste your manuscript text directly."}
+    ]
+  },
+  {
+    category:"Formatting & Structure",
+    items:[
+      {q:"How do I select a target publisher style?", a:"Pick your desired layout format (such as IEEE) during Step 2 to configure auto-styling rules."},
+      {q:"How long does formatting take?", a:"Formatting is instantaneous! Once you complete the steps, your final paper renders immediately."},
+      {q:"How do I change an incorrectly detected section title?", a:"In Step 3, click the section dropdown menu above any text block to reassign its section type manually."},
+      {q:"Can I edit text directly in the blocks?", a:"Yes! All text blocks in Step 3 are fully editable. Just click inside any block to tweak your manuscript text."}
+    ]
+  },
+  {
+    category:"Author Metadata & Co-Authors",
+    items:[
+      {q:"How are author details extracted?", a:"ScholarAI automatically scans the top of your document for names, emails, and affiliations."},
+      {q:"How do I add or remove co-authors?", a:"In Step 4, click \u201cAdd Co-Author\u201d to add a new member or click the \u201c\u00d7\u201d on an existing author card to remove them."}
+    ]
+  },
+  {
+    category:"Figures, Images & Tables",
+    items:[
+      {q:"How do I add figures or images to a section?", a:"In Step 3, drag and drop an image directly onto the section block where you want it inserted."},
+      {q:"How do I change figure column widths?", a:"Below each uploaded image in Step 3, select either \u201cSingle Column\u201d or \u201cTwo Column\u201d layout."},
+      {q:"How do I add captions to my figures?", a:"Type your caption into the text box underneath the figure preview in Step 3."}
+    ]
+  },
+  {
+    category:"References & Citation Verification",
+    items:[
+      {q:"How does citation verification work?", a:"In Step 5, click \u201cVerify Citations\u201d to query CrossRef, validate references, and retrieve missing DOIs automatically."},
+      {q:"What do the reference status badges mean?", a:"Verified = Matched on CrossRef with DOI; Flagged = Needs manual review; Unverified = Not checked yet."},
+      {q:"Can I edit reference entries manually?", a:"Yes, click on any reference card text in Step 5 to modify author names, titles, or publication details."}
+    ]
+  },
+  {
+    category:"Publisher Guidelines & Submission Timelines",
+    items:[
+      {q:"Where can I see publisher submission steps?", a:"Click the \u201cPublisher Guidelines\u201d tab in the top header to view step-by-step submission instructions."},
+      {q:"How long does publication usually take?", a:"Timeline varies: IEEE (4–8 wks), Springer (6–10 wks), Elsevier (8–12 wks), ACM (4–6 wks), and Nature (12–16 wks)."},
+      {q:"What are the abstract word count requirements?", a:"Most publishers require 150–250 words. Check the Readiness Assessment panel on Step 6 for an automated check!"}
+    ]
+  },
+  {
+    category:"Exporting, Saving & Data Safety",
+    items:[
+      {q:"Is my draft automatically saved?", a:"Yes! Your progress, manuscript blocks, and configurations are cached in your browser local storage."},
+      {q:"How do I download or print my finished paper?", a:"On Step 6, click \u201cDownload HTML\u201d, \u201cDownload TXT\u201d, or \u201cPrint / Save PDF\u201d to export your formatted manuscript."},
+      {q:"Is my manuscript data private?", a:"Yes! Parsing and formatting happen client-side in your browser, keeping your research paper private."}
+    ]
+  }
+];
+
+var mrbeanFlatQA = [];
+MRBEAN_QA.forEach(function(group){
+  group.items.forEach(function(pair){
+    mrbeanFlatQA.push(pair);
+  });
+});
+
+function mrbeanAppendMessage(role, text){
+  var messages = document.getElementById("mrbeanMessages");
+  if(!messages) return;
+  var bubble = document.createElement("div");
+  bubble.className = "mrbean-msg " + (role === "user" ? "user" : "bot");
+  bubble.textContent = text;
+  messages.appendChild(bubble);
+  messages.scrollTop = messages.scrollHeight;
+}
+
+function mrbeanAskPreset(question, answer){
+  mrbeanAppendMessage("user", question);
+  window.setTimeout(function(){
+    mrbeanAppendMessage("bot", answer);
+  }, 250);
+}
+
+function mrbeanNormalize(str){
+  return str.trim().toLowerCase().replace(/[?!.]+$/g, "");
+}
+
+function mrbeanFindAnswer(raw){
+  var normalized = mrbeanNormalize(raw);
+  if(!normalized) return null;
+
+  for(var i=0;i<mrbeanFlatQA.length;i++){
+    if(mrbeanNormalize(mrbeanFlatQA[i].q) === normalized) return mrbeanFlatQA[i].a;
+  }
+
+  for(var j=0;j<mrbeanFlatQA.length;j++){
+    var qn = mrbeanFlatQA[j].q.toLowerCase();
+    if(normalized.length > 4 && qn.indexOf(normalized) !== -1) return mrbeanFlatQA[j].a;
+  }
+
+  return null;
+}
+
+function mrbeanHandleInputSubmit(){
+  var input = document.getElementById("mrbeanInput");
+  if(!input) return;
+  var raw = input.value;
+  if(!raw || !raw.trim()) return;
+
+  mrbeanAppendMessage("user", raw.trim());
+  var answer = mrbeanFindAnswer(raw);
+  input.value = "";
+
+  window.setTimeout(function(){
+    mrbeanAppendMessage("bot", answer || MRBEAN_FALLBACK);
+  }, 250);
+}
+
+function mrbeanBuildChips(){
+  var wrap = document.getElementById("mrbeanChipsWrap");
+  if(!wrap) return;
+  wrap.innerHTML = "";
+
+  MRBEAN_QA.forEach(function(group){
+
+    var groupEl = document.createElement("div");
+    groupEl.className = "mrbean-chip-group";
+
+    var label = document.createElement("div");
+    label.className = "mrbean-chip-group-label";
+    label.textContent = group.category;
+    groupEl.appendChild(label);
+
+    var chipsRow = document.createElement("div");
+    chipsRow.className = "mrbean-chips";
+
+    group.items.forEach(function(pair){
+      var chip = document.createElement("button");
+      chip.type = "button";
+      chip.className = "mrbean-chip";
+      chip.textContent = pair.q;
+      chip.addEventListener("click", function(){
+        mrbeanAskPreset(pair.q, pair.a);
+      });
+      chipsRow.appendChild(chip);
+    });
+
+    groupEl.appendChild(chipsRow);
+    wrap.appendChild(groupEl);
+
+  });
+}
+
+var mrbeanGreeted = false;
+
+function openMrbeanWindow(){
+  var win = document.getElementById("mrbeanWindow");
+  if(!win) return;
+  win.classList.add("open");
+
+  if(!mrbeanGreeted){
+    mrbeanAppendMessage("bot", "Hi! I'm Mr. Bean, your ScholarAI assistant. Tap a question below or type your own.");
+    mrbeanGreeted = true;
+  }
+
+  var input = document.getElementById("mrbeanInput");
+  if(input) window.setTimeout(function(){ input.focus(); }, 200);
+}
+
+function closeMrbeanWindow(){
+  var win = document.getElementById("mrbeanWindow");
+  if(win) win.classList.remove("open");
+}
+
+function toggleMrbeanWindow(){
+  var win = document.getElementById("mrbeanWindow");
+  if(!win) return;
+  if(win.classList.contains("open")) closeMrbeanWindow();
+  else openMrbeanWindow();
+}
+
+mrbeanBuildChips();
+
+var mrbeanLauncherBtn = document.getElementById("mrbeanLauncher");
+if(mrbeanLauncherBtn) mrbeanLauncherBtn.addEventListener("click", toggleMrbeanWindow);
+
+var mrbeanCloseBtnEl = document.getElementById("mrbeanCloseBtn");
+if(mrbeanCloseBtnEl) mrbeanCloseBtnEl.addEventListener("click", closeMrbeanWindow);
+
+var mrbeanSendBtnEl = document.getElementById("mrbeanSendBtn");
+if(mrbeanSendBtnEl) mrbeanSendBtnEl.addEventListener("click", mrbeanHandleInputSubmit);
+
+var mrbeanInputEl = document.getElementById("mrbeanInput");
+if(mrbeanInputEl) mrbeanInputEl.addEventListener("keydown", function(e){
+  if(e.key === "Enter"){
+    e.preventDefault();
+    mrbeanHandleInputSubmit();
+  }
+});
+
+})();
+</script>
 
 </body>
 </html>
