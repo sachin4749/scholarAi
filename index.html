@@ -2110,10 +2110,10 @@ body.auth-redirecting>.desk{display:none!important}
 }
 
 /* =========================================================
-   NEW: MR. BEAN FLOATING ASSISTANT
+   NEW: VIDYAAI FLOATING ASSISTANT
    ========================================================= */
 
-.mrbean-launcher{
+.vidyaai-launcher{
   position:fixed;
   bottom:20px;
   right:20px;
@@ -2137,12 +2137,12 @@ body.auth-redirecting>.desk{display:none!important}
   transition:transform .15s ease;
 }
 
-.mrbean-launcher:hover{
+.vidyaai-launcher:hover{
   transform:translateY(-2px);
 }
 
-.mrbean-launcher img,
-.mrbean-header-avatar img{
+.vidyaai-launcher img,
+.vidyaai-header-avatar img{
   width:100%;
   height:100%;
   border-radius:50%;
@@ -2150,7 +2150,7 @@ body.auth-redirecting>.desk{display:none!important}
   display:block;
 }
 
-.mrbean-launcher-badge{
+.vidyaai-launcher-badge{
   position:absolute;
   top:-3px;
   right:-3px;
@@ -2163,7 +2163,7 @@ body.auth-redirecting>.desk{display:none!important}
   border:2px solid var(--paper-raised);
 }
 
-.mrbean-window{
+.vidyaai-window{
   position:fixed;
   right:20px;
   bottom:88px;
@@ -2191,13 +2191,13 @@ body.auth-redirecting>.desk{display:none!important}
   overflow:hidden;
 }
 
-.mrbean-window.open{
+.vidyaai-window.open{
   opacity:1;
   transform:translateY(0) scale(1);
   pointer-events:auto;
 }
 
-.mrbean-header{
+.vidyaai-header{
   display:flex;
   align-items:center;
   gap:10px;
@@ -2209,7 +2209,7 @@ body.auth-redirecting>.desk{display:none!important}
   flex:none;
 }
 
-.mrbean-header-avatar{
+.vidyaai-header-avatar{
   width:34px;
   height:34px;
   border-radius:50%;
@@ -2218,19 +2218,19 @@ body.auth-redirecting>.desk{display:none!important}
   background:var(--paper);
 }
 
-.mrbean-header-text{
+.vidyaai-header-text{
   flex:1;
   min-width:0;
 }
 
-.mrbean-header-text .name{
+.vidyaai-header-text .name{
   font-family:'Newsreader',serif;
   font-weight:600;
   font-size:0.92rem;
   line-height:1.2;
 }
 
-.mrbean-header-text .status{
+.vidyaai-header-text .status{
   font-family:'IBM Plex Mono',monospace;
   font-size:0.62rem;
   color:#CBD5E1;
@@ -2238,7 +2238,7 @@ body.auth-redirecting>.desk{display:none!important}
   letter-spacing:.04em;
 }
 
-.mrbean-header-close{
+.vidyaai-header-close{
   border:none;
   background:none;
   color:var(--paper);
@@ -2250,11 +2250,11 @@ body.auth-redirecting>.desk{display:none!important}
   flex:none;
 }
 
-.mrbean-header-close:hover{
+.vidyaai-header-close:hover{
   opacity:1;
 }
 
-.mrbean-messages{
+.vidyaai-messages{
   flex:1;
   overflow-y:auto;
 
@@ -2267,7 +2267,7 @@ body.auth-redirecting>.desk{display:none!important}
   background:var(--paper);
 }
 
-.mrbean-msg{
+.vidyaai-msg{
   max-width:82%;
   padding:9px 12px;
   border-radius:12px;
@@ -2276,7 +2276,7 @@ body.auth-redirecting>.desk{display:none!important}
   word-wrap:break-word;
 }
 
-.mrbean-msg.bot{
+.vidyaai-msg.bot{
   align-self:flex-start;
   background:var(--paper-raised);
   border:1px solid var(--line);
@@ -2284,14 +2284,14 @@ body.auth-redirecting>.desk{display:none!important}
   color:var(--ink);
 }
 
-.mrbean-msg.user{
+.vidyaai-msg.user{
   align-self:flex-end;
   background:var(--accent-navy);
   color:#FFFFFF;
   border-bottom-right-radius:3px;
 }
 
-.mrbean-chips-wrap{
+.vidyaai-chips-wrap{
   flex:none;
   border-top:1px solid var(--line);
   background:var(--paper-raised);
@@ -2300,11 +2300,11 @@ body.auth-redirecting>.desk{display:none!important}
   padding:10px 12px 4px;
 }
 
-.mrbean-chip-group{
+.vidyaai-chip-group{
   margin-bottom:8px;
 }
 
-.mrbean-chip-group-label{
+.vidyaai-chip-group-label{
   font-family:'IBM Plex Mono',monospace;
   font-size:0.6rem;
   text-transform:uppercase;
@@ -2313,13 +2313,13 @@ body.auth-redirecting>.desk{display:none!important}
   margin-bottom:5px;
 }
 
-.mrbean-chips{
+.vidyaai-chips{
   display:flex;
   flex-wrap:wrap;
   gap:6px;
 }
 
-.mrbean-chip{
+.vidyaai-chip{
   border:1px solid var(--line);
   border-radius:14px;
   background:#FFFFFF;
@@ -2330,12 +2330,12 @@ body.auth-redirecting>.desk{display:none!important}
   transition:all .15s;
 }
 
-.mrbean-chip:hover{
+.vidyaai-chip:hover{
   border-color:var(--accent-navy);
   color:var(--accent-navy);
 }
 
-.mrbean-input-row{
+.vidyaai-input-row{
   flex:none;
   display:flex;
   gap:8px;
@@ -2345,7 +2345,7 @@ body.auth-redirecting>.desk{display:none!important}
   background:var(--paper-raised);
 }
 
-.mrbean-input-row input{
+.vidyaai-input-row input{
   flex:1;
   min-height:38px;
   padding:7px 10px;
@@ -2357,13 +2357,13 @@ body.auth-redirecting>.desk{display:none!important}
   color:var(--ink);
 }
 
-.mrbean-input-row input:focus{
+.vidyaai-input-row input:focus{
   outline:none;
   border-color:var(--accent-navy);
   box-shadow:0 0 0 2px var(--accent-navy-soft);
 }
 
-.mrbean-input-row button{
+.vidyaai-input-row button{
   flex:none;
   width:38px;
   height:38px;
@@ -2377,29 +2377,128 @@ body.auth-redirecting>.desk{display:none!important}
   justify-content:center;
 }
 
-.mrbean-input-row button:hover{
+.vidyaai-input-row button:hover{
   opacity:.9;
 }
 
 @media (max-width:600px){
-  .mrbean-window{
+  .vidyaai-window{
     right:14px;
     bottom:82px;
     width:min(340px, calc(100vw - 24px));
     height:min(70vh, 480px);
   }
-  .mrbean-launcher{
+  .vidyaai-launcher{
     right:14px;
     bottom:14px;
   }
 }
 
 @media print{
-  .mrbean-launcher,
-  .mrbean-window,
+  .vidyaai-launcher,
+  .vidyaai-window,
   .pub-overlay{
     display:none !important;
   }
+}
+
+/* =========================================================
+   NEW: AUTH — PASSWORD VISIBILITY + RESET-STATE PANELS
+   ========================================================= */
+
+.auth-field-password{
+  position:relative;
+}
+
+.auth-field-password input{
+  padding-right:42px;
+}
+
+.auth-eye-btn{
+  position:absolute;
+  top:50%;
+  right:3px;
+  transform:translateY(-50%);
+
+  width:36px;
+  height:36px;
+
+  display:flex;
+  align-items:center;
+  justify-content:center;
+
+  border:none;
+  background:none;
+  padding:0;
+  margin:0;
+
+  color:var(--ink-faint);
+  cursor:pointer;
+  border-radius:var(--radius);
+}
+
+.auth-eye-btn:hover{
+  color:var(--ink-soft);
+}
+
+.auth-eye-btn:focus-visible{
+  outline:2px solid var(--accent-navy);
+  outline-offset:1px;
+}
+
+.auth-eye-btn svg{
+  width:19px;
+  height:19px;
+  display:block;
+}
+
+.auth-eye-btn .eye-off-icon{
+  display:none;
+}
+
+.auth-eye-btn.is-visible .eye-icon{
+  display:none;
+}
+
+.auth-eye-btn.is-visible .eye-off-icon{
+  display:block;
+}
+
+.auth-btn:disabled{
+  opacity:.6;
+  cursor:not-allowed;
+}
+
+.auth-reset-state{
+  display:none;
+}
+
+.auth-reset-state.active{
+  display:block;
+}
+
+.auth-reset-icon{
+  width:42px;
+  height:42px;
+  border-radius:50%;
+
+  display:flex;
+  align-items:center;
+  justify-content:center;
+
+  margin-bottom:14px;
+
+  font-size:1.2rem;
+}
+
+.auth-reset-icon.success{
+  background:var(--accent-navy-soft);
+  color:var(--accent-navy);
+}
+
+.auth-reset-icon.invalid{
+  background:var(--accent-red-soft);
+  color:var(--accent-red);
 }
 </style>
 
@@ -2433,7 +2532,16 @@ body.auth-redirecting>.desk{display:none!important}
         <div id="loginMsg" class="auth-message"></div>
         <form id="loginForm">
           <div class="auth-field"><label>Email</label><input id="loginEmail" type="email" autocomplete="email" required placeholder="you@example.com"></div>
-          <div class="auth-field"><label>Password</label><input id="loginPassword" type="password" autocomplete="current-password" required placeholder="Your password"></div>
+          <div class="auth-field">
+            <label>Password</label>
+            <div class="auth-field-password">
+              <input id="loginPassword" type="password" autocomplete="current-password" required placeholder="Your password">
+              <button type="button" class="auth-eye-btn" data-toggle-for="loginPassword" aria-label="Show password" aria-pressed="false">
+                <svg class="eye-icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7-11-7-11-7z" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/><circle cx="12" cy="12" r="3" stroke="currentColor" stroke-width="1.8"/></svg>
+                <svg class="eye-off-icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M3 3l18 18" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/><path d="M10.6 5.2C11 5.1 11.5 5 12 5c7 0 11 7 11 7-.6 1.1-1.6 2.4-2.9 3.6M6.2 6.2C3.5 7.9 1 12 1 12s4 7 11 7c1.4 0 2.7-.3 3.9-.7" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/><path d="M9.9 9.9a3 3 0 004.2 4.2" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+              </button>
+            </div>
+          </div>
           <div class="auth-links right"><button type="button" class="auth-link" data-auth-route="forgot">Forgot your password?</button></div>
           <button class="auth-btn" type="submit">Sign in →</button>
         </form>
@@ -2449,7 +2557,26 @@ body.auth-redirecting>.desk{display:none!important}
         <form id="signupForm">
           <div class="auth-field"><label>Full name</label><input id="signupName" type="text" autocomplete="name" required placeholder="Your name"></div>
           <div class="auth-field"><label>Email</label><input id="signupEmail" type="email" autocomplete="email" required placeholder="you@example.com"></div>
-          <div class="auth-field"><label>Password</label><input id="signupPassword" type="password" autocomplete="new-password" minlength="6" required placeholder="At least 6 characters"></div>
+          <div class="auth-field">
+            <label>Password</label>
+            <div class="auth-field-password">
+              <input id="signupPassword" type="password" autocomplete="new-password" minlength="6" required placeholder="At least 6 characters">
+              <button type="button" class="auth-eye-btn" data-toggle-for="signupPassword" aria-label="Show password" aria-pressed="false">
+                <svg class="eye-icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7-11-7-11-7z" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/><circle cx="12" cy="12" r="3" stroke="currentColor" stroke-width="1.8"/></svg>
+                <svg class="eye-off-icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M3 3l18 18" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/><path d="M10.6 5.2C11 5.1 11.5 5 12 5c7 0 11 7 11 7-.6 1.1-1.6 2.4-2.9 3.6M6.2 6.2C3.5 7.9 1 12 1 12s4 7 11 7c1.4 0 2.7-.3 3.9-.7" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/><path d="M9.9 9.9a3 3 0 004.2 4.2" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+              </button>
+            </div>
+          </div>
+          <div class="auth-field">
+            <label>Confirm password</label>
+            <div class="auth-field-password">
+              <input id="signupConfirmPassword" type="password" autocomplete="new-password" minlength="6" required placeholder="Re-enter your password">
+              <button type="button" class="auth-eye-btn" data-toggle-for="signupConfirmPassword" aria-label="Show password" aria-pressed="false">
+                <svg class="eye-icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7-11-7-11-7z" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/><circle cx="12" cy="12" r="3" stroke="currentColor" stroke-width="1.8"/></svg>
+                <svg class="eye-off-icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M3 3l18 18" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/><path d="M10.6 5.2C11 5.1 11.5 5 12 5c7 0 11 7 11 7-.6 1.1-1.6 2.4-2.9 3.6M6.2 6.2C3.5 7.9 1 12 1 12s4 7 11 7c1.4 0 2.7-.3 3.9-.7" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/><path d="M9.9 9.9a3 3 0 004.2 4.2" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+              </button>
+            </div>
+          </div>
           <button class="auth-btn" type="submit">Create account →</button>
         </form>
         <div class="auth-links"><button type="button" class="auth-link" data-auth-route="entry">← Back to access options</button><button type="button" class="auth-link" data-auth-route="login">Already have an account?</button></div>
@@ -2482,17 +2609,52 @@ body.auth-redirecting>.desk{display:none!important}
     <section id="authReset" class="auth-page">
       <div class="auth-card">
         <div class="auth-label">Set new password</div><h1>Reset Password</h1>
-        <p class="auth-sub">Choose a new password for your ScholarAI account.</p>
-        <div id="resetMsg" class="auth-message"></div>
-        <form id="resetForm">
-          <div class="auth-field"><label>New password</label><input id="resetPassword" type="password" minlength="6" autocomplete="new-password" required placeholder="At least 6 characters"></div>
-          <button class="auth-btn" type="submit">Update password →</button>
-        </form>
+
+        <div id="resetFormState" class="auth-reset-state active">
+          <p class="auth-sub">Choose a new password for your ScholarAI account.</p>
+          <div id="resetMsg" class="auth-message"></div>
+          <form id="resetForm">
+            <div class="auth-field">
+              <label>New password</label>
+              <div class="auth-field-password">
+                <input id="resetPassword" type="password" minlength="6" autocomplete="new-password" required placeholder="At least 6 characters">
+                <button type="button" class="auth-eye-btn" data-toggle-for="resetPassword" aria-label="Show password" aria-pressed="false">
+                  <svg class="eye-icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7-11-7-11-7z" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/><circle cx="12" cy="12" r="3" stroke="currentColor" stroke-width="1.8"/></svg>
+                  <svg class="eye-off-icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M3 3l18 18" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/><path d="M10.6 5.2C11 5.1 11.5 5 12 5c7 0 11 7 11 7-.6 1.1-1.6 2.4-2.9 3.6M6.2 6.2C3.5 7.9 1 12 1 12s4 7 11 7c1.4 0 2.7-.3 3.9-.7" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/><path d="M9.9 9.9a3 3 0 004.2 4.2" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                </button>
+              </div>
+            </div>
+            <div class="auth-field">
+              <label>Confirm new password</label>
+              <div class="auth-field-password">
+                <input id="resetConfirmPassword" type="password" minlength="6" autocomplete="new-password" required placeholder="Re-enter new password">
+                <button type="button" class="auth-eye-btn" data-toggle-for="resetConfirmPassword" aria-label="Show password" aria-pressed="false">
+                  <svg class="eye-icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7-11-7-11-7z" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/><circle cx="12" cy="12" r="3" stroke="currentColor" stroke-width="1.8"/></svg>
+                  <svg class="eye-off-icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M3 3l18 18" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/><path d="M10.6 5.2C11 5.1 11.5 5 12 5c7 0 11 7 11 7-.6 1.1-1.6 2.4-2.9 3.6M6.2 6.2C3.5 7.9 1 12 1 12s4 7 11 7c1.4 0 2.7-.3 3.9-.7" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/><path d="M9.9 9.9a3 3 0 004.2 4.2" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                </button>
+              </div>
+            </div>
+            <button class="auth-btn" type="submit">Update password →</button>
+          </form>
+        </div>
+
+        <div id="resetInvalidState" class="auth-reset-state">
+          <div class="auth-reset-icon invalid">⚠</div>
+          <p class="auth-sub">This password reset link is invalid or has expired. Please request a new one to continue.</p>
+          <button class="auth-btn" type="button" data-auth-route="forgot">Request a new link →</button>
+        </div>
+
+        <div id="resetSuccessState" class="auth-reset-state">
+          <div class="auth-reset-icon success">✓</div>
+          <p class="auth-sub">Your password has been successfully updated.</p>
+          <button class="auth-btn" type="button" data-auth-route="login">Back to Login →</button>
+        </div>
+
         <div class="auth-links"><button type="button" class="auth-link" data-auth-route="login">← Back to login</button></div>
       </div>
     </section>
 
-    <div class="auth-footer">© SK Graphics - Sachin & Team.</div>
+    <div class="auth-footer">© SK Graphics · Sachin K</div>
   </div>
 </div>
 
@@ -3012,7 +3174,7 @@ body.auth-redirecting>.desk{display:none!important}
     </div>
 
     <div>
-      Developed by Sachin & Team.
+      Developed by Sachin K.
 
       <a
         href="mailto:Sachin7080@outlook.com"
@@ -3079,44 +3241,40 @@ body.auth-redirecting>.desk{display:none!important}
 </div>
 
 <!-- =========================================================
-     NEW: MR. BEAN FLOATING ASSISTANT
+     NEW: VIDYAAI FLOATING ASSISTANT
      ========================================================= -->
 
-<button class="mrbean-launcher" id="mrbeanLauncher" type="button" aria-label="Open ScholarAI assistant chat">
+<button class="vidyaai-launcher" id="vidyaaiLauncher" type="button" aria-label="Open ScholarAI assistant chat">
   <svg viewBox="0 0 64 64" width="100%" height="100%" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
     <circle cx="32" cy="32" r="32" fill="var(--accent-navy)"/>
-    <circle cx="22" cy="27" r="4.2" fill="var(--paper)"/>
-    <circle cx="42" cy="27" r="4.2" fill="var(--paper)"/>
-    <path d="M19 39 Q32 50 45 39" stroke="var(--paper)" stroke-width="4.4" fill="none" stroke-linecap="round"/>
+    <polygon points="32,6 39,25 58,32 39,39 32,58 25,39 6,32 25,25" fill="var(--paper)"/>
   </svg>
-  <span class="mrbean-launcher-badge"></span>
+  <span class="vidyaai-launcher-badge"></span>
 </button>
 
-<div class="mrbean-window" id="mrbeanWindow" role="dialog" aria-modal="false" aria-labelledby="mrbeanTitle">
+<div class="vidyaai-window" id="vidyaaiWindow" role="dialog" aria-modal="false" aria-labelledby="vidyaaiTitle">
 
-  <div class="mrbean-header">
-    <div class="mrbean-header-avatar">
+  <div class="vidyaai-header">
+    <div class="vidyaai-header-avatar">
       <svg viewBox="0 0 64 64" width="100%" height="100%" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
         <circle cx="32" cy="32" r="32" fill="var(--accent-navy)"/>
-        <circle cx="22" cy="27" r="4.2" fill="var(--paper)"/>
-        <circle cx="42" cy="27" r="4.2" fill="var(--paper)"/>
-        <path d="M19 39 Q32 50 45 39" stroke="var(--paper)" stroke-width="4.4" fill="none" stroke-linecap="round"/>
+        <polygon points="32,6 39,25 58,32 39,39 32,58 25,39 6,32 25,25" fill="var(--paper)"/>
       </svg>
     </div>
-    <div class="mrbean-header-text">
-      <div class="name" id="mrbeanTitle">Viddya AI Assistant</div>
-      <div class="status">Quick answers, No waiting</div>
+    <div class="vidyaai-header-text">
+      <div class="name" id="vidyaaiTitle">Viddya AI Assistant</div>
+      <div class="status">Quick answers, no waiting</div>
     </div>
-    <button class="mrbean-header-close" id="mrbeanCloseBtn" type="button" aria-label="Close chat">×</button>
+    <button class="vidyaai-header-close" id="vidyaaiCloseBtn" type="button" aria-label="Close chat">×</button>
   </div>
 
-  <div class="mrbean-messages" id="mrbeanMessages"></div>
+  <div class="vidyaai-messages" id="vidyaaiMessages"></div>
 
-  <div class="mrbean-chips-wrap" id="mrbeanChipsWrap"></div>
+  <div class="vidyaai-chips-wrap" id="vidyaaiChipsWrap"></div>
 
-  <div class="mrbean-input-row">
-    <input type="text" id="mrbeanInput" placeholder="Ask a question…" autocomplete="off">
-    <button id="mrbeanSendBtn" type="button" aria-label="Send">→</button>
+  <div class="vidyaai-input-row">
+    <input type="text" id="vidyaaiInput" placeholder="Ask a question…" autocomplete="off">
+    <button id="vidyaaiSendBtn" type="button" aria-label="Send">→</button>
   </div>
 
 </div>
@@ -3160,11 +3318,100 @@ function isRecoveryFlow(){
   const hash=window.location.hash.toLowerCase();
   return qs.get('reset')==='1' || hash.includes('type=recovery') || hash.includes('access_token=');
 }
+function hasAuthLinkError(){
+  // Supabase redirects back with #error=...&error_code=otp_expired&error_description=...
+  // when a recovery/verification link is invalid or has already expired.
+  const qs=new URLSearchParams(window.location.search);
+  const hash=window.location.hash.toLowerCase();
+  return Boolean(qs.get('error')) || hash.includes('error=') || hash.includes('error_code=');
+}
+function isValidEmail(email){
+  return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+}
+function friendlyAuthError(error,context){
+  const raw=((error&&error.message)||'').toLowerCase();
+  console.warn('[ScholarAI auth]',context,error);
+
+  if(typeof navigator!=='undefined' && navigator.onLine===false){
+    return "You appear to be offline. Please check your connection and try again.";
+  }
+  if(raw.includes('invalid login credentials')){
+    return "Incorrect email or password.";
+  }
+  if(raw.includes('email not confirmed')){
+    return "Please confirm your email address first. Check your inbox for the verification link.";
+  }
+  if(raw.includes('already registered')||raw.includes('already exists')||raw.includes('user already registered')){
+    return "An account with this email already exists. Please log in instead.";
+  }
+  if(raw.includes('password should be at least')||raw.includes('password is too short')||raw.includes('at least 6')){
+    return "Password must be at least 6 characters.";
+  }
+  if(raw.includes('unable to validate email')||raw.includes('invalid email')||raw.includes('is invalid')){
+    return "Please enter a valid email address.";
+  }
+  if(raw.includes('otp_expired')||raw.includes('token has expired')||raw.includes('expired')){
+    return "Your reset link has expired. Please request a new one.";
+  }
+  if(raw.includes('auth session missing')||raw.includes('invalid session')||raw.includes('session_not_found')||raw.includes('session missing')){
+    return "Your reset link is invalid or has expired. Please request a new one.";
+  }
+  if(raw.includes('rate limit')||raw.includes('too many requests')){
+    return "Too many attempts. Please wait a moment and try again.";
+  }
+  if(raw.includes('failed to fetch')||raw.includes('network')||raw.includes('load failed')){
+    return "Network error. Please check your connection and try again.";
+  }
+  if(!raw){
+    return "Something went wrong. Please try again.";
+  }
+  return "Something went wrong. Please try again.";
+}
+function setFormLoading(form,loading,loadingLabel){
+  if(!form)return;
+  const btn=form.querySelector('button[type="submit"]');
+  if(!btn)return;
+  if(loading){
+    if(!btn.dataset.defaultLabel) btn.dataset.defaultLabel=btn.textContent;
+    btn.disabled=true;
+    if(loadingLabel) btn.textContent=loadingLabel;
+  } else {
+    btn.disabled=false;
+    if(btn.dataset.defaultLabel) btn.textContent=btn.dataset.defaultLabel;
+  }
+}
+function wirePasswordToggle(btn){
+  const targetId=btn.getAttribute('data-toggle-for');
+  const input=document.getElementById(targetId);
+  if(!input)return;
+  btn.addEventListener('click',()=>{
+    const willShow=input.type==='password';
+    input.type=willShow?'text':'password';
+    btn.classList.toggle('is-visible',willShow);
+    btn.setAttribute('aria-pressed',String(willShow));
+    btn.setAttribute('aria-label',willShow?'Hide password':'Show password');
+    input.focus({preventScroll:true});
+  });
+}
+function showResetState(state){
+  const map={form:'resetFormState',invalid:'resetInvalidState',success:'resetSuccessState'};
+  Object.keys(map).forEach(key=>{
+    const el=document.getElementById(map[key]);
+    if(el) el.classList.toggle('active',key===state);
+  });
+}
 function showAuthPage(route,replace=false){
   const key=AUTH_IDS[route]?route:'entry';
   document.querySelectorAll('.auth-page').forEach(p=>p.classList.remove('active'));
   document.getElementById(AUTH_IDS[key])?.classList.add('active');
   clearAuthMessages();
+  if(key==='reset'){
+    // Re-evaluate which reset sub-view applies every time this route becomes visible,
+    // so a stale success/invalid state never lingers into a fresh recovery visit.
+    if(hasAuthLinkError()) showResetState('invalid');
+    else if(activeSession) showResetState('form');
+    else showResetState('invalid');
+  }
   if(!replace){ const hash=AUTH_ROUTES[key]?`#${AUTH_ROUTES[key]}`:''; if(window.location.hash!==hash) history.pushState({auth:key},'',baseUrl()+hash); }
 }
 function showApp(){ document.body.classList.remove('auth-redirecting'); document.getElementById('authScreen').style.display='none'; document.querySelector('.desk').style.display='block'; }
@@ -3221,13 +3468,18 @@ async function initScholarAuth(){
   if(!SUPABASE_PUBLISHABLE_KEY.trim()){ showGate('entry'); showAuthMessage('loginMsg','Add your Supabase publishable key first.',true); return; }
   if(!window.supabase||typeof window.supabase.createClient!=='function'){ showGate('entry'); showAuthMessage('loginMsg','Supabase could not be loaded. Check your internet connection.',true); return; }
   supabaseClient=window.supabase.createClient(SUPABASE_URL,SUPABASE_PUBLISHABLE_KEY); window.scholarSupabase=supabaseClient;
-  supabaseClient.auth.onAuthStateChange((event,session)=>{
+  const {data:{subscription:authSubscription}}=supabaseClient.auth.onAuthStateChange((event,session)=>{
     if(event==='PASSWORD_RECOVERY'){
       activeSession=session;
       guestMode=false;
       // Supabase sends the recovery session in the URL fragment. Do not route
       // it to the normal app/login screen; show the password form instead.
       showGate('reset');
+      showAuthMessage('resetMsg','Enter your new password below.');
+      return;
+    }
+    if(event==='TOKEN_REFRESHED'||event==='USER_UPDATED'){
+      if(session) activeSession=session;
       return;
     }
     if(session){
@@ -3238,13 +3490,22 @@ async function initScholarAuth(){
     }
     else if(!guestMode && authReady){ activeSession=null; showGate('login'); }
   });
+  // Kept for completeness/debugging — this single-file app runs for the page's
+  // whole lifetime, so there is no natural unmount point that needs to call
+  // authSubscription.unsubscribe(), but the reference is available if ever needed.
+  window.scholarAuthSubscription=authSubscription;
   const {data,error}=await supabaseClient.auth.getSession();
   authReady=true;
-  if(error){ showGate('login'); showAuthMessage('loginMsg',error.message,true); return; }
-  if(isRecoveryFlow()){
-    if(data.session) activeSession=data.session;
+  if(error){ showGate('login'); showAuthMessage('loginMsg',friendlyAuthError(error,'getSession'),true); return; }
+  if(isRecoveryFlow() || hasAuthLinkError()){
+    if(hasAuthLinkError()){
+      // Strip the error fragment so a page refresh doesn't keep re-triggering it.
+      history.replaceState({},'',baseUrl()+'#reset-password');
+    } else if(data.session){
+      activeSession=data.session;
+    }
     showGate('reset');
-    showAuthMessage('resetMsg','Enter your new password below.');
+    if(activeSession && !hasAuthLinkError()) showAuthMessage('resetMsg','Enter your new password below.');
   }
   else if(data.session){ setAppSession(data.session,false); }
   else showGate(routeFromHash());
@@ -3257,44 +3518,110 @@ function enterGuestMode(){
 
 document.addEventListener('DOMContentLoaded',()=>{
   document.querySelectorAll('[data-auth-route]').forEach(btn=>btn.addEventListener('click',()=>showAuthPage(btn.dataset.authRoute)));
+  document.querySelectorAll('.auth-eye-btn').forEach(wirePasswordToggle);
   window.addEventListener('popstate',()=>{ if(!activeSession&&!guestMode)showAuthPage(routeFromHash(),true); });
   window.addEventListener('hashchange',()=>{ if(!activeSession&&!guestMode)showAuthPage(routeFromHash(),true); });
 
   document.getElementById('loginForm')?.addEventListener('submit',async e=>{
     e.preventDefault();
-    const email=document.getElementById('loginEmail').value.trim(); const password=document.getElementById('loginPassword').value;
+    const form=e.target;
+    const email=document.getElementById('loginEmail').value.trim();
+    const password=document.getElementById('loginPassword').value;
+
+    if(!email){ showAuthMessage('loginMsg','Please enter your email address.',true); return; }
+    if(!isValidEmail(email)){ showAuthMessage('loginMsg','Please enter a valid email address.',true); return; }
+    if(!password){ showAuthMessage('loginMsg','Please enter your password.',true); return; }
+
+    setFormLoading(form,true,'Signing in…');
     showAuthMessage('loginMsg','Signing in…');
-    const {data,error}=await supabaseClient.auth.signInWithPassword({email,password});
-    if(error){showAuthMessage('loginMsg',error.message,true);return;}
-    if(data.session)setAppSession(data.session,false);
+    try{
+      const {data,error}=await supabaseClient.auth.signInWithPassword({email,password});
+      if(error){ showAuthMessage('loginMsg',friendlyAuthError(error,'login'),true); return; }
+      if(data.session) setAppSession(data.session,false);
+    }catch(err){
+      showAuthMessage('loginMsg',friendlyAuthError(err,'login'),true);
+    }finally{
+      setFormLoading(form,false);
+    }
   });
 
   document.getElementById('signupForm')?.addEventListener('submit',async e=>{
     e.preventDefault();
-    const name=document.getElementById('signupName').value.trim(); const email=document.getElementById('signupEmail').value.trim(); const password=document.getElementById('signupPassword').value;
+    const form=e.target;
+    const name=document.getElementById('signupName').value.trim();
+    const email=document.getElementById('signupEmail').value.trim();
+    const password=document.getElementById('signupPassword').value;
+    const confirmPassword=document.getElementById('signupConfirmPassword').value;
+
+    if(!name){ showAuthMessage('signupMsg','Please enter your name.',true); return; }
+    if(!email){ showAuthMessage('signupMsg','Please enter your email address.',true); return; }
+    if(!isValidEmail(email)){ showAuthMessage('signupMsg','Please enter a valid email address.',true); return; }
+    if(!password){ showAuthMessage('signupMsg','Please enter a password.',true); return; }
+    if(password.length<6){ showAuthMessage('signupMsg','Password must be at least 6 characters.',true); return; }
+    if(password!==confirmPassword){ showAuthMessage('signupMsg','Passwords do not match.',true); return; }
+
+    setFormLoading(form,true,'Creating account…');
     showAuthMessage('signupMsg','Creating your account…');
-    const {data,error}=await supabaseClient.auth.signUp({email,password,options:{data:{full_name:name},emailRedirectTo:baseUrl()}});
-    if(error){showAuthMessage('signupMsg',error.message,true);return;}
-    if(data.session){ await ensureUserProfile(data.user,name); setAppSession(data.session,false); }
-    else { showAuthPage('login'); showAuthMessage('loginMsg','Account created. Check your email, click the verification link, then log in.',''); }
+    try{
+      const {data,error}=await supabaseClient.auth.signUp({email,password,options:{data:{full_name:name},emailRedirectTo:baseUrl()}});
+      if(error){ showAuthMessage('signupMsg',friendlyAuthError(error,'signup'),true); return; }
+      if(data.session){ await ensureUserProfile(data.user,name); setAppSession(data.session,false); }
+      else { showAuthPage('login'); showAuthMessage('loginMsg','Account created successfully. Check your email, click the verification link, then log in.'); }
+    }catch(err){
+      showAuthMessage('signupMsg',friendlyAuthError(err,'signup'),true);
+    }finally{
+      setFormLoading(form,false);
+    }
   });
 
   document.getElementById('guestContinueBtn')?.addEventListener('click',enterGuestMode);
 
   document.getElementById('forgotForm')?.addEventListener('submit',async e=>{
-    e.preventDefault(); const email=document.getElementById('forgotEmail').value.trim(); showAuthMessage('forgotMsg','Sending reset link…');
-    const {error}=await supabaseClient.auth.resetPasswordForEmail(email,{redirectTo:baseUrl()+'?reset=1'});
-    if(error){showAuthMessage('forgotMsg',error.message,true);return;} showAuthMessage('forgotMsg','Reset link sent. Check your email.');
+    e.preventDefault();
+    const form=e.target;
+    const email=document.getElementById('forgotEmail').value.trim();
+
+    if(!email){ showAuthMessage('forgotMsg','Please enter your email address.',true); return; }
+    if(!isValidEmail(email)){ showAuthMessage('forgotMsg','Please enter a valid email address.',true); return; }
+
+    setFormLoading(form,true,'Sending…');
+    showAuthMessage('forgotMsg','Sending reset link…');
+    try{
+      const {error}=await supabaseClient.auth.resetPasswordForEmail(email,{redirectTo:baseUrl()+'?reset=1'});
+      if(error){ showAuthMessage('forgotMsg',friendlyAuthError(error,'forgot'),true); return; }
+      showAuthMessage('forgotMsg','Password reset link has been sent to your email.');
+    }catch(err){
+      showAuthMessage('forgotMsg',friendlyAuthError(err,'forgot'),true);
+    }finally{
+      setFormLoading(form,false);
+    }
   });
 
   document.getElementById('resetForm')?.addEventListener('submit',async e=>{
-    e.preventDefault(); const password=document.getElementById('resetPassword').value; showAuthMessage('resetMsg','Updating password…');
-    const {error}=await supabaseClient.auth.updateUser({password});
-    if(error){showAuthMessage('resetMsg',error.message,true);return;}
-    await supabaseClient.auth.signOut();
-    activeSession=null; guestMode=false;
-    history.replaceState({},'',baseUrl()+'#login');
-    showGate('login'); showAuthMessage('loginMsg','Password updated successfully. You can now log in.');
+    e.preventDefault();
+    const form=e.target;
+    const password=document.getElementById('resetPassword').value;
+    const confirmPassword=document.getElementById('resetConfirmPassword').value;
+
+    if(!activeSession){ showResetState('invalid'); return; }
+    if(!password){ showAuthMessage('resetMsg','Please enter a new password.',true); return; }
+    if(password.length<6){ showAuthMessage('resetMsg','Password must be at least 6 characters.',true); return; }
+    if(password!==confirmPassword){ showAuthMessage('resetMsg','Passwords do not match.',true); return; }
+
+    setFormLoading(form,true,'Updating…');
+    showAuthMessage('resetMsg','Updating password…');
+    try{
+      const {error}=await supabaseClient.auth.updateUser({password});
+      if(error){ showAuthMessage('resetMsg',friendlyAuthError(error,'reset'),true); return; }
+      await supabaseClient.auth.signOut();
+      activeSession=null; guestMode=false;
+      history.replaceState({},'',baseUrl()+'#login');
+      showResetState('success');
+    }catch(err){
+      showAuthMessage('resetMsg',friendlyAuthError(err,'reset'),true);
+    }finally{
+      setFormLoading(form,false);
+    }
   });
 
   document.getElementById('logoutBtn')?.addEventListener('click',async()=>{ if(supabaseClient)await supabaseClient.auth.signOut(); guestMode=false; activeSession=null; showGate('login'); history.replaceState({},'',baseUrl()+'#login'); });
@@ -8342,12 +8669,12 @@ if(pubOverlayEl) pubOverlayEl.addEventListener("click", function(e){
 });
 
 /* =========================================================
-   NEW: MR. BEAN ASSISTANT — DATA + LOGIC
+   NEW: VIDYAAI ASSISTANT — DATA + LOGIC
    ========================================================= */
 
-var MRBEAN_FALLBACK = "I'm Mr. Bean! Please click one of the quick question chips above or visit the \u201cPublisher Guidelines\u201d tab for full details!";
+var VIDYAAI_FALLBACK = "I'm Viddya AI Assistant! Please click one of the quick question chips above or visit the \u201cPublisher Guidelines\u201d tab for full details!";
 
-var MRBEAN_QA = [
+var VIDYAAI_QA = [
   {
     category:"File Upload & Input",
     items:[
@@ -8406,90 +8733,90 @@ var MRBEAN_QA = [
   }
 ];
 
-var mrbeanFlatQA = [];
-MRBEAN_QA.forEach(function(group){
+var vidyaaiFlatQA = [];
+VIDYAAI_QA.forEach(function(group){
   group.items.forEach(function(pair){
-    mrbeanFlatQA.push(pair);
+    vidyaaiFlatQA.push(pair);
   });
 });
 
-function mrbeanAppendMessage(role, text){
-  var messages = document.getElementById("mrbeanMessages");
+function vidyaaiAppendMessage(role, text){
+  var messages = document.getElementById("vidyaaiMessages");
   if(!messages) return;
   var bubble = document.createElement("div");
-  bubble.className = "mrbean-msg " + (role === "user" ? "user" : "bot");
+  bubble.className = "vidyaai-msg " + (role === "user" ? "user" : "bot");
   bubble.textContent = text;
   messages.appendChild(bubble);
   messages.scrollTop = messages.scrollHeight;
 }
 
-function mrbeanAskPreset(question, answer){
-  mrbeanAppendMessage("user", question);
+function vidyaaiAskPreset(question, answer){
+  vidyaaiAppendMessage("user", question);
   window.setTimeout(function(){
-    mrbeanAppendMessage("bot", answer);
+    vidyaaiAppendMessage("bot", answer);
   }, 250);
 }
 
-function mrbeanNormalize(str){
+function vidyaaiNormalize(str){
   return str.trim().toLowerCase().replace(/[?!.]+$/g, "");
 }
 
-function mrbeanFindAnswer(raw){
-  var normalized = mrbeanNormalize(raw);
+function vidyaaiFindAnswer(raw){
+  var normalized = vidyaaiNormalize(raw);
   if(!normalized) return null;
 
-  for(var i=0;i<mrbeanFlatQA.length;i++){
-    if(mrbeanNormalize(mrbeanFlatQA[i].q) === normalized) return mrbeanFlatQA[i].a;
+  for(var i=0;i<vidyaaiFlatQA.length;i++){
+    if(vidyaaiNormalize(vidyaaiFlatQA[i].q) === normalized) return vidyaaiFlatQA[i].a;
   }
 
-  for(var j=0;j<mrbeanFlatQA.length;j++){
-    var qn = mrbeanFlatQA[j].q.toLowerCase();
-    if(normalized.length > 4 && qn.indexOf(normalized) !== -1) return mrbeanFlatQA[j].a;
+  for(var j=0;j<vidyaaiFlatQA.length;j++){
+    var qn = vidyaaiFlatQA[j].q.toLowerCase();
+    if(normalized.length > 4 && qn.indexOf(normalized) !== -1) return vidyaaiFlatQA[j].a;
   }
 
   return null;
 }
 
-function mrbeanHandleInputSubmit(){
-  var input = document.getElementById("mrbeanInput");
+function vidyaaiHandleInputSubmit(){
+  var input = document.getElementById("vidyaaiInput");
   if(!input) return;
   var raw = input.value;
   if(!raw || !raw.trim()) return;
 
-  mrbeanAppendMessage("user", raw.trim());
-  var answer = mrbeanFindAnswer(raw);
+  vidyaaiAppendMessage("user", raw.trim());
+  var answer = vidyaaiFindAnswer(raw);
   input.value = "";
 
   window.setTimeout(function(){
-    mrbeanAppendMessage("bot", answer || MRBEAN_FALLBACK);
+    vidyaaiAppendMessage("bot", answer || VIDYAAI_FALLBACK);
   }, 250);
 }
 
-function mrbeanBuildChips(){
-  var wrap = document.getElementById("mrbeanChipsWrap");
+function vidyaaiBuildChips(){
+  var wrap = document.getElementById("vidyaaiChipsWrap");
   if(!wrap) return;
   wrap.innerHTML = "";
 
-  MRBEAN_QA.forEach(function(group){
+  VIDYAAI_QA.forEach(function(group){
 
     var groupEl = document.createElement("div");
-    groupEl.className = "mrbean-chip-group";
+    groupEl.className = "vidyaai-chip-group";
 
     var label = document.createElement("div");
-    label.className = "mrbean-chip-group-label";
+    label.className = "vidyaai-chip-group-label";
     label.textContent = group.category;
     groupEl.appendChild(label);
 
     var chipsRow = document.createElement("div");
-    chipsRow.className = "mrbean-chips";
+    chipsRow.className = "vidyaai-chips";
 
     group.items.forEach(function(pair){
       var chip = document.createElement("button");
       chip.type = "button";
-      chip.className = "mrbean-chip";
+      chip.className = "vidyaai-chip";
       chip.textContent = pair.q;
       chip.addEventListener("click", function(){
-        mrbeanAskPreset(pair.q, pair.a);
+        vidyaaiAskPreset(pair.q, pair.a);
       });
       chipsRow.appendChild(chip);
     });
@@ -8500,50 +8827,50 @@ function mrbeanBuildChips(){
   });
 }
 
-var mrbeanGreeted = false;
+var vidyaaiGreeted = false;
 
-function openMrbeanWindow(){
-  var win = document.getElementById("mrbeanWindow");
+function openVidyaaiWindow(){
+  var win = document.getElementById("vidyaaiWindow");
   if(!win) return;
   win.classList.add("open");
 
-  if(!mrbeanGreeted){
-    mrbeanAppendMessage("bot", "Hi! I'm Mr. Bean, your ScholarAI assistant. Tap a question below or type your own.");
-    mrbeanGreeted = true;
+  if(!vidyaaiGreeted){
+    vidyaaiAppendMessage("bot", "Hi! I'm Viddya AI Assistant, here to help with ScholarAI. Tap a question below or type your own.");
+    vidyaaiGreeted = true;
   }
 
-  var input = document.getElementById("mrbeanInput");
+  var input = document.getElementById("vidyaaiInput");
   if(input) window.setTimeout(function(){ input.focus(); }, 200);
 }
 
-function closeMrbeanWindow(){
-  var win = document.getElementById("mrbeanWindow");
+function closeVidyaaiWindow(){
+  var win = document.getElementById("vidyaaiWindow");
   if(win) win.classList.remove("open");
 }
 
-function toggleMrbeanWindow(){
-  var win = document.getElementById("mrbeanWindow");
+function toggleVidyaaiWindow(){
+  var win = document.getElementById("vidyaaiWindow");
   if(!win) return;
-  if(win.classList.contains("open")) closeMrbeanWindow();
-  else openMrbeanWindow();
+  if(win.classList.contains("open")) closeVidyaaiWindow();
+  else openVidyaaiWindow();
 }
 
-mrbeanBuildChips();
+vidyaaiBuildChips();
 
-var mrbeanLauncherBtn = document.getElementById("mrbeanLauncher");
-if(mrbeanLauncherBtn) mrbeanLauncherBtn.addEventListener("click", toggleMrbeanWindow);
+var vidyaaiLauncherBtn = document.getElementById("vidyaaiLauncher");
+if(vidyaaiLauncherBtn) vidyaaiLauncherBtn.addEventListener("click", toggleVidyaaiWindow);
 
-var mrbeanCloseBtnEl = document.getElementById("mrbeanCloseBtn");
-if(mrbeanCloseBtnEl) mrbeanCloseBtnEl.addEventListener("click", closeMrbeanWindow);
+var vidyaaiCloseBtnEl = document.getElementById("vidyaaiCloseBtn");
+if(vidyaaiCloseBtnEl) vidyaaiCloseBtnEl.addEventListener("click", closeVidyaaiWindow);
 
-var mrbeanSendBtnEl = document.getElementById("mrbeanSendBtn");
-if(mrbeanSendBtnEl) mrbeanSendBtnEl.addEventListener("click", mrbeanHandleInputSubmit);
+var vidyaaiSendBtnEl = document.getElementById("vidyaaiSendBtn");
+if(vidyaaiSendBtnEl) vidyaaiSendBtnEl.addEventListener("click", vidyaaiHandleInputSubmit);
 
-var mrbeanInputEl = document.getElementById("mrbeanInput");
-if(mrbeanInputEl) mrbeanInputEl.addEventListener("keydown", function(e){
+var vidyaaiInputEl = document.getElementById("vidyaaiInput");
+if(vidyaaiInputEl) vidyaaiInputEl.addEventListener("keydown", function(e){
   if(e.key === "Enter"){
     e.preventDefault();
-    mrbeanHandleInputSubmit();
+    vidyaaiHandleInputSubmit();
   }
 });
 
