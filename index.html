@@ -672,6 +672,24 @@ textarea#pasteArea:focus{
   color:var(--accent-navy);
 }
 
+.figure-resync-note{
+  font-size:0.72rem;
+  padding:8px 10px;
+  margin-bottom:10px;
+}
+
+.figure-cloud-status{
+  font-family:'IBM Plex Mono',monospace;
+  font-size:0.62rem;
+  letter-spacing:.02em;
+  margin-top:6px;
+  color:var(--ink-faint);
+}
+
+.figure-cloud-status.failed{
+  color:var(--accent-red);
+}
+
 /* =========================================================
    AUTHOR CARDS
    ========================================================= */
@@ -2654,7 +2672,7 @@ body.auth-redirecting>.desk{display:none!important}
       </div>
     </section>
 
-    <div class="auth-footer">© SK Graphics · Sachin & Team.</div>
+    <div class="auth-footer">© SK Graphics · Sachin K</div>
   </div>
 </div>
 
@@ -3174,7 +3192,7 @@ body.auth-redirecting>.desk{display:none!important}
     </div>
 
     <div>
-      Developed by Sachin & Team.
+      Developed by Sachin K.
 
       <a
         href="mailto:Sachin7080@outlook.com"
@@ -3245,10 +3263,7 @@ body.auth-redirecting>.desk{display:none!important}
      ========================================================= -->
 
 <button class="vidyaai-launcher" id="vidyaaiLauncher" type="button" aria-label="Open ScholarAI assistant chat">
-  <svg viewBox="0 0 64 64" width="100%" height="100%" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-    <circle cx="32" cy="32" r="32" fill="var(--accent-navy)"/>
-    <polygon points="32,6 39,25 58,32 39,39 32,58 25,39 6,32 25,25" fill="var(--paper)"/>
-  </svg>
+  <img src="https://github.com/sachin4749/scholarAi/raw/main/Chatbot%20Chat%20Message.jpg" alt="Viddya AI Assistant" loading="lazy">
   <span class="vidyaai-launcher-badge"></span>
 </button>
 
@@ -3256,10 +3271,7 @@ body.auth-redirecting>.desk{display:none!important}
 
   <div class="vidyaai-header">
     <div class="vidyaai-header-avatar">
-      <svg viewBox="0 0 64 64" width="100%" height="100%" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-        <circle cx="32" cy="32" r="32" fill="var(--accent-navy)"/>
-        <polygon points="32,6 39,25 58,32 39,39 32,58 25,39 6,32 25,25" fill="var(--paper)"/>
-      </svg>
+      <img src="https://github.com/sachin4749/scholarAi/raw/main/Chatbot%20Chat%20Message.jpg" alt="Viddya AI Assistant" loading="lazy">
     </div>
     <div class="vidyaai-header-text">
       <div class="name" id="vidyaaiTitle">Viddya AI Assistant</div>
@@ -3301,6 +3313,7 @@ body.auth-redirecting>.desk{display:none!important}
    ========================================================= */
 const SUPABASE_URL = "https://wbwetdjfpettcjjcbuhr.supabase.co";
 const SUPABASE_PUBLISHABLE_KEY = "sb_publishable_KDji3J_CgBtU4TJhrzaZQw_kF4LyczW";
+const FIGURE_BUCKET = "scholarai-figures"; // Storage bucket for uploaded figure images — create this exact name in the Supabase Dashboard.
 let supabaseClient = null;
 let authReady = false;
 let guestMode = false;
@@ -3713,6 +3726,28 @@ function draftSnapshot(){
   }));
 }
 
+function stripImagesForCloud(snapshot){
+  // Figures embed full base64 image data (up to ~12 MB source images) for local
+  // use and export. Sending that through the REST/Postgres upsert on every
+  // autosave can exceed the API's request-size limit and fail silently for
+  // logged-in users, while guests never hit this code path at all (their
+  // drafts are never cloud-saved) — which is why only logged-in users saw
+  // upload issues. Cloud drafts keep every figure's position/caption/width/
+  // alt text, just not the image bytes; the full image stays in the local
+  // (localStorage) copy and in memory for the current session.
+  // Shallow-copies only what changes rather than JSON round-tripping the
+  // whole (potentially multi-MB, image-laden) snapshot a second time.
+  if(!Array.isArray(snapshot.blocks)) return snapshot;
+  return {
+    ...snapshot,
+    blocks: snapshot.blocks.map(block => (
+      block && block.type === "figure" && block.imageData
+        ? { ...block, imageData:"", imageOmittedForCloud:true }
+        : block
+    ))
+  };
+}
+
 function saveDraftLocal(snapshot){
   const key = draftLocalKey();
   if(!key) return;
@@ -3733,7 +3768,7 @@ async function saveDraftCloud(snapshot){
   const payload = {
     user_id:activeSession.user.id,
     current_step:snapshot.currentStep || 1,
-    draft_data:snapshot,
+    draft_data:stripImagesForCloud(snapshot),
     updated_at:new Date().toISOString()
   };
 
@@ -3819,6 +3854,29 @@ async function restoreDraft(){
   if(!draft?.draft_data) return false;
 
   const saved = draft.draft_data;
+
+  // Cloud drafts never carry figure image bytes (see stripImagesForCloud). If the
+  // cloud copy won on recency — including right after this same device just
+  // saved it — patch each figure's image back in from the local cache so a
+  // page reload never "loses" an image that was uploaded moments ago. Figures
+  // with a Storage URL (imageUrl) render/export straight from that instead.
+  // Only a figure with neither a local copy nor a Storage URL keeps the
+  // imageOmittedForCloud flag, so the editor can prompt a re-upload instead of
+  // silently showing a blank slot.
+  if(draft === cloudDraft){
+    const localBlocks = Array.isArray(localDraft?.draft_data?.blocks) ? localDraft.draft_data.blocks : [];
+    (saved.blocks || []).forEach((block, i) => {
+      if(!block || block.type !== "figure" || !block.imageOmittedForCloud) return;
+      const match = localBlocks[i];
+      if(match && match.type === "figure" && match.imageData){
+        block.imageData = match.imageData;
+      }
+      if(block.imageData || block.imageUrl){
+        delete block.imageOmittedForCloud;
+      }
+    });
+  }
+
   Object.assign(state, {
     rawText:saved.rawText || "",
     targetFormat:saved.targetFormat || null,
@@ -5734,23 +5792,76 @@ function processFigureFile(file,figure){
       if(file.type==='image/jpeg'||file.type==='image/jpg'){ctx.fillStyle='#FFFFFF';ctx.fillRect(0,0,w,h);}
       ctx.drawImage(img,0,0,w,h);
       const type=file.type==='image/png'?'image/png':'image/jpeg';
-      figure.imageData=canvas.toDataURL(type,type==='image/jpeg'?.9:undefined);
+      const quality=type==='image/jpeg'?.9:undefined;
+      figure.imageData=canvas.toDataURL(type,quality);
       figure.altText=figure.altText||file.name.replace(/\.[^.]+$/,'').replace(/[_-]+/g,' ');
       renderBlocks();scheduleDraftSave();
+      // Local rendering/export never depends on this — it only lets the image
+      // survive a cross-device restore instead of needing a manual re-upload.
+      canvas.toBlob(blob=>{
+        if(blob) uploadFigureImage(figure,blob,type==='image/png'?'png':'jpg',type);
+      },type,quality);
     };
     img.src=reader.result;
   };
   reader.readAsDataURL(file);
 }
 
+async function uploadFigureImage(figure,blob,ext,mime){
+  if(guestMode || !activeSession?.user?.id || !window.scholarSupabase) return;
+  const id = (window.crypto?.randomUUID) ? window.crypto.randomUUID() : (Date.now()+"-"+Math.random().toString(36).slice(2));
+  const path = `${activeSession.user.id}/${id}.${ext}`;
+  figure._cloudSyncing=true; figure._cloudSyncFailed=false;
+  renderBlocks();
+  try{
+    const {error:uploadError}=await window.scholarSupabase.storage
+      .from(FIGURE_BUCKET)
+      .upload(path,blob,{contentType:mime,upsert:false});
+    if(uploadError) throw uploadError;
+    const {data}=window.scholarSupabase.storage.from(FIGURE_BUCKET).getPublicUrl(path);
+    figure.imageUrl=data?.publicUrl||"";
+    figure.storagePath=path;
+  }catch(error){
+    console.warn("ScholarAI: figure image upload to Storage failed",error);
+    figure._cloudSyncFailed=true;
+  }finally{
+    figure._cloudSyncing=false;
+    renderBlocks();
+    scheduleDraftSave();
+  }
+}
+
+async function resolveFigureImageDataUrl(figure){
+  if(figure.imageData) return figure.imageData;
+  if(!figure.imageUrl) return "";
+  try{
+    const res=await fetch(figure.imageUrl);
+    if(!res.ok) throw new Error("Image fetch failed: "+res.status);
+    const blob=await res.blob();
+    return await new Promise((resolve,reject)=>{
+      const fr=new FileReader();
+      fr.onload=()=>resolve(fr.result);
+      fr.onerror=()=>reject(fr.error);
+      fr.readAsDataURL(blob);
+    });
+  }catch(error){
+    console.warn("ScholarAI: could not fetch cloud-stored figure image for export",error);
+    return "";
+  }
+}
+
 function renderFigureEditor(block,index){
   const wrap=el('div',{class:'figure-editor','data-figure-index':String(index)});
   const number=state.blocks.slice(0,index+1).filter(b=>b.type==='figure').length;
   wrap.appendChild(el('div',{class:'figure-number-badge'},`Figure ${number}`));
-  if(block.imageData){wrap.appendChild(el('img',{class:'figure-preview',src:block.imageData,alt:block.altText||`Figure ${number}`}));}
+  const previewSrc=block.imageData||block.imageUrl;
+  if(previewSrc){wrap.appendChild(el('img',{class:'figure-preview',src:previewSrc,alt:block.altText||`Figure ${number}`}));}
   else{
+    if(block.imageOmittedForCloud){wrap.appendChild(el('div',{class:'notice info figure-resync-note'},"This figure's image wasn't carried over from cloud sync — please re-add it below."));}
     const zone=el('div',{class:'figure-dropzone'});zone.appendChild(el('strong',null,'Drop image here or click to browse'));zone.appendChild(el('span',null,'PNG · JPG · JPEG · up to 12 MB'));const input=el('input',{type:'file',accept:'image/png,image/jpeg',style:'display:none'});zone.appendChild(input);wrap.appendChild(zone);setupFigureDropzone(zone,index-1);
   }
+  if(block._cloudSyncing){wrap.appendChild(el('div',{class:'figure-cloud-status syncing'},'Syncing image to cloud…'));}
+  else if(block._cloudSyncFailed){wrap.appendChild(el('div',{class:'figure-cloud-status failed'},"Couldn't sync to cloud — saved on this device only"));}
   const grid=el('div',{class:'figure-meta-grid'});
   const caption=el('input',{type:'text',value:block.caption||'',placeholder:'Caption — e.g. Proposed system architecture'});caption.addEventListener('input',e=>{block.caption=e.target.value;scheduleDraftSave();});
   const width=el('select');[['one-column','One column'],['two-column','Two columns']].forEach(([v,l])=>{const o=el('option',{value:v},l);o.selected=block.width===v;width.appendChild(o);});width.addEventListener('change',e=>{block.width=e.target.value;scheduleDraftSave();});
@@ -6727,9 +6838,10 @@ function syncFigureSections(){
 }
 
 function appendFigureToContainer(container,figure,number){
-  if(!figure?.imageData) return;
+  const src=figure?.imageData||figure?.imageUrl;
+  if(!src) return;
   const fig=el("figure",{class:"manuscript-figure "+(figure.width||"one-column")});
-  const img=el("img",{src:figure.imageData,alt:figure.altText||`Figure ${number}`});
+  const img=el("img",{src,alt:figure.altText||`Figure ${number}`});
   fig.appendChild(img);
   const captionText=(figure.caption||"").trim();
   const caption=el("figcaption");
@@ -7872,10 +7984,11 @@ function docxImageInfo(dataUrl){
   return {mime,ext:mime==="image/png"?"png":"jpeg",base64:match[3]};
 }
 
-async function createDocxFigure(figure,relId,docPrId){
-  const info=docxImageInfo(figure.imageData);
+async function createDocxFigure(figure,relId,docPrId,resolvedDataUrl){
+  const dataUrl = resolvedDataUrl ?? figure.imageData;
+  const info=docxImageInfo(dataUrl);
   if(!info) return "";
-  const dim=await getImageDimensions(figure.imageData);
+  const dim=await getImageDimensions(dataUrl);
   const maxInches=figure.width==="two-column"?6.75:3.25;
   const widthIn=Math.min(maxInches,dim.width/96);
   const heightIn=widthIn*(dim.height/Math.max(1,dim.width));
@@ -8166,11 +8279,12 @@ $("#dlDocxBtn").addEventListener(
               if(block.type === "figure"){
                 const figureNumber = state.blocks.slice(0,state.blocks.indexOf(block)+1).filter(b=>b.type === "figure").length;
                 block._docxNumber=figureNumber;
-                const info=docxImageInfo(block.imageData);
+                const resolvedDataUrl = await resolveFigureImageDataUrl(block);
+                const info=docxImageInfo(resolvedDataUrl);
                 if(info){
                   const relId="rId"+(docxImageRelCounter++);
                   const mediaName=`image${docxMediaCounter++}.${info.ext}`;
-                  documentBody += await createDocxFigure(block,relId,figureNumber);
+                  documentBody += await createDocxFigure(block,relId,figureNumber,resolvedDataUrl);
                   docxImages.push({relId,mediaName,info});
                 }
                 continue;
