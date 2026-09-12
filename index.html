@@ -2682,19 +2682,27 @@ body.auth-redirecting>.desk{display:none!important}
        HEADER
        ===================================================== -->
 
- <header class="masthead">
-  <div class="masthead-brand">
-    <img
-      class="masthead-logo"
-      src="https://raw.githubusercontent.com/sachin4749/scholarAi/main/ScholarAI%20logo.jpeg"
-      alt="ScholarAI logo"
-    >
-  </div>
+  <header class="masthead">
 
-  <div class="masthead-right">
-    <!-- your existing right-side content -->
-  </div>
-</header>
+    <div class="masthead-brand">
+      <img
+        class="masthead-logo"
+        src="https://raw.githubusercontent.com/sachin4749/scholarAi/main/ScholarAI%20Logo.jpeg"
+        alt="ScholarAI logo"
+        loading="lazy"
+      >
+      <div class="wordmark">
+        Scholar<em>AI</em>
+      </div>
+    </div>
+
+    <div class="masthead-right">
+
+      <button class="btn small ghost" id="publisherGuidelinesBtn" type="button">
+        Publisher Guidelines
+      </button>
+
+      <div class="masthead-meta">
         © SK Graphics<br>
         Manuscript Conversion Desk
       </div>
@@ -8833,28 +8841,8 @@ var VIDYAAI_QA = [
     category:"Exporting, Saving & Data Safety",
     items:[
       {q:"Is my draft automatically saved?", a:"Yes! Your progress, manuscript blocks, and configurations are cached in your browser local storage."},
-      {q:"How do I download or print my finished paper?", a:"On Step 6, click “Download HTML”, “Download TXT”, or “Print / Save PDF” to export your formatted manuscript."},
+      {q:"How do I download or print my finished paper?", a:"On Step 6, click \u201cDownload HTML\u201d, \u201cDownload TXT\u201d, or \u201cPrint / Save PDF\u201d to export your formatted manuscript."},
       {q:"Is my manuscript data private?", a:"Yes! Parsing and formatting happen client-side in your browser, keeping your research paper private."}
-    ]
-  },
-  {
-    category:"Common Student Questions",
-    items:[
-      {q:"I'm a student. Can I use ScholarAI for my project paper?", a:"Yes. ScholarAI is designed to help structure and format academic manuscripts, which can be useful for project papers, research papers, and student publications."},
-      {q:"I don't know which journal format to choose. What should I do?", a:"If your college, guide, or target journal has specified a format, choose that one. Otherwise, check the journal's official author guidelines before selecting IEEE, Springer, Elsevier, ACM, or Nature."},
-      {q:"Which format is best for a CSE research paper?", a:"There is no single best format. Choose the style required by your target journal or conference. IEEE is commonly used in engineering and computer science, but always follow the specific venue's instructions."},
-      {q:"Can ScholarAI write my entire research paper for me?", a:"No. ScholarAI's workflow is focused on organizing, checking, formatting, and preparing your manuscript. You should provide and review your own research content."},
-      {q:"Can I use a paper I already wrote in Word?", a:"Yes. Upload your .docx file in Step 1 and ScholarAI can extract the manuscript text for the next steps."},
-      {q:"What if my PDF text is extracted incorrectly?", a:"Check the detected blocks in Step 3. You can edit the extracted text directly and reassign any incorrectly detected section before continuing."},
-      {q:"Why is my abstract being flagged?", a:"The Readiness Assessment checks the abstract against the selected publisher's expected range. Review the flagged item in Step 6 and compare it with the target journal's current guidelines."},
-      {q:"Do I need to add every co-author?", a:"For a proper manuscript, include all actual authors and their correct affiliations. In Step 4, use “Add Co-Author” to add additional authors."},
-      {q:"Can I add figures from my project report?", a:"Yes. Step 3 lets you add images to section blocks, choose single- or two-column placement, and enter figure captions."},
-      {q:"What if I don't have a DOI for a reference?", a:"Run the citation verification in Step 5. ScholarAI uses CrossRef to check references and can retrieve a missing DOI when a matching record is found."},
-      {q:"Does ScholarAI guarantee that my paper will be accepted?", a:"No. Formatting and citation checks can improve manuscript readiness, but journal acceptance depends on the research quality, originality, relevance, review process, and the journal's decision."},
-      {q:"Can I submit the generated paper directly to a journal?", a:"Use the formatted output as a prepared manuscript, but review it carefully and check the target journal's latest author instructions before submission."},
-      {q:"What should I do if I'm completely new to research papers?", a:"Start with Step 1 by uploading or pasting your manuscript. Then choose the target format, review the structure, confirm author details, verify citations, and finally check the readiness assessment."},
-      {q:"Can I use ScholarAI on my phone?", a:"Yes. The interface includes responsive layouts for smaller screens, although reviewing a full manuscript may be more comfortable on a desktop or laptop."},
-      {q:"Will ScholarAI change my research results?", a:"The formatting workflow is intended to organize and present your manuscript. Always review the final output to make sure your technical content, numbers, results, figures, and references remain correct."}
     ]
   }
 ];
