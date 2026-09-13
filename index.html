@@ -1908,14 +1908,6 @@ body.auth-redirecting>.desk{display:none!important}
   gap:10px;
 }
 
-.masthead-logo{
-  max-height:40px;
-  width:auto;
-  object-fit:contain;
-  border-radius:6px;
-  display:block;
-}
-
 .masthead-right{
   display:flex;
   align-items:center;
@@ -1924,9 +1916,6 @@ body.auth-redirecting>.desk{display:none!important}
 }
 
 @media (max-width:600px){
-  .masthead-logo{
-    max-height:30px;
-  }
   .masthead-right{
     gap:10px;
     align-items:flex-start;
@@ -2113,6 +2102,46 @@ body.auth-redirecting>.desk{display:none!important}
   top:0;
   color:var(--success);
   font-weight:600;
+}
+
+.history-entry{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:14px;
+
+  padding:14px 0;
+  border-bottom:1px solid var(--line);
+}
+
+.history-entry:last-child{
+  border-bottom:none;
+}
+
+.history-entry-meta{
+  display:flex;
+  flex-direction:column;
+  gap:3px;
+  min-width:0;
+}
+
+.history-entry-meta strong{
+  font-family:'Newsreader',serif;
+  font-size:0.95rem;
+  font-weight:600;
+}
+
+.history-entry-meta span{
+  font-family:'IBM Plex Mono',monospace;
+  font-size:0.68rem;
+  color:var(--ink-faint);
+  text-transform:uppercase;
+  letter-spacing:.03em;
+}
+
+.history-entry .btn{
+  flex:none;
+  width:auto;
 }
 
 @media (max-width:600px){
@@ -2671,10 +2700,9 @@ body.auth-redirecting>.desk{display:none!important}
         <div class="auth-links"><button type="button" class="auth-link" data-auth-route="login">← Back to login</button></div>
       </div>
     </section>
-<div class="auth-footer" style="text-align: center;">
-    © SK Graphics - Sachin & Team. 
-    <div style="font-size: 12px; opacity: 0.7; margin-top: 4px;">Version 9.2.0</div>
-</div>
+
+    <div class="auth-footer">© SK Graphics · Sachin & Team</div>
+      <div style="font-size: 12px; opacity: 0.7; margin-top: 4px;">Version 9.3.0</div>
   </div>
 </div>
 
@@ -2687,11 +2715,6 @@ body.auth-redirecting>.desk{display:none!important}
   <header class="masthead">
 
     <div class="masthead-brand">
-      <img
-        class="masthead-logo"
-       
-        loading="lazy"
-      >
       <div class="wordmark">
         Scholar<em>AI</em>
       </div>
@@ -2701,6 +2724,10 @@ body.auth-redirecting>.desk{display:none!important}
 
       <button class="btn small ghost" id="publisherGuidelinesBtn" type="button">
         Publisher Guidelines
+      </button>
+
+      <button class="btn small ghost" id="workHistoryBtn" type="button" style="display:none;">
+        Work History
       </button>
 
       <div class="masthead-meta">
@@ -3194,6 +3221,7 @@ body.auth-redirecting>.desk{display:none!important}
 
     <div>
       Developed by Sachin & Team.
+        <div style="font-size: 12px; opacity: 0.7; margin-top: 4px;">Version 9.3.0</div>
 
       <a
         href="mailto:Sachin7080@outlook.com"
@@ -3254,6 +3282,28 @@ body.auth-redirecting>.desk{display:none!important}
       <div class="pub-section-title">Key checklist</div>
       <ul class="pub-checklist" id="pubChecklist"></ul>
 
+    </div>
+
+  </div>
+</div>
+
+<!-- =========================================================
+     NEW: WORK HISTORY MODAL (logged-in users only)
+     ========================================================= -->
+
+<div class="pub-overlay" id="historyOverlay">
+  <div class="pub-panel" role="dialog" aria-modal="true" aria-labelledby="historyPanelTitle">
+
+    <div class="pub-panel-head">
+      <div>
+        <h2 id="historyPanelTitle">Your Work History</h2>
+        <p>Automatic checkpoints of your draft. Restore an earlier version if you need to.</p>
+      </div>
+      <button class="pub-close" id="historyCloseBtn" type="button" aria-label="Close">×</button>
+    </div>
+
+    <div class="pub-panel-body">
+      <div id="historyList"></div>
     </div>
 
   </div>
@@ -3462,6 +3512,7 @@ async function setAppSession(session,guest=false){
   const userArea=document.getElementById('userArea');
   const userEmail=document.getElementById('userEmail');
   const draftBar=document.getElementById('draftBar');
+  const historyBtn=document.getElementById('workHistoryBtn');
 
   let displayName='';
   if(session?.user && !guest){
@@ -3475,6 +3526,7 @@ async function setAppSession(session,guest=false){
     userEmail.title=session?.user?.email || '';
   }
   if(draftBar)draftBar.style.display=(session&&!guest)?'flex':'none';
+  if(historyBtn)historyBtn.style.display=(session&&!guest)?'':'none';
   showApp();
   window.dispatchEvent(new CustomEvent('scholar-auth-ready',{detail:{session,guest,displayName}}));
 }
@@ -3811,6 +3863,7 @@ async function saveDraft(){
     await saveDraftCloud(snapshot);
     lastCloudDraftSignature = signature;
     setDraftStatus("Draft saved automatically · " + new Date().toLocaleTimeString([], {hour:"2-digit", minute:"2-digit"}));
+    maybeRecordHistorySnapshot(snapshot);
   }catch(error){
     lastDraftSignature = "";
     console.warn("ScholarAI cloud draft save failed", error);
@@ -3819,6 +3872,161 @@ async function saveDraft(){
     draftSaveInFlight = false;
   }
 }
+
+/* =========================================================
+   NEW: WORK HISTORY — throttled checkpoints, logged-in only
+   ========================================================= */
+
+const HISTORY_THROTTLE_MS = 10 * 60 * 1000; // at most one checkpoint every 10 minutes
+const HISTORY_MAX_ENTRIES = 20;
+let lastHistorySnapshotAt = 0;
+
+async function maybeRecordHistorySnapshot(snapshot){
+  if(guestMode || !activeSession?.user?.id || !window.scholarSupabase) return;
+  const now = Date.now();
+  if(lastHistorySnapshotAt && (now - lastHistorySnapshotAt) < HISTORY_THROTTLE_MS) return;
+  lastHistorySnapshotAt = now;
+  try{
+    const {error} = await window.scholarSupabase.from("scholarai_draft_history").insert({
+      user_id:activeSession.user.id,
+      current_step:snapshot.currentStep || 1,
+      draft_data:stripImagesForCloud(snapshot)
+    });
+    if(error) throw error;
+    pruneOldHistory();
+  }catch(error){
+    console.warn("ScholarAI: could not record work-history checkpoint",error);
+    lastHistorySnapshotAt = 0; // allow the next save to retry
+  }
+}
+
+async function pruneOldHistory(){
+  if(!activeSession?.user?.id || !window.scholarSupabase) return;
+  try{
+    const {data,error} = await window.scholarSupabase
+      .from("scholarai_draft_history")
+      .select("id,created_at")
+      .eq("user_id",activeSession.user.id)
+      .order("created_at",{ascending:false});
+    if(error) throw error;
+    const excess = (data||[]).slice(HISTORY_MAX_ENTRIES);
+    if(excess.length){
+      await window.scholarSupabase.from("scholarai_draft_history").delete().in("id",excess.map(row=>row.id));
+    }
+  }catch(error){
+    console.warn("ScholarAI: could not prune old work-history entries",error);
+  }
+}
+
+function summarizeHistoryEntry(entry){
+  const blocks = Array.isArray(entry.draft_data?.blocks) ? entry.draft_data.blocks : [];
+  const words = blocks.reduce((sum,b)=> sum + (b && b.type!=="figure" && typeof b.text==="string" ? wordCount(b.text) : 0), 0);
+  const format = entry.draft_data?.targetFormat || "No format chosen yet";
+  return `Step ${entry.current_step||1} · ${words} words · ${format}`;
+}
+
+function renderHistoryList(entries){
+  const list = document.getElementById("historyList");
+  if(!list) return;
+  list.innerHTML = "";
+  if(!entries.length){
+    list.appendChild(el("p",{class:"auth-sub"},"No saved checkpoints yet — keep working and they'll appear here automatically."));
+    return;
+  }
+  entries.forEach(entry=>{
+    const row = el("div",{class:"history-entry"});
+    const meta = el("div",{class:"history-entry-meta"});
+    const when = new Date(entry.created_at);
+    meta.appendChild(el("strong",null, when.toLocaleDateString([],{month:"short",day:"numeric",year:"numeric"}) + " · " + when.toLocaleTimeString([],{hour:"2-digit",minute:"2-digit"})));
+    meta.appendChild(el("span",null,summarizeHistoryEntry(entry)));
+    row.appendChild(meta);
+    const restoreBtn = el("button",{class:"btn small ghost",type:"button"},"Restore this version");
+    restoreBtn.addEventListener("click",()=>restoreHistoryEntry(entry));
+    row.appendChild(restoreBtn);
+    list.appendChild(row);
+  });
+}
+
+async function openHistoryModal(){
+  const overlay = document.getElementById("historyOverlay");
+  const list = document.getElementById("historyList");
+  if(!overlay || !list) return;
+  overlay.classList.add("open");
+  document.addEventListener("keydown",handleHistoryEscape);
+  if(!activeSession?.user?.id || !window.scholarSupabase){
+    list.innerHTML = "";
+    list.appendChild(el("p",{class:"auth-sub"},"Log in to see your work history."));
+    return;
+  }
+  list.innerHTML = "";
+  list.appendChild(el("p",{class:"auth-sub"},"Loading your saved checkpoints…"));
+  try{
+    const {data,error} = await window.scholarSupabase
+      .from("scholarai_draft_history")
+      .select("id,current_step,draft_data,created_at")
+      .eq("user_id",activeSession.user.id)
+      .order("created_at",{ascending:false});
+    if(error) throw error;
+    renderHistoryList(data||[]);
+  }catch(error){
+    console.warn("ScholarAI: could not load work history",error);
+    list.innerHTML = "";
+    list.appendChild(el("p",{class:"auth-sub"},"Couldn't load your history right now. Please try again."));
+  }
+}
+
+function closeHistoryModal(){
+  const overlay = document.getElementById("historyOverlay");
+  if(overlay) overlay.classList.remove("open");
+  document.removeEventListener("keydown",handleHistoryEscape);
+}
+
+function handleHistoryEscape(e){
+  if(e.key==="Escape") closeHistoryModal();
+}
+
+function restoreHistoryEntry(entry){
+  if(!confirm("Restore this version? Your current unsaved changes in this draft will be replaced.")) return;
+  const saved = entry.draft_data || {};
+
+  // Recover any figure images this checkpoint omitted from the cloud copy,
+  // using whatever the live in-memory draft currently holds at the same
+  // position — same reasoning as the cloud-vs-local merge in restoreDraft().
+  if(Array.isArray(saved.blocks)){
+    saved.blocks.forEach((block,i)=>{
+      if(block && block.type==="figure" && block.imageOmittedForCloud){
+        const match=state.blocks[i];
+        if(match && match.type==="figure" && match.imageData) block.imageData=match.imageData;
+        if(block.imageData || block.imageUrl) delete block.imageOmittedForCloud;
+      }
+    });
+  }
+
+  Object.assign(state,{
+    rawText:saved.rawText || "",
+    targetFormat:saved.targetFormat || null,
+    blocks:Array.isArray(saved.blocks) ? saved.blocks : [],
+    authorsDetected:!!saved.authorsDetected,
+    primaryAuthor:saved.primaryAuthor || state.primaryAuthor,
+    coAuthors:Array.isArray(saved.coAuthors) ? saved.coAuthors : [],
+    references:Array.isArray(saved.references) ? saved.references : [],
+    entryMode:saved.entryMode || "upload",
+    selectedField:saved.selectedField || "",
+    selectedTopic:saved.selectedTopic || null
+  });
+
+  currentStep = Math.min(6, Math.max(1, Number(entry.current_step) || 1));
+  applyDraftToUI();
+  closeHistoryModal();
+  setDraftStatus("Restored from history · saving…", "saving");
+  scheduleDraftSave();
+}
+
+document.getElementById("workHistoryBtn")?.addEventListener("click",openHistoryModal);
+document.getElementById("historyCloseBtn")?.addEventListener("click",closeHistoryModal);
+document.getElementById("historyOverlay")?.addEventListener("click",e=>{
+  if(e.target.id==="historyOverlay") closeHistoryModal();
+});
 
 async function restoreDraft(){
   if(guestMode || !activeSession?.user?.id || !window.scholarSupabase) return false;
