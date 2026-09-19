@@ -81,9 +81,6 @@ ScholarAI's AI-assisted tools are built around one rule: **they critique what yo
 - [ ] Private (signed-URL) figure storage as an alternative to the public bucket
 - [ ] Server-side rate limiting on AI Feedback
 
-## 🤝 Contributing
-
-Issues and pull requests are welcome. If you're proposing a feature, please keep it in the spirit of the project above — tools that help students do their own work well, not tools that do the work for them.
 
 ## 👤 Author
 
