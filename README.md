@@ -7,11 +7,10 @@
 A free, client-side manuscript formatting tool that turns a student's draft into a publisher-ready paper for **IEEE, Springer, Elsevier, ACM, and Nature** — complete with citation verification, a submission-readiness checklist, and an AI writing assistant that gives feedback *without* writing the paper for you.
 
 [![Live Demo](https://img.shields.io/badge/demo-live-2563EB?style=for-the-badge)](https://sachin4749.github.io/scholarAi/)
-[![License: MIT](https://img.shields.io/badge/license-MIT-blue?style=for-the-badge)](LICENSE)
 [![Made with Vanilla JS](https://img.shields.io/badge/built%20with-vanilla%20JS-F7DF1E?style=for-the-badge&logo=javascript&logoColor=black)](#-tech-stack)
 [![Powered by Supabase](https://img.shields.io/badge/backend-Supabase-3ECF8E?style=for-the-badge&logo=supabase&logoColor=white)](https://supabase.com)
 
-**[Live Demo](https://sachin4749.github.io/scholarAi/)** · **[Report a Bug](../../issues)** · **[Request a Feature](../../issues)**
+**[Live Demo](https://sachin4749.github.io/scholarAi/)**
 
 </div>
 
