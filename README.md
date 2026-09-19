@@ -86,10 +86,6 @@ ScholarAI's AI-assisted tools are built around one rule: **they critique what yo
 
 Issues and pull requests are welcome. If you're proposing a feature, please keep it in the spirit of the project above — tools that help students do their own work well, not tools that do the work for them.
 
-## 📄 License
-
-Distributed under the MIT License. See `LICENSE` for details (add one if it isn't there yet).
-
 ## 👤 Author
 
 **©SK Graphics** — Sachin K. <div>
