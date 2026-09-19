@@ -2144,6 +2144,81 @@ body.auth-redirecting>.desk{display:none!important}
   width:auto;
 }
 
+.wa-stats-grid{
+  display:grid;
+  grid-template-columns:repeat(auto-fit,minmax(140px,1fr));
+  gap:10px;
+  margin-bottom:20px;
+}
+
+.wa-stat-card{
+  border:1px solid var(--line);
+  border-radius:var(--radius);
+  padding:12px 14px;
+  background:var(--paper);
+}
+
+.wa-stat-label{
+  font-family:'IBM Plex Mono',monospace;
+  font-size:0.6rem;
+  text-transform:uppercase;
+  letter-spacing:.04em;
+  color:var(--ink-faint);
+  margin-bottom:4px;
+}
+
+.wa-stat-value{
+  font-family:'Newsreader',serif;
+  font-weight:600;
+  font-size:1.25rem;
+  margin-bottom:2px;
+}
+
+.wa-stat-note{
+  font-size:0.72rem;
+  color:var(--ink-soft);
+  line-height:1.4;
+}
+
+mark.wa-flag{
+  background:var(--flag);
+  padding:1px 3px;
+  border-radius:3px;
+}
+
+#waGrammarResults .btn{
+  margin-top:10px;
+}
+
+.wa-beta-tag{
+  display:inline-block;
+  font-family:'IBM Plex Mono',monospace;
+  font-size:0.58rem;
+  text-transform:uppercase;
+  letter-spacing:.04em;
+  color:var(--accent-navy);
+  background:var(--accent-navy-soft);
+  padding:2px 7px;
+  border-radius:10px;
+  vertical-align:middle;
+  margin-left:6px;
+}
+
+.wa-ai-feedback{
+  white-space:pre-wrap;
+  font-size:0.85rem;
+  line-height:1.6;
+  margin-top:12px;
+  padding:14px;
+  background:var(--paper);
+  border:1px solid var(--line);
+  border-radius:var(--radius);
+}
+
+#waAiFeedbackResults .btn{
+  margin-top:10px;
+}
+
 @media (max-width:600px){
   .pub-overlay{
     padding:0;
@@ -2703,7 +2778,7 @@ body.auth-redirecting>.desk{display:none!important}
 
     <div class="auth-footer">© SK Graphics · Sachin & Team</div>
      <div style="font-size: 12px; opacity: 0.7; margin-top: 4px; text-align: center;">
-  Version 9.5.0
+  Version 9.6.0
 </div>
   </div>
 </div>
@@ -2726,6 +2801,10 @@ body.auth-redirecting>.desk{display:none!important}
 
       <button class="btn small ghost" id="publisherGuidelinesBtn" type="button">
         Publisher Guidelines
+      </button>
+
+      <button class="btn small ghost" id="writingAssistantBtn" type="button">
+        Writing Assistant
       </button>
 
       <button class="btn small ghost" id="workHistoryBtn" type="button" style="display:none;">
@@ -3223,7 +3302,6 @@ body.auth-redirecting>.desk{display:none!important}
 
     <div>
       Developed by Sachin & Team.
-        
 
       <a
         href="mailto:Sachin7080@outlook.com"
@@ -3244,8 +3322,9 @@ body.auth-redirecting>.desk{display:none!important}
 
     </div>
 <div style="font-size: 12px; opacity: 0.7; margin-top: 4px; text-align: center;">
-  Version 9.5.0
+  Version 9.6.0
 </div>
+
   </footer>
 
 </div>
@@ -3308,6 +3387,40 @@ body.auth-redirecting>.desk{display:none!important}
 
     <div class="pub-panel-body">
       <div id="historyList"></div>
+    </div>
+
+  </div>
+</div>
+
+<!-- =========================================================
+     NEW: WRITING ASSISTANT MODAL (readability + grammar check)
+     ========================================================= -->
+
+<div class="pub-overlay" id="writingAssistantOverlay">
+  <div class="pub-panel" role="dialog" aria-modal="true" aria-labelledby="waPanelTitle">
+
+    <div class="pub-panel-head">
+      <div>
+        <h2 id="waPanelTitle">Writing Assistant</h2>
+        <p>Instant readability stats, plus an optional grammar &amp; style pass.</p>
+      </div>
+      <button class="pub-close" id="waCloseBtn" type="button" aria-label="Close">×</button>
+    </div>
+
+    <div class="pub-panel-body">
+
+      <div id="waStats"></div>
+
+      <div class="pub-section-title">Grammar &amp; style check</div>
+      <p class="auth-sub">Uses the free LanguageTool service. Your manuscript text is sent to it only when you click the button below — nothing else in ScholarAI leaves your browser.</p>
+      <button class="btn small ghost" id="waCheckGrammarBtn" type="button">Check Grammar &amp; Style</button>
+      <div id="waGrammarResults"></div>
+
+      <div class="pub-section-title">AI feedback <span class="wa-beta-tag">beta</span></div>
+      <p class="auth-sub">An AI model comments on clarity, structure, and tone in what you've already written — it won't draft or rewrite your paper for you. Requires being logged in (not guest mode).</p>
+      <button class="btn small ghost" id="waAiFeedbackBtn" type="button">Get AI Feedback</button>
+      <div id="waAiFeedbackResults"></div>
+
     </div>
 
   </div>
@@ -4030,6 +4143,237 @@ document.getElementById("workHistoryBtn")?.addEventListener("click",openHistoryM
 document.getElementById("historyCloseBtn")?.addEventListener("click",closeHistoryModal);
 document.getElementById("historyOverlay")?.addEventListener("click",e=>{
   if(e.target.id==="historyOverlay") closeHistoryModal();
+});
+
+/* =========================================================
+   NEW: WRITING ASSISTANT — readability + grammar/style check
+   ========================================================= */
+
+function manuscriptPlainText(){
+  return state.blocks
+    .filter(b=>b && b.type!=="figure" && typeof b.text==="string")
+    .map(b=>b.text)
+    .join("\n\n");
+}
+
+function countSyllables(word){
+  word=word.toLowerCase().replace(/[^a-z]/g,"");
+  if(!word) return 0;
+  if(word.length<=3) return 1;
+  word=word.replace(/(?:[^laeiouy]es|ed|[^laeiouy]e)$/,"");
+  word=word.replace(/^y/,"");
+  const matches=word.match(/[aeiouy]{1,2}/g);
+  return matches ? matches.length : 1;
+}
+
+function analyzeReadability(text){
+  const sentences=(text.match(/[^.!?]+[.!?]+/g)||[text]).map(s=>s.trim()).filter(Boolean);
+  const words=text.match(/[A-Za-z]+(?:'[A-Za-z]+)?/g)||[];
+  const wordTotal=words.length;
+  const sentenceCount=Math.max(1,sentences.length);
+  const syllableTotal=words.reduce((sum,w)=>sum+countSyllables(w),0);
+  const wordsPerSentence=wordTotal/sentenceCount;
+  const syllablesPerWord=wordTotal ? syllableTotal/wordTotal : 0;
+  const fleschEase=Math.max(0,Math.min(100,206.835-1.015*wordsPerSentence-84.6*syllablesPerWord));
+  const fleschGrade=Math.max(0,0.39*wordsPerSentence+11.8*syllablesPerWord-15.59);
+  return {wordTotal,sentenceCount,wordsPerSentence,fleschEase,fleschGrade,sentences};
+}
+
+function analyzeStyleHeuristics(sentences){
+  // Heuristic, not a grammar parser — flags likely patterns for the writer to judge themselves.
+  const passiveRegex=/\b(am|is|are|was|were|be|been|being)\b\s+(\w+ed|\w+en)\b/i;
+  const passive=sentences.filter(s=>passiveRegex.test(s));
+  const long=sentences.filter(s=>(s.match(/\S+/g)||[]).length>=35);
+  return {passiveCount:passive.length,longCount:long.length};
+}
+
+function readabilityLabel(score){
+  if(score>=70) return "Fairly easy to read";
+  if(score>=50) return "Standard difficulty";
+  if(score>=30) return "Difficult — typical for academic writing";
+  return "Very difficult — typical for graduate/technical writing";
+}
+
+function waStatCard(label,value,note){
+  const card=el("div",{class:"wa-stat-card"});
+  card.appendChild(el("div",{class:"wa-stat-label"},label));
+  card.appendChild(el("div",{class:"wa-stat-value"},value));
+  card.appendChild(el("div",{class:"wa-stat-note"},note));
+  return card;
+}
+
+function renderWritingStats(){
+  const statsEl=document.getElementById("waStats");
+  if(!statsEl) return;
+  statsEl.innerHTML="";
+  const text=manuscriptPlainText();
+  if(!text.trim()){
+    statsEl.appendChild(el("p",{class:"auth-sub"},"Add some manuscript text to see writing stats."));
+    return;
+  }
+  const read=analyzeReadability(text);
+  const style=analyzeStyleHeuristics(read.sentences);
+  const grid=el("div",{class:"wa-stats-grid"});
+  grid.appendChild(waStatCard("Readability",`${Math.round(read.fleschEase)}/100`,readabilityLabel(read.fleschEase)));
+  grid.appendChild(waStatCard("Grade level",read.fleschGrade.toFixed(1),"Flesch-Kincaid (approx.)"));
+  grid.appendChild(waStatCard("Avg. sentence length",`${read.wordsPerSentence.toFixed(1)} words`,read.wordsPerSentence>28?"Consider shorter sentences":"Looks reasonable"));
+  grid.appendChild(waStatCard("Possible passive voice",`${style.passiveCount}/${read.sentenceCount} sentences`,"Approximate check, not a hard rule"));
+  statsEl.appendChild(grid);
+  if(style.longCount){
+    statsEl.appendChild(el("div",{class:"notice info"},`${style.longCount} sentence(s) run 35+ words — often worth splitting for clarity.`));
+  }
+}
+
+function buildFlaggedContext(fullText,offset,length){
+  const start=Math.max(0,offset-40);
+  const end=Math.min(fullText.length,offset+length+40);
+  const span=document.createElement("span");
+  span.appendChild(document.createTextNode((start>0?"…":"")+fullText.slice(start,offset)));
+  const mark=document.createElement("mark");
+  mark.className="wa-flag";
+  mark.textContent=fullText.slice(offset,offset+length);
+  span.appendChild(mark);
+  span.appendChild(document.createTextNode(fullText.slice(offset+length,end)+(end<fullText.length?"…":"")));
+  return span;
+}
+
+function renderGrammarResults(matches,fullText){
+  const resultsEl=document.getElementById("waGrammarResults");
+  if(!resultsEl) return;
+  resultsEl.innerHTML="";
+  if(!matches.length){
+    resultsEl.appendChild(el("p",{class:"notice info"},"No issues found — nice and clean!"));
+    return;
+  }
+  resultsEl.appendChild(el("p",{class:"auth-sub"},`Found ${matches.length} possible issue${matches.length===1?"":"s"}:`));
+  matches.slice(0,40).forEach(match=>{
+    const row=el("div",{class:"history-entry"});
+    const meta=el("div",{class:"history-entry-meta"});
+    meta.appendChild(el("strong",null,match.shortMessage||match.message||"Possible issue"));
+    const contextLine=el("span",null);
+    contextLine.appendChild(buildFlaggedContext(fullText,match.offset,match.length));
+    meta.appendChild(contextLine);
+    if(match.replacements&&match.replacements.length){
+      meta.appendChild(el("span",null,"Suggestion: "+match.replacements.slice(0,3).map(r=>r.value).join(", ")));
+    }
+    row.appendChild(meta);
+    resultsEl.appendChild(row);
+  });
+  if(matches.length>40){
+    resultsEl.appendChild(el("p",{class:"auth-sub"},`+ ${matches.length-40} more issue(s) not shown.`));
+  }
+}
+
+async function checkGrammarStyle(){
+  const btn=document.getElementById("waCheckGrammarBtn");
+  const resultsEl=document.getElementById("waGrammarResults");
+  if(!resultsEl) return;
+  const fullText=manuscriptPlainText();
+  if(!fullText.trim()){
+    resultsEl.innerHTML="";
+    resultsEl.appendChild(el("p",{class:"auth-sub"},"Add some manuscript text first."));
+    return;
+  }
+  if(btn){btn.disabled=true;btn.textContent="Checking…";}
+  resultsEl.innerHTML="";
+  resultsEl.appendChild(el("p",{class:"auth-sub"},"Checking grammar and style — this can take a few seconds…"));
+  try{
+    const body=new URLSearchParams({text:fullText.slice(0,15000),language:"en-US"});
+    const res=await fetch("https://api.languagetool.org/v2/check",{
+      method:"POST",
+      headers:{"Content-Type":"application/x-www-form-urlencoded"},
+      body
+    });
+    if(!res.ok) throw new Error("LanguageTool request failed: "+res.status);
+    const data=await res.json();
+    renderGrammarResults(data.matches||[],fullText);
+  }catch(error){
+    console.warn("ScholarAI: grammar check failed",error);
+    resultsEl.innerHTML="";
+    resultsEl.appendChild(el("p",{class:"auth-sub"},"Couldn't reach the grammar-check service right now. Please try again in a moment."));
+  }finally{
+    if(btn){btn.disabled=false;btn.textContent="Check Grammar & Style";}
+  }
+}
+
+async function getAIFeedback(){
+  const btn=document.getElementById("waAiFeedbackBtn");
+  const resultsEl=document.getElementById("waAiFeedbackResults");
+  if(!resultsEl) return;
+
+  if(guestMode || !activeSession?.user?.id || !activeSession?.access_token){
+    resultsEl.innerHTML="";
+    resultsEl.appendChild(el("p",{class:"auth-sub"},"Log in to use AI feedback — it's not available in guest mode."));
+    return;
+  }
+  const fullText=manuscriptPlainText();
+  if(!fullText.trim()){
+    resultsEl.innerHTML="";
+    resultsEl.appendChild(el("p",{class:"auth-sub"},"Add some manuscript text first."));
+    return;
+  }
+
+  if(btn){btn.disabled=true;btn.textContent="Thinking…";}
+  resultsEl.innerHTML="";
+  resultsEl.appendChild(el("p",{class:"auth-sub"},"Getting feedback — this can take up to 10–15 seconds…"));
+
+  try{
+    const res=await fetch(SUPABASE_URL+"/functions/v1/writing-feedback",{
+      method:"POST",
+      headers:{
+        "Content-Type":"application/json",
+        "Authorization":"Bearer "+activeSession.access_token
+      },
+      body:JSON.stringify({text:fullText.slice(0,20000),targetFormat:state.targetFormat||""})
+    });
+    const data=await res.json().catch(()=>({}));
+    if(!res.ok) throw new Error(data?.error || ("Request failed: "+res.status));
+    resultsEl.innerHTML="";
+    const box=el("div",{class:"wa-ai-feedback"});
+    box.textContent=data.feedback || "No feedback returned.";
+    resultsEl.appendChild(box);
+  }catch(error){
+    console.warn("ScholarAI: AI feedback failed",error);
+    resultsEl.innerHTML="";
+    const msg=(error && error.message && error.message.length<200) ? error.message : "Couldn't get AI feedback right now. Please try again in a moment.";
+    resultsEl.appendChild(el("p",{class:"auth-sub"},msg));
+  }finally{
+    if(btn){
+      btn.textContent="Get AI Feedback";
+      // Small cooldown discourages accidental rapid re-clicks against the shared free-tier API quota.
+      setTimeout(()=>{btn.disabled=false;},15000);
+    }
+  }
+}
+
+function openWritingAssistant(){
+  const overlay=document.getElementById("writingAssistantOverlay");
+  if(!overlay) return;
+  overlay.classList.add("open");
+  document.addEventListener("keydown",handleWaEscape);
+  renderWritingStats();
+  const resultsEl=document.getElementById("waGrammarResults");
+  if(resultsEl) resultsEl.innerHTML="";
+  const aiResultsEl=document.getElementById("waAiFeedbackResults");
+  if(aiResultsEl) aiResultsEl.innerHTML="";
+}
+
+function closeWritingAssistant(){
+  const overlay=document.getElementById("writingAssistantOverlay");
+  if(overlay) overlay.classList.remove("open");
+  document.removeEventListener("keydown",handleWaEscape);
+}
+
+function handleWaEscape(e){
+  if(e.key==="Escape") closeWritingAssistant();
+}
+
+document.getElementById("writingAssistantBtn")?.addEventListener("click",openWritingAssistant);
+document.getElementById("waCloseBtn")?.addEventListener("click",closeWritingAssistant);
+document.getElementById("waCheckGrammarBtn")?.addEventListener("click",checkGrammarStyle);
+document.getElementById("waAiFeedbackBtn")?.addEventListener("click",getAIFeedback);
+document.getElementById("writingAssistantOverlay")?.addEventListener("click",e=>{
+  if(e.target.id==="writingAssistantOverlay") closeWritingAssistant();
 });
 
 async function restoreDraft(){
@@ -9055,7 +9399,8 @@ var VIDYAAI_QA = [
     items:[
       {q:"Is my draft automatically saved?", a:"Yes! Your progress, manuscript blocks, and configurations are cached in your browser local storage."},
       {q:"How do I download or print my finished paper?", a:"On Step 6, click \u201cDownload HTML\u201d, \u201cDownload TXT\u201d, or \u201cPrint / Save PDF\u201d to export your formatted manuscript."},
-      {q:"Is my manuscript data private?", a:"Yes! Parsing and formatting happen client-side in your browser, keeping your research paper private."}
+      {q:"Is my manuscript data private?", a:"Yes! Parsing and formatting happen client-side in your browser, keeping your research paper private."},
+      {q:"Does the Writing Assistant's grammar check send my text anywhere?", a:"Only if you click \u201cCheck Grammar & Style\u201d \u2014 that sends your manuscript text to the free LanguageTool service to check for issues. Nothing else in ScholarAI does this."}
     ]
   }
 ];
