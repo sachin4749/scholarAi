@@ -2503,6 +2503,31 @@ mark.wa-flag{
   opacity:.9;
 }
 
+.vidyaai-input-row button.vidyaai-ask-ai-btn{
+  width:auto;
+  padding:0 14px;
+  border-radius:19px;
+  border:1px solid var(--accent-navy);
+  background:var(--accent-navy);
+  font-size:0.72rem;
+  font-weight:600;
+  white-space:nowrap;
+}
+
+.vidyaai-input-row button.vidyaai-ask-ai-btn:disabled{
+  opacity:.6;
+  cursor:not-allowed;
+}
+
+@media (max-width:360px){
+  .vidyaai-input-row{
+    flex-wrap:wrap;
+  }
+  .vidyaai-input-row input{
+    flex:1 1 100%;
+  }
+}
+
 @media (max-width:600px){
   .vidyaai-window{
     right:14px;
@@ -2776,11 +2801,10 @@ mark.wa-flag{
       </div>
     </section>
 
-    <div class="auth-footer">© SK Graphics · Sachin & Team</div>
+     <div class="auth-footer">© SK Graphics · Sachin & Team</div>
      <div style="font-size: 12px; opacity: 0.7; margin-top: 4px; text-align: center;">
-  Version 9.6.0
+  Version 9.7.0
 </div>
-  </div>
 </div>
 
 <div class="desk">
@@ -3320,9 +3344,8 @@ mark.wa-flag{
 
       </a>
 
-    </div>
 <div style="font-size: 12px; opacity: 0.7; margin-top: 4px; text-align: center;">
-  Version 9.6.0
+  Version 9.7.0
 </div>
 
   </footer>
@@ -3455,6 +3478,7 @@ mark.wa-flag{
   <div class="vidyaai-input-row">
     <input type="text" id="vidyaaiInput" placeholder="Ask a question…" autocomplete="off">
     <button id="vidyaaiSendBtn" type="button" aria-label="Send">→</button>
+    <button id="vidyaaiAskAiBtn" class="vidyaai-ask-ai-btn" type="button" aria-label="Ask AI">Ask AI</button>
   </div>
 
 </div>
@@ -9414,12 +9438,13 @@ VIDYAAI_QA.forEach(function(group){
 
 function vidyaaiAppendMessage(role, text){
   var messages = document.getElementById("vidyaaiMessages");
-  if(!messages) return;
+  if(!messages) return null;
   var bubble = document.createElement("div");
   bubble.className = "vidyaai-msg " + (role === "user" ? "user" : "bot");
   bubble.textContent = text;
   messages.appendChild(bubble);
   messages.scrollTop = messages.scrollHeight;
+  return bubble;
 }
 
 function vidyaaiAskPreset(question, answer){
@@ -9462,6 +9487,56 @@ function vidyaaiHandleInputSubmit(){
   window.setTimeout(function(){
     vidyaaiAppendMessage("bot", answer || VIDYAAI_FALLBACK);
   }, 250);
+}
+
+function vidyaaiAskAI(){
+  var input = document.getElementById("vidyaaiInput");
+  var askBtn = document.getElementById("vidyaaiAskAiBtn");
+  if(!input) return;
+  var question = input.value.trim();
+  if(!question) return;
+
+  vidyaaiAppendMessage("user", question);
+  input.value = "";
+
+  if(guestMode || !activeSession || !activeSession.user || !activeSession.access_token){
+    window.setTimeout(function(){
+      vidyaaiAppendMessage("bot", "Ask AI needs you to be logged in (not guest mode). Log in and try again, or use one of the quick questions above.");
+    }, 200);
+    return;
+  }
+
+  if(askBtn) askBtn.disabled = true;
+  var thinkingBubble = vidyaaiAppendMessage("bot", "Thinking…");
+
+  fetch(SUPABASE_URL + "/functions/v1/writing-feedback", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      "Authorization": "Bearer " + activeSession.access_token
+    },
+    body: JSON.stringify({ mode: "ask", question: question })
+  })
+  .then(function(res){
+    return res.json().catch(function(){ return {}; }).then(function(data){
+      if(!res.ok) throw new Error((data && data.error) || ("Request failed: " + res.status));
+      return data;
+    });
+  })
+  .then(function(data){
+    var answerText = (data && data.answer) || "No answer returned.";
+    if(thinkingBubble) thinkingBubble.textContent = answerText;
+    else vidyaaiAppendMessage("bot", answerText);
+  })
+  .catch(function(error){
+    console.warn("ScholarAI: Ask AI failed", error);
+    var msg = (error && error.message && error.message.length < 200) ? error.message : "Couldn't reach Ask AI right now. Please try again in a moment.";
+    if(thinkingBubble) thinkingBubble.textContent = msg;
+    else vidyaaiAppendMessage("bot", msg);
+  })
+  .finally(function(){
+    if(askBtn) askBtn.disabled = false;
+  });
 }
 
 function vidyaaiBuildChips(){
@@ -9537,6 +9612,9 @@ if(vidyaaiCloseBtnEl) vidyaaiCloseBtnEl.addEventListener("click", closeVidyaaiWi
 
 var vidyaaiSendBtnEl = document.getElementById("vidyaaiSendBtn");
 if(vidyaaiSendBtnEl) vidyaaiSendBtnEl.addEventListener("click", vidyaaiHandleInputSubmit);
+
+var vidyaaiAskAiBtnEl = document.getElementById("vidyaaiAskAiBtn");
+if(vidyaaiAskAiBtnEl) vidyaaiAskAiBtnEl.addEventListener("click", vidyaaiAskAI);
 
 var vidyaaiInputEl = document.getElementById("vidyaaiInput");
 if(vidyaaiInputEl) vidyaaiInputEl.addEventListener("keydown", function(e){
