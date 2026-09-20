@@ -2235,6 +2235,11 @@ mark.wa-flag{
    NEW: VIDYAAI FLOATING ASSISTANT
    ========================================================= */
 
+body.auth-redirecting .vidyaai-launcher,
+body.auth-redirecting .vidyaai-window{
+  display:none !important;
+}
+
 .vidyaai-launcher{
   position:fixed;
   bottom:20px;
@@ -2501,6 +2506,31 @@ mark.wa-flag{
 
 .vidyaai-input-row button:hover{
   opacity:.9;
+}
+
+.vidyaai-input-row button.vidyaai-ask-ai-btn{
+  width:auto;
+  padding:0 14px;
+  border-radius:19px;
+  border:1px solid var(--accent-navy);
+  background:var(--accent-navy);
+  font-size:0.72rem;
+  font-weight:600;
+  white-space:nowrap;
+}
+
+.vidyaai-input-row button.vidyaai-ask-ai-btn:disabled{
+  opacity:.6;
+  cursor:not-allowed;
+}
+
+@media (max-width:360px){
+  .vidyaai-input-row{
+    flex-wrap:wrap;
+  }
+  .vidyaai-input-row input{
+    flex:1 1 100%;
+  }
 }
 
 @media (max-width:600px){
@@ -2778,8 +2808,8 @@ mark.wa-flag{
 
     <div class="auth-footer">© SK Graphics · Sachin & Team</div>
      <div style="font-size: 12px; opacity: 0.7; margin-top: 4px; text-align: center;">
-  Version 1.0.4
-</div>
+  Version 1.0.5
+  </div>
   </div>
 </div>
 
@@ -3319,11 +3349,10 @@ mark.wa-flag{
         Contact
 
       </a>
-
-    </div>
 <div style="font-size: 12px; opacity: 0.7; margin-top: 4px; text-align: center;">
-  Version 1.0.4
+  Version 1.0.5
 </div>
+    </div>
 
   </footer>
 
@@ -3454,7 +3483,7 @@ mark.wa-flag{
 
   <div class="vidyaai-input-row">
     <input type="text" id="vidyaaiInput" placeholder="Ask a question…" autocomplete="off">
-    <button id="vidyaaiSendBtn" type="button" aria-label="Send">→</button>
+    <button id="vidyaaiAskAiBtn" class="vidyaai-ask-ai-btn" type="button" aria-label="Ask AI">Ask AI</button>
   </div>
 
 </div>
@@ -3650,48 +3679,77 @@ async function setAppSession(session,guest=false){
 async function initScholarAuth(){
   if(!SUPABASE_PUBLISHABLE_KEY.trim()){ showGate('entry'); showAuthMessage('loginMsg','Add your Supabase publishable key first.',true); return; }
   if(!window.supabase||typeof window.supabase.createClient!=='function'){ showGate('entry'); showAuthMessage('loginMsg','Supabase could not be loaded. Check your internet connection.',true); return; }
-  supabaseClient=window.supabase.createClient(SUPABASE_URL,SUPABASE_PUBLISHABLE_KEY); window.scholarSupabase=supabaseClient;
-  const {data:{subscription:authSubscription}}=supabaseClient.auth.onAuthStateChange((event,session)=>{
-    if(event==='PASSWORD_RECOVERY'){
-      activeSession=session;
-      guestMode=false;
-      // Supabase sends the recovery session in the URL fragment. Do not route
-      // it to the normal app/login screen; show the password form instead.
+
+  try{
+    supabaseClient=window.supabase.createClient(SUPABASE_URL,SUPABASE_PUBLISHABLE_KEY); window.scholarSupabase=supabaseClient;
+    const {data:{subscription:authSubscription}}=supabaseClient.auth.onAuthStateChange((event,session)=>{
+      if(event==='PASSWORD_RECOVERY'){
+        activeSession=session;
+        guestMode=false;
+        // Supabase sends the recovery session in the URL fragment. Do not route
+        // it to the normal app/login screen; show the password form instead.
+        showGate('reset');
+        showAuthMessage('resetMsg','Enter your new password below.');
+        return;
+      }
+      if(event==='TOKEN_REFRESHED'||event==='USER_UPDATED'){
+        if(session) activeSession=session;
+        return;
+      }
+      if(session){
+        activeSession=session;
+        guestMode=false;
+        if(document.body.classList.contains('auth-redirecting') && !isRecoveryFlow()) setAppSession(session,false);
+        else if(isRecoveryFlow()) showGate('reset');
+      }
+      else if(!guestMode && authReady){ activeSession=null; showGate('login'); }
+    });
+    // Kept for completeness/debugging — this single-file app runs for the page's
+    // whole lifetime, so there is no natural unmount point that needs to call
+    // authSubscription.unsubscribe(), but the reference is available if ever needed.
+    window.scholarAuthSubscription=authSubscription;
+
+    // A paused/sleeping free-tier Supabase project can take a long time to wake
+    // on its first request of the day. Never let that leave the app stuck on a
+    // blank or frozen screen — fall back to the login gate after a reasonable
+    // wait instead of hanging indefinitely.
+    const sessionResult=await Promise.race([
+      supabaseClient.auth.getSession(),
+      new Promise(resolve=>setTimeout(()=>resolve({data:{session:null},error:{message:'__scholarai_timeout__'}}),8000))
+    ]);
+    const {data,error}=sessionResult;
+    authReady=true;
+    if(error){
+      showGate('login');
+      showAuthMessage(
+        'loginMsg',
+        error.message==='__scholarai_timeout__'
+          ? 'Taking longer than usual to connect. You can try logging in, or refresh in a moment.'
+          : friendlyAuthError(error,'getSession'),
+        true
+      );
+      return;
+    }
+    if(isRecoveryFlow() || hasAuthLinkError()){
+      if(hasAuthLinkError()){
+        // Strip the error fragment so a page refresh doesn't keep re-triggering it.
+        history.replaceState({},'',baseUrl()+'#reset-password');
+      } else if(data.session){
+        activeSession=data.session;
+      }
       showGate('reset');
-      showAuthMessage('resetMsg','Enter your new password below.');
-      return;
+      if(activeSession && !hasAuthLinkError()) showAuthMessage('resetMsg','Enter your new password below.');
     }
-    if(event==='TOKEN_REFRESHED'||event==='USER_UPDATED'){
-      if(session) activeSession=session;
-      return;
-    }
-    if(session){
-      activeSession=session;
-      guestMode=false;
-      if(document.body.classList.contains('auth-redirecting') && !isRecoveryFlow()) setAppSession(session,false);
-      else if(isRecoveryFlow()) showGate('reset');
-    }
-    else if(!guestMode && authReady){ activeSession=null; showGate('login'); }
-  });
-  // Kept for completeness/debugging — this single-file app runs for the page's
-  // whole lifetime, so there is no natural unmount point that needs to call
-  // authSubscription.unsubscribe(), but the reference is available if ever needed.
-  window.scholarAuthSubscription=authSubscription;
-  const {data,error}=await supabaseClient.auth.getSession();
-  authReady=true;
-  if(error){ showGate('login'); showAuthMessage('loginMsg',friendlyAuthError(error,'getSession'),true); return; }
-  if(isRecoveryFlow() || hasAuthLinkError()){
-    if(hasAuthLinkError()){
-      // Strip the error fragment so a page refresh doesn't keep re-triggering it.
-      history.replaceState({},'',baseUrl()+'#reset-password');
-    } else if(data.session){
-      activeSession=data.session;
-    }
-    showGate('reset');
-    if(activeSession && !hasAuthLinkError()) showAuthMessage('resetMsg','Enter your new password below.');
+    else if(data.session){ setAppSession(data.session,false); }
+    else showGate(routeFromHash());
+  }catch(err){
+    // Whatever went wrong, never leave the page in an indeterminate state —
+    // always fall back to a visible, usable login gate.
+    console.error('ScholarAI: auth initialization failed',err);
+    authReady=true;
+    showGate('login');
+    showAuthMessage('loginMsg','Something went wrong starting up. Please refresh the page.',true);
   }
-  else if(data.session){ setAppSession(data.session,false); }
-  else showGate(routeFromHash());
 }
 function enterGuestMode(){
   activeSession=null; guestMode=true;
@@ -9414,12 +9472,13 @@ VIDYAAI_QA.forEach(function(group){
 
 function vidyaaiAppendMessage(role, text){
   var messages = document.getElementById("vidyaaiMessages");
-  if(!messages) return;
+  if(!messages) return null;
   var bubble = document.createElement("div");
   bubble.className = "vidyaai-msg " + (role === "user" ? "user" : "bot");
   bubble.textContent = text;
   messages.appendChild(bubble);
   messages.scrollTop = messages.scrollHeight;
+  return bubble;
 }
 
 function vidyaaiAskPreset(question, answer){
@@ -9462,6 +9521,68 @@ function vidyaaiHandleInputSubmit(){
   window.setTimeout(function(){
     vidyaaiAppendMessage("bot", answer || VIDYAAI_FALLBACK);
   }, 250);
+}
+
+function vidyaaiAskAI(){
+  var input = document.getElementById("vidyaaiInput");
+  var askBtn = document.getElementById("vidyaaiAskAiBtn");
+  if(!input) return;
+  var question = input.value.trim();
+  if(!question) return;
+
+  vidyaaiAppendMessage("user", question);
+  input.value = "";
+
+  // Try an instant preset match first — free, no login needed, no network call.
+  var presetAnswer = vidyaaiFindAnswer(question);
+
+  if(guestMode || !activeSession || !activeSession.user || !activeSession.access_token){
+    window.setTimeout(function(){
+      if(presetAnswer){
+        vidyaaiAppendMessage("bot", presetAnswer);
+      } else {
+        vidyaaiAppendMessage("bot", "Ask AI needs you to be logged in (not guest mode) for open-ended questions. Log in and try again, or use one of the quick questions above.");
+      }
+    }, 200);
+    return;
+  }
+
+  if(askBtn) askBtn.disabled = true;
+  var thinkingBubble = vidyaaiAppendMessage("bot", "Thinking…");
+
+  fetch(SUPABASE_URL + "/functions/v1/writing-feedback", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      "Authorization": "Bearer " + activeSession.access_token
+    },
+    body: JSON.stringify({ mode: "ask", question: question })
+  })
+  .then(function(res){
+    return res.json().catch(function(){ return {}; }).then(function(data){
+      if(!res.ok) throw new Error((data && data.error) || ("Request failed: " + res.status));
+      return data;
+    });
+  })
+  .then(function(data){
+    var answerText = (data && data.answer) || "No answer returned.";
+    // UI-side safety net: never let a runaway-long response break the chat layout,
+    // even though the Edge Function already caps tokens and the prompt asks for brevity.
+    if(answerText.length > 1200) answerText = answerText.slice(0, 1200).trim() + "…";
+    if(thinkingBubble) thinkingBubble.textContent = answerText;
+    else vidyaaiAppendMessage("bot", answerText);
+  })
+  .catch(function(error){
+    console.warn("ScholarAI: Ask AI failed", error);
+    // Fall back to a preset match (if any) or the standard fallback line, rather
+    // than a raw error — reuses the existing Q&A library for resilience.
+    var fallbackText = presetAnswer || VIDYAAI_FALLBACK;
+    if(thinkingBubble) thinkingBubble.textContent = fallbackText;
+    else vidyaaiAppendMessage("bot", fallbackText);
+  })
+  .finally(function(){
+    if(askBtn) askBtn.disabled = false;
+  });
 }
 
 function vidyaaiBuildChips(){
@@ -9535,14 +9656,14 @@ if(vidyaaiLauncherBtn) vidyaaiLauncherBtn.addEventListener("click", toggleVidyaa
 var vidyaaiCloseBtnEl = document.getElementById("vidyaaiCloseBtn");
 if(vidyaaiCloseBtnEl) vidyaaiCloseBtnEl.addEventListener("click", closeVidyaaiWindow);
 
-var vidyaaiSendBtnEl = document.getElementById("vidyaaiSendBtn");
-if(vidyaaiSendBtnEl) vidyaaiSendBtnEl.addEventListener("click", vidyaaiHandleInputSubmit);
+var vidyaaiAskAiBtnEl = document.getElementById("vidyaaiAskAiBtn");
+if(vidyaaiAskAiBtnEl) vidyaaiAskAiBtnEl.addEventListener("click", vidyaaiAskAI);
 
 var vidyaaiInputEl = document.getElementById("vidyaaiInput");
 if(vidyaaiInputEl) vidyaaiInputEl.addEventListener("keydown", function(e){
   if(e.key === "Enter"){
     e.preventDefault();
-    vidyaaiHandleInputSubmit();
+    vidyaaiAskAI();
   }
 });
 
