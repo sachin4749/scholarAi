@@ -2805,10 +2805,13 @@ body.auth-redirecting .vidyaai-window{
         <div class="auth-links"><button type="button" class="auth-link" data-auth-route="login">← Back to login</button></div>
       </div>
     </section>
- <div class="auth-footer">© SK Graphics · Sachin & Team</div>
+
+    <div class="auth-footer">© SK Graphics · Sachin & Team</div>
      <div style="font-size: 12px; opacity: 0.7; margin-top: 4px; text-align: center;">
-  Version 1.0.6
+  Version 1.0.7
   </div>
+  </div>
+</div>
 
 <div class="desk">
 
@@ -3347,9 +3350,8 @@ body.auth-redirecting .vidyaai-window{
 
       </a>
 <div style="font-size: 12px; opacity: 0.7; margin-top: 4px; text-align: center;">
-  Version 1.0.6
+  Version 1.0.7
 </div>
-    </div>
     </div>
 
   </footer>
@@ -9572,15 +9574,11 @@ function vidyaaiAskAI(){
   })
   .catch(function(error){
     console.warn("ScholarAI: Ask AI failed", error);
-    // Show the server's actual (safe, specific) error message so a real failure
-    // is visible instead of silently disappearing behind a generic fallback —
-    // then offer a preset match underneath as a bonus, if one exists.
-    var errText = (error && error.message && error.message.length < 200)
-      ? error.message
-      : "Couldn't reach the AI right now. Please try again in a moment.";
-    var shown = presetAnswer ? (errText + "\n\nHere's a quick answer that might help:\n" + presetAnswer) : errText;
-    if(thinkingBubble) thinkingBubble.textContent = shown;
-    else vidyaaiAppendMessage("bot", shown);
+    // Fall back to a preset match (if any) or the standard fallback line, rather
+    // than a raw error — reuses the existing Q&A library for resilience.
+    var fallbackText = presetAnswer || VIDYAAI_FALLBACK;
+    if(thinkingBubble) thinkingBubble.textContent = fallbackText;
+    else vidyaaiAppendMessage("bot", fallbackText);
   })
   .finally(function(){
     if(askBtn) askBtn.disabled = false;
